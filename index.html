@@ -9,7 +9,9 @@
 <style>
   :root { color-scheme: light dark; }
   body { font: 16px/1.7 system-ui, sans-serif; max-width: 42rem; margin: 4rem auto; padding: 0 1.5rem; }
-  h1 { font-size: 1.4rem; }
+  h1 { font-size: 1.4rem; margin: .25rem 0 0; }
+  a.up { font-size: .8rem; opacity: .6; text-decoration: none; }
+  a.up:hover, a.up:focus { text-decoration: underline; opacity: 1; }
   h2 { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; opacity: .55; margin: 2.5rem 0 .25rem; }
   ul { list-style: none; padding: 0; margin: 0; }
   li { padding: .5rem 0; border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent); }
@@ -18,6 +20,9 @@
 </style>
 </head>
 <body>
+<!-- same domain: the user site at wadakatu.github.io carries the CNAME, and this
+     repo is published underneath it at /eli5/ -->
+<a class="up" href="/">&larr; wadakatu.dev</a>
 <h1>eli5</h1>
 {% assign pages = site.static_files | where: "extname", ".html" %}
 {% if pages.size == 0 %}
