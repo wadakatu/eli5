@@ -2,7 +2,7 @@
 
 `/eli5` スキルで作った HTML 解説ページの置き場。
 
-閲覧: https://wadakatu.github.io/eli5/
+閲覧: https://www.wadakatu.dev/eli5/
 
 ## 追加のしかた
 
