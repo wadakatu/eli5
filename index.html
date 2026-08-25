@@ -16,6 +16,7 @@
   ul { list-style: none; padding: 0; margin: 0; }
   li { padding: .5rem 0; border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent); }
   time { opacity: .6; font-variant-numeric: tabular-nums; margin-right: .75rem; }
+  p.sum { margin: .15rem 0 0; font-size: .875rem; opacity: .6; }
   p.empty { opacity: .6; }
 </style>
 </head>
@@ -36,7 +37,18 @@
 {% for f in entries %}
   {% assign date = f.basename | slice: 0, 10 %}
   {% assign slug = f.basename | remove_first: date | remove_first: "-" | replace: "-", " " %}
-  <li><a href="{{ f.path | remove_first: '/' }}"><time>{{ date }}</time>{{ slug }}</a></li>
+  {% assign rel = f.path | remove_first: '/' %}
+  {%- comment -%}
+    static_files never expose a file's contents, so the title and the one-line
+    summary come from _data/pages.json, written by _tools/archive.py. It only
+    ever enriches: what exists is still whatever is on disk, so a page with no
+    entry stays listed under its slug rather than disappearing.
+  {%- endcomment -%}
+  {% assign meta = site.data.pages | where: "path", rel | first %}
+  <li>
+    <a href="{{ rel }}"><time>{{ date }}</time>{{ meta.title | default: slug }}</a>
+    {% if meta.summary %}<p class="sum">{{ meta.summary }}</p>{% endif %}
+  </li>
 {% endfor %}
 </ul>
 {% endfor %}

@@ -1,0 +1,25 @@
+/* Shared chrome for the archived eli5 pages.
+ *
+ * Every page here is a self-contained document with its own palette, fonts and
+ * token names -- one calls its ink `--ink-soft`, the next `--ink-mid`. So this
+ * file is not allowed to know any of them: it borrows `currentColor` and dims
+ * it, which lands correctly on any page, in either theme, with no coordination.
+ *
+ * The pages are static files with no front matter, so Jekyll copies them
+ * through untouched and cannot wrap them in a layout. This stylesheet plus the
+ * two lines `_tools/add-chrome.py` injects are what stands in for one.
+ */
+.eli5-up {
+  display: inline-block;
+  margin: 1.25rem 0 0 1.25rem;
+  font: 500 0.8125rem/1 ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color: currentColor;
+  opacity: 0.5;
+  text-decoration: none;
+}
+
+.eli5-up:hover,
+.eli5-up:focus-visible {
+  opacity: 1;
+  text-decoration: underline;
+}
