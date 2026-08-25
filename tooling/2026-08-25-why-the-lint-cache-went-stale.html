@@ -1,0 +1,463 @@
+<title>The Vanishing Rulebook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+
+<style>
+  :root {
+    --paper:      #EAEFF4;
+    --grid:       #D2DDE7;
+    --card:       #FDFEFF;
+    --ink:        #17293B;
+    --ink-soft:   #5A7085;
+    --red:        #C4362A;
+    --red-wash:   #F6DFDC;
+    --graphite:   #8494A3;
+    --rule:       #C3D0DC;
+
+    --display: "Klee One", "Hiragino Mincho ProN", serif;
+    --body: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
+    --mono: ui-monospace, "SFMono-Regular", "Menlo", monospace;
+
+    --step: clamp(1.6rem, 1.1rem + 2.2vw, 2.6rem);
+    --lead: clamp(1.05rem, 0.98rem + 0.4vw, 1.28rem);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:    #101821;
+      --grid:     #1B2733;
+      --card:     #18222D;
+      --ink:      #E3EAF1;
+      --ink-soft: #94A7B8;
+      --red:      #FF7A6B;
+      --red-wash: #34201D;
+      --graphite: #7E8E9C;
+      --rule:     #2A3947;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:    #101821;
+    --grid:     #1B2733;
+    --card:     #18222D;
+    --ink:      #E3EAF1;
+    --ink-soft: #94A7B8;
+    --red:      #FF7A6B;
+    --red-wash: #34201D;
+    --graphite: #7E8E9C;
+    --rule:     #2A3947;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--paper);
+    background-image:
+      repeating-linear-gradient(to right,  var(--grid) 0 1px, transparent 1px 28px),
+      repeating-linear-gradient(to bottom, var(--grid) 0 1px, transparent 1px 28px);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: var(--lead);
+    line-height: 1.85;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 50rem;
+    margin: 0 auto;
+    padding: clamp(2.5rem, 6vw, 5rem) clamp(1.1rem, 4vw, 2rem) 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(3rem, 7vw, 5rem);
+  }
+
+  /* ---- masthead ---- */
+  .masthead { display: flex; flex-direction: column; gap: 1rem; }
+
+  .stamp {
+    align-self: flex-start;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--red);
+    border: 2px solid var(--red);
+    border-radius: 3px;
+    padding: 0.3rem 0.7rem;
+    transform: rotate(-2.5deg);
+    background: var(--red-wash);
+  }
+
+  h1 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: clamp(2.3rem, 1.4rem + 4vw, 4rem);
+    line-height: 1.2;
+    margin: 0;
+    text-wrap: balance;
+    letter-spacing: 0.01em;
+  }
+
+  .dek {
+    margin: 0;
+    color: var(--ink-soft);
+    max-width: 34ch;
+  }
+
+  /* ---- steps ---- */
+  .step { display: flex; flex-direction: column; gap: 1.4rem; }
+
+  .step-head { display: flex; align-items: baseline; gap: 0.85rem; }
+
+  .num {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--card);
+    background: var(--red);
+    border-radius: 50%;
+    width: 1.9rem;
+    height: 1.9rem;
+    flex: none;
+    display: grid;
+    place-items: center;
+    transform: translateY(0.25rem);
+  }
+
+  h2 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: var(--step);
+    line-height: 1.35;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .step p { margin: 0; max-width: 40ch; }
+  .step p + p { margin-top: 0.9rem; }
+
+  strong { color: var(--red); font-weight: 700; }
+
+  /* ---- figures ---- */
+  figure {
+    margin: 0;
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: clamp(1rem, 3vw, 1.8rem);
+    overflow-x: auto;
+  }
+
+  figure svg { display: block; width: 100%; height: auto; color: var(--ink); }
+
+  figcaption {
+    margin-top: 1rem;
+    font-size: 0.86rem;
+    line-height: 1.7;
+    color: var(--ink-soft);
+  }
+
+  /* ---- speed bars ---- */
+  .bars { display: flex; flex-direction: column; gap: 1.1rem; }
+  .bar-row { display: grid; grid-template-columns: 7.5rem 1fr; align-items: center; gap: 0.9rem; }
+  .bar-label { font-size: 0.92rem; color: var(--ink-soft); }
+  .bar-track { display: flex; align-items: center; gap: 0.6rem; }
+  .bar-fill { height: 1.5rem; border-radius: 3px; background: var(--graphite); }
+  .bar-row.fast .bar-fill { background: var(--red); }
+  .bar-num {
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+
+  /* ---- invisible-things cards ---- */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 1rem; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--red);
+    border-radius: 8px;
+    padding: 1.1rem 1.2rem;
+  }
+  .card h3 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 1.05rem;
+    margin: 0 0 0.4rem;
+    line-height: 1.4;
+  }
+  .card p { font-size: 0.92rem; line-height: 1.7; color: var(--ink-soft); margin: 0; max-width: none; }
+
+  /* ---- proof list ---- */
+  .proof { display: flex; flex-direction: column; gap: 0; border-top: 1px solid var(--rule); }
+  .proof-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    align-items: baseline;
+    padding: 0.75rem 0.2rem;
+    border-bottom: 1px solid var(--rule);
+    font-size: 0.95rem;
+  }
+  .proof-row.hit { background: var(--red-wash); }
+  .proof-row.hit .proof-time { color: var(--red); font-weight: 700; }
+  .proof-what { color: var(--ink-soft); }
+  .proof-row.hit .proof-what { color: var(--ink); font-weight: 500; }
+  .proof-time {
+    font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /* ---- closing ---- */
+  .close {
+    border-top: 2px solid var(--ink);
+    padding-top: 1.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .close p { margin: 0; max-width: 42ch; }
+  .kicker {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--graphite);
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <span class="stamp">PR #18065</span>
+    <h1>写し取れなかった<br>ルールブック</h1>
+    <p class="dek">採点係が、古い点数を配り続けていた話。</p>
+  </header>
+
+  <!-- 1 -->
+  <section class="step">
+    <div class="step-head"><span class="num">1</span><h2>採点係は、メモを取る</h2></div>
+    <p>コードを検査する道具があります。宿題を採点する先生のようなものです。</p>
+    <p>毎回ぜんぶ読み直すと遅い。だから先生はメモを取ります。<strong>「この答案はもう見た。合格」</strong>。次からは、そのメモを見るだけ。</p>
+
+    <figure>
+      <div class="bars">
+        <div class="bar-row">
+          <span class="bar-label">はじめて読む</span>
+          <span class="bar-track"><span class="bar-fill" style="width:100%"></span><span class="bar-num">21秒</span></span>
+        </div>
+        <div class="bar-row fast">
+          <span class="bar-label">メモを見る</span>
+          <span class="bar-track"><span class="bar-fill" style="width:24%"></span><span class="bar-num">5秒</span></span>
+        </div>
+      </div>
+      <figcaption>メモがあると 4 倍以上速い。だからみんなメモを使う。</figcaption>
+    </figure>
+  </section>
+
+  <!-- 2 -->
+  <section class="step">
+    <div class="step-head"><span class="num">2</span><h2>メモを信じてよい条件は、ふたつ</h2></div>
+    <p>先生は、メモを使う前にふたつ確かめます。</p>
+
+    <figure>
+      <svg viewBox="0 0 720 250" role="img" aria-label="答案が門をふたつ通る図。ひとつめの門は答案が書き換わっていないか、ふたつめの門は採点ルールが変わっていないかを確かめる。両方を通ったときだけ前の点数を使い、どちらかで止まったら採点し直す。">
+        <defs>
+          <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+
+        <!-- paper -->
+        <rect x="8" y="86" width="92" height="62" rx="5" fill="none" stroke="currentColor" stroke-width="2"/>
+        <line x1="24" y1="106" x2="84" y2="106" stroke="currentColor" stroke-width="2" opacity=".45"/>
+        <line x1="24" y1="120" x2="84" y2="120" stroke="currentColor" stroke-width="2" opacity=".45"/>
+        <line x1="24" y1="134" x2="66" y2="134" stroke="currentColor" stroke-width="2" opacity=".45"/>
+        <text x="54" y="172" text-anchor="middle" font-size="13" fill="currentColor">答案</text>
+
+        <line x1="104" y1="117" x2="158" y2="117" stroke="currentColor" stroke-width="2" marker-end="url(#ar)"/>
+
+        <!-- gate 1 -->
+        <rect x="164" y="80" width="152" height="74" rx="8" fill="none" stroke="currentColor" stroke-width="2"/>
+        <text x="240" y="108" text-anchor="middle" font-size="14" fill="currentColor">答案は</text>
+        <text x="240" y="128" text-anchor="middle" font-size="14" fill="currentColor">変わってない？</text>
+        <text x="240" y="172" text-anchor="middle" font-size="12" fill="currentColor" opacity=".6">門 その1</text>
+
+        <line x1="320" y1="117" x2="374" y2="117" stroke="currentColor" stroke-width="2" marker-end="url(#ar)"/>
+
+        <!-- gate 2 -->
+        <rect x="380" y="80" width="152" height="74" rx="8" fill="none" stroke="currentColor" stroke-width="2"/>
+        <text x="456" y="108" text-anchor="middle" font-size="14" fill="currentColor">ルールは</text>
+        <text x="456" y="128" text-anchor="middle" font-size="14" fill="currentColor">変わってない？</text>
+        <text x="456" y="172" text-anchor="middle" font-size="12" fill="currentColor" opacity=".6">門 その2</text>
+
+        <line x1="536" y1="117" x2="590" y2="117" stroke="currentColor" stroke-width="2" marker-end="url(#ar)"/>
+        <text x="655" y="112" text-anchor="middle" font-size="14" fill="currentColor">前の点数を</text>
+        <text x="655" y="132" text-anchor="middle" font-size="14" fill="currentColor">そのまま使う</text>
+
+        <!-- fallout -->
+        <path d="M240,158 L240,214 L560,214" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="5 5" marker-end="url(#ar)" opacity=".55"/>
+        <path d="M456,158 L456,214" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="5 5" opacity=".55"/>
+        <text x="633" y="219" text-anchor="middle" font-size="13" fill="currentColor" opacity=".7">採点し直す</text>
+      </svg>
+      <figcaption>どちらかの門で「変わった」と分かれば、ちゃんと読み直す。仕組みとしては正しい。</figcaption>
+    </figure>
+  </section>
+
+  <!-- 3 -->
+  <section class="step">
+    <div class="step-head"><span class="num">3</span><h2>ところが、門その2 は目が悪い</h2></div>
+    <p>「ルールは変わってない？」を確かめるために、先生は<strong>ルールを紙に書き写して</strong>、その紙の指紋を取ります。指紋が同じなら、ルールは同じ。</p>
+    <p>でも、書き写せるのは<em>文字と数字だけ</em>。ルールの本体は<strong>機械</strong>です。機械は紙に書き写せません。だから <strong>書き写すと消えてしまう</strong>。</p>
+
+    <figure>
+      <svg viewBox="0 0 720 300" role="img" aria-label="設定の箱には文字と数字と歯車の機械が入っている。紙に書き写すと文字と数字だけが残り、機械は消えて空白になる。そのため機械を別のものに取り替えても指紋は変わらない。">
+        <defs>
+          <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+
+        <!-- settings box -->
+        <rect x="10" y="46" width="238" height="176" rx="10" fill="none" stroke="currentColor" stroke-width="2.5"/>
+        <text x="129" y="34" text-anchor="middle" font-size="14" fill="currentColor">先生の設定</text>
+
+        <rect x="34" y="74" width="82" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="2"/>
+        <text x="75" y="94" text-anchor="middle" font-size="13" fill="currentColor">文字</text>
+        <rect x="142" y="74" width="82" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="2"/>
+        <text x="183" y="94" text-anchor="middle" font-size="13" fill="currentColor">数字</text>
+
+        <!-- gear -->
+        <circle cx="129" cy="158" r="30" fill="none" stroke="currentColor" stroke-width="2.5"/>
+        <circle cx="129" cy="158" r="11" fill="none" stroke="currentColor" stroke-width="2.5"/>
+        <g stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <line x1="129" y1="118" x2="129" y2="130"/><line x1="129" y1="186" x2="129" y2="198"/>
+          <line x1="89"  y1="158" x2="101" y2="158"/><line x1="157" y1="158" x2="169" y2="158"/>
+          <line x1="101" y1="130" x2="109" y2="138"/><line x1="149" y1="178" x2="157" y2="186"/>
+          <line x1="157" y1="130" x2="149" y2="138"/><line x1="109" y1="178" x2="101" y2="186"/>
+        </g>
+        <text x="129" y="214" text-anchor="middle" font-size="13" fill="currentColor">採点ルール＝機械</text>
+
+        <!-- arrow -->
+        <line x1="256" y1="134" x2="416" y2="134" stroke="currentColor" stroke-width="2.5" marker-end="url(#ar2)"/>
+        <text x="336" y="120" text-anchor="middle" font-size="13" fill="currentColor">紙に書き写す</text>
+        <text x="336" y="158" text-anchor="middle" font-size="12" fill="currentColor" opacity=".65">＝ 指紋のもと</text>
+
+        <!-- copied paper -->
+        <rect x="424" y="46" width="238" height="176" rx="10" fill="none" stroke="currentColor" stroke-width="2.5"/>
+        <text x="543" y="34" text-anchor="middle" font-size="14" fill="currentColor">写し取った紙</text>
+
+        <rect x="448" y="74" width="82" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="2"/>
+        <text x="489" y="94" text-anchor="middle" font-size="13" fill="currentColor">文字</text>
+        <rect x="556" y="74" width="82" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="2"/>
+        <text x="597" y="94" text-anchor="middle" font-size="13" fill="currentColor">数字</text>
+
+        <circle cx="543" cy="158" r="30" fill="none" stroke="currentColor" stroke-width="2.5" stroke-dasharray="6 7" opacity=".5"/>
+        <text x="543" y="163" text-anchor="middle" font-size="26" fill="currentColor" opacity=".45">？</text>
+        <text x="543" y="214" text-anchor="middle" font-size="13" fill="currentColor" opacity=".7">機械は写らない</text>
+
+        <!-- verdict -->
+        <text x="360" y="268" text-anchor="middle" font-size="15" fill="currentColor">機械をそっくり別物に取り替えても、この紙は 1 文字も変わらない</text>
+        <line x1="150" y1="282" x2="570" y2="282" stroke="currentColor" stroke-width="2.5" opacity=".35"/>
+      </svg>
+      <figcaption>だから「ルールは変わってない？」という門は、ルールが丸ごと入れ替わっても「変わってません」と答えてしまう。</figcaption>
+    </figure>
+  </section>
+
+  <!-- 4 -->
+  <section class="step">
+    <div class="step-head"><span class="num">4</span><h2>見えなくなっていたもの、3つ</h2></div>
+    <p>この「写らない」せいで、変えても気づかれないものが 3 つありました。</p>
+
+    <div class="cards">
+      <div class="card">
+        <h3>採点ルールそのもの</h3>
+        <p>自分たちで書いたルールを直しても、古い点数が返ってきていた。</p>
+      </div>
+      <div class="card">
+        <h3>採点中に見る別の紙</h3>
+        <p>あるルールは、採点しながら「使ってよい色の一覧表」を見にいく。その一覧表を書き換えても気づかれない。</p>
+      </div>
+      <div class="card">
+        <h3>よそから借りたルール</h3>
+        <p>他所製のルールを新しい版に入れ替えても、同じ理由で気づかれない。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="step">
+    <div class="step-head"><span class="num">5</span><h2>直しかた：機械を撮って、番号を書いておく</h2></div>
+    <p>機械は紙に書き写せない。なら、<strong>写真を撮って、その写真の番号を書いておけばいい</strong>。</p>
+    <p>番号はただの文字なので、ちゃんと写ります。機械が変われば番号も変わる。門その2 は、やっと機械の入れ替えに気づけるようになりました。</p>
+
+    <figure>
+      <svg viewBox="0 0 720 220" role="img" aria-label="歯車の機械を撮影して短い番号に変換し、その番号を文字として設定の箱に入れる。番号は紙に写るので、機械が変わると指紋も変わる。">
+        <defs>
+          <marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+
+        <!-- gear -->
+        <circle cx="62" cy="104" r="27" fill="none" stroke="currentColor" stroke-width="2.5"/>
+        <circle cx="62" cy="104" r="10" fill="none" stroke="currentColor" stroke-width="2.5"/>
+        <g stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <line x1="62" y1="67"  x2="62" y2="79"/><line x1="62" y1="129" x2="62" y2="141"/>
+          <line x1="25" y1="104" x2="37" y2="104"/><line x1="87" y1="104" x2="99" y2="104"/>
+        </g>
+        <text x="62" y="168" text-anchor="middle" font-size="13" fill="currentColor">機械</text>
+
+        <line x1="108" y1="104" x2="176" y2="104" stroke="currentColor" stroke-width="2.5" marker-end="url(#ar3)"/>
+        <text x="142" y="90" text-anchor="middle" font-size="12" fill="currentColor">撮る</text>
+
+        <!-- number chip -->
+        <rect x="184" y="84" width="132" height="40" rx="6" fill="none" stroke="currentColor" stroke-width="2.5"/>
+        <text x="250" y="110" text-anchor="middle" font-size="15" font-family="ui-monospace, monospace" fill="currentColor">a3f8c1d0…</text>
+        <text x="250" y="168" text-anchor="middle" font-size="13" fill="currentColor">ただの文字</text>
+
+        <line x1="324" y1="104" x2="392" y2="104" stroke="currentColor" stroke-width="2.5" marker-end="url(#ar3)"/>
+        <text x="358" y="90" text-anchor="middle" font-size="12" fill="currentColor">入れる</text>
+
+        <!-- settings box -->
+        <rect x="400" y="46" width="240" height="116" rx="10" fill="none" stroke="currentColor" stroke-width="2.5"/>
+        <text x="520" y="34" text-anchor="middle" font-size="14" fill="currentColor">先生の設定</text>
+        <rect x="420" y="68" width="62" height="28" rx="4" fill="none" stroke="currentColor" stroke-width="2"/>
+        <text x="451" y="87" text-anchor="middle" font-size="12" fill="currentColor">文字</text>
+        <rect x="494" y="68" width="62" height="28" rx="4" fill="none" stroke="currentColor" stroke-width="2"/>
+        <text x="525" y="87" text-anchor="middle" font-size="12" fill="currentColor">数字</text>
+        <rect x="420" y="112" width="200" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="3"/>
+        <text x="520" y="134" text-anchor="middle" font-size="14" font-family="ui-monospace, monospace" fill="currentColor">a3f8c1d0…</text>
+
+        <text x="520" y="196" text-anchor="middle" font-size="14" fill="currentColor">これは紙に写る → 指紋が変わる</text>
+      </svg>
+      <figcaption>機械そのものを見るのではなく、機械の「番号」を設定の中に置く。あとは先生が自分で気づいてくれる。</figcaption>
+    </figure>
+  </section>
+
+  <!-- 6 -->
+  <section class="step">
+    <div class="step-head"><span class="num">6</span><h2>本当に直ったのか</h2></div>
+    <p>実際に測りました。<strong>ルールを 1 行だけ書き換えて</strong>、読み直しが起きるかどうか。</p>
+
+    <figure>
+      <div class="proof">
+        <div class="proof-row"><span class="proof-what">はじめて読む</span><span class="proof-time">21秒</span></div>
+        <div class="proof-row"><span class="proof-what">メモを使う</span><span class="proof-time">5秒</span></div>
+        <div class="proof-row hit"><span class="proof-what">採点ルールを 1 行書き換えた</span><span class="proof-time">19秒</span></div>
+        <div class="proof-row"><span class="proof-what">またメモを使う</span><span class="proof-time">5秒</span></div>
+        <div class="proof-row"><span class="proof-what">ルールの練習問題だけ書き換えた</span><span class="proof-time">5秒</span></div>
+      </div>
+      <figcaption>3 行目が 19 秒＝ちゃんと読み直した証拠。最後の行が 5 秒なのも大事で、採点に関係ない紙まで疑って読み直したりはしない。</figcaption>
+    </figure>
+  </section>
+
+  <footer class="close">
+    <span class="kicker">ひとことで言うと</span>
+    <p>速さのために覚えておくのはいい。ただし <strong>「何が変わったら忘れるべきか」を、覚える側が見える形にしておかないといけない</strong>。</p>
+    <p>見えないまま覚えると、道具は静かに古い答えを配り続けます。</p>
+  </footer>
+
+</div>
