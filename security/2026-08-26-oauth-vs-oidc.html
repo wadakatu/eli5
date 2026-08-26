@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<link rel="stylesheet" href="../eli5.css">
+<title>合鍵に、名札はついていない</title>
+<meta name="description" content="OAuth のアクセストークンは「開けてよい」としか言わず利用者が誰かを含まない。OIDC が署名付き ID トークンを足して、その一言を標準の形で載せた話">
+</head>
+<body>
+<a class="eli5-up" href="../">&larr; eli5</a>
+<div class="e-page">
+  <header class="e-head">
+    <div>
+      <p class="e-eyebrow">OAUTH / OIDC</p>
+      <h1>合鍵に、<br>名札はついていない</h1>
+      <p class="e-lede">「開けていいよ」と「これは誰々です」は、別のことです。<br>ずっと前者だけを渡して、後者を推測していました。</p>
+    </div>
+    <div class="e-head-art">
+      <svg viewBox="0 0 320 220" role="img" aria-label="合鍵と、封をされた名札が並んでいる図">
+        <g fill="none" stroke="var(--e-ink)" stroke-width="3" stroke-linejoin="round">
+          <circle cx="78" cy="74" r="26"/>
+          <path d="M78 100 v76"/>
+          <path d="M78 148 h20"/>
+          <path d="M78 166 h26"/>
+        </g>
+        <circle cx="78" cy="74" r="9" fill="var(--e-ground)" stroke="var(--e-ink)" stroke-width="3"/>
+        <g>
+          <rect x="164" y="58" width="130" height="92" rx="10"
+                fill="var(--e-surface)" stroke="var(--e-accent)" stroke-width="3"/>
+          <path d="M164 90 h130" stroke="var(--e-accent)" stroke-width="2" stroke-dasharray="5 5"/>
+          <text x="229" y="82" text-anchor="middle" font-size="15"
+                fill="var(--e-accent)" font-family="var(--e-mono)">SEALED</text>
+          <path d="M182 110 h60 M182 126 h94" stroke="var(--e-ink-soft)" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="229" cy="58" r="13" fill="var(--e-mark)"/>
+        </g>
+        <path d="M112 120 h44" stroke="var(--e-ink-soft)" stroke-width="2.5" stroke-dasharray="4 6"/>
+      </svg>
+    </div>
+  </header>
+
+  <main class="e-steps">
+
+    <section class="e-step">
+      <div class="e-step-head">
+        <span class="e-num">01</span>
+        <h2>あなたの荷物は、預かり所にある</h2>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>写真も、連絡先も、書きかけの文章も、あなたのものは預かり所にしまってあります。</p>
+          <p>そこへ<strong>別のお店</strong>がやってきて、「あなたの荷物をちょっと使わせてほしい」と言う。写真を印刷したい、連絡先に招待を送りたい。</p>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <svg viewBox="0 0 420 170" role="img" aria-label="あなたと預かり所とお店が並び、お店が預かり所の荷物を使いたがっている図">
+            <g font-family="var(--e-mono)" font-size="13" fill="var(--e-ink-soft)" text-anchor="middle">
+              <text x="52" y="152">あなた</text>
+              <text x="210" y="152">預かり所</text>
+              <text x="368" y="152">お店</text>
+            </g>
+            <circle cx="52" cy="58" r="17" fill="none" stroke="var(--e-ink)" stroke-width="3"/>
+            <path d="M30 118 a22 26 0 0 1 44 0" fill="none" stroke="var(--e-ink)" stroke-width="3"/>
+            <rect x="166" y="34" width="88" height="90" rx="8"
+                  fill="var(--e-surface)" stroke="var(--e-ink)" stroke-width="3"/>
+            <path d="M182 58 h56 M182 78 h56 M182 98 h34"
+                  stroke="var(--e-ink-soft)" stroke-width="3" stroke-linecap="round"/>
+            <rect x="330" y="46" width="76" height="66" rx="8"
+                  fill="none" stroke="var(--e-ink)" stroke-width="3"/>
+            <path d="M330 68 h76" stroke="var(--e-ink)" stroke-width="3"/>
+            <path d="M290 79 h30" stroke="var(--e-ink-soft)" stroke-width="3"/>
+            <path d="M312 72 l10 7 l-10 7z" fill="var(--e-ink-soft)"/>
+          </svg>
+          <figcaption>荷物は預かり所にあり、お店はそれを直接は開けられない。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step">
+      <div class="e-step-head">
+        <span class="e-num">02</span>
+        <h2>だから、合鍵を渡す</h2>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>あなたのパスワードをお店に教えるのは、家の鍵をまるごと渡すようなものです。そうはしません。</p>
+          <p>代わりに預かり所が<strong>合鍵</strong>を作ります。開けられる棚は限られていて、期限もある。これが <span class="e-say">OAuth</span> のやっていることです。</p>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <svg viewBox="0 0 420 150" role="img" aria-label="預かり所が、開けられる棚と期限が限られた合鍵をお店に渡す図">
+            <rect x="18" y="30" width="88" height="86" rx="8"
+                  fill="var(--e-surface)" stroke="var(--e-ink)" stroke-width="3"/>
+            <text x="62" y="136" text-anchor="middle" font-family="var(--e-mono)"
+                  font-size="13" fill="var(--e-ink-soft)">預かり所</text>
+            <g transform="translate(150 44)">
+              <circle cx="20" cy="20" r="16" fill="none" stroke="var(--e-accent)" stroke-width="3"/>
+              <path d="M36 20 h56 M74 20 v12 M90 20 v14"
+                    fill="none" stroke="var(--e-accent)" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g font-family="var(--e-mono)" font-size="12" fill="var(--e-accent)" text-anchor="middle">
+              <text x="200" y="102">写真の棚だけ</text>
+              <text x="200" y="120">1 時間だけ</text>
+            </g>
+            <path d="M280 62 h32" stroke="var(--e-ink-soft)" stroke-width="3"/>
+            <path d="M304 55 l10 7 l-10 7z" fill="var(--e-ink-soft)"/>
+            <rect x="330" y="30" width="76" height="64" rx="8"
+                  fill="none" stroke="var(--e-ink)" stroke-width="3"/>
+            <path d="M330 52 h76" stroke="var(--e-ink)" stroke-width="3"/>
+            <text x="368" y="136" text-anchor="middle" font-family="var(--e-mono)"
+                  font-size="13" fill="var(--e-ink-soft)">お店</text>
+          </svg>
+          <figcaption>合鍵は「どの棚を、いつまで」を決めて渡される。パスワードは渡らない。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step e-step--bad">
+      <div class="e-step-head">
+        <span class="e-num">03</span>
+        <span class="e-chip e-chip--problem">ここが問題</span>
+        <h2>合鍵には、誰の鍵か書いていない</h2>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>合鍵が言っているのは <strong>「この棚を開けてよい」</strong> だけです。<span class="e-bad">誰の棚なのかは、どこにも書いてありません。</span></p>
+          <p>ところがお店がやりたいのは、たいてい<strong>ログイン</strong>でした。「鍵を持っている＝本人だろう」で済ませたくなる。</p>
+          <p>でも鍵は落ちていることもあれば、人から借りたものかもしれない。<strong>持っていることは、本人であることの証明になりません。</strong></p>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <svg viewBox="0 0 400 170" role="img" aria-label="合鍵に下がった名札が空白で、誰の鍵か分からないことを示す図">
+            <g transform="translate(30 56)">
+              <circle cx="22" cy="22" r="18" fill="none" stroke="var(--e-ink)" stroke-width="3"/>
+              <path d="M40 22 h64 M84 22 v13 M102 22 v15"
+                    fill="none" stroke="var(--e-ink)" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <path d="M96 96 v22" stroke="var(--e-ink-soft)" stroke-width="2.5"/>
+            <rect x="42" y="118" width="112" height="40" rx="6"
+                  fill="none" stroke="var(--e-warn)" stroke-width="3" stroke-dasharray="7 6"/>
+            <text x="98" y="144" text-anchor="middle" font-family="var(--e-mono)"
+                  font-size="15" fill="var(--e-warn)">?</text>
+            <g font-size="15" fill="var(--e-ink)" font-family="var(--e-mono)">
+              <text x="208" y="62">開けてよい</text>
+              <text x="208" y="96" fill="var(--e-warn)">誰か  ——</text>
+            </g>
+            <path d="M196 44 v66" stroke="var(--e-line)" stroke-width="2"/>
+          </svg>
+          <figcaption>鍵は「開けてよい」としか言わない。名札の欄は空のまま。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step e-step--bad">
+      <div class="e-step-head">
+        <span class="e-num">04</span>
+        <span class="e-chip e-chip--problem">ここが問題</span>
+        <h2>だからみんな、中を覗いて推測した</h2>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>誰の鍵か知りたいお店は、<strong>もらった鍵で棚を開けて、中の書類から名前を読む</strong>ことにしました。</p>
+          <p>ところが預かり所ごとに、名前の置き場所も書き方も違う。<span class="e-bad">預かり所の数だけ、読み方を書く羽目になりました。</span></p>
+        </div>
+        <div class="e-note">
+          <b>そもそも、それでは足りない</b>
+          <span>棚を開けられたのは事実でも、<strong>いま目の前にいる人が</strong>その鍵をもらった本人だとは限りません。鍵を横取りした誰かでも、同じように開けられます。</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="e-step e-step--good">
+      <div class="e-step-head">
+        <span class="e-num">05</span>
+        <span class="e-chip e-chip--fix">こう直した</span>
+        <h2>鍵に、名札を添えて渡す</h2>
+      </div>
+      <div class="e-two">
+        <div>
+          <p><span class="e-say">OIDC</span> がしたのは、預かり所の仕組みを作り直すことではありません。<strong>合鍵はそのまま、名札を一枚添えた</strong>だけです。</p>
+          <p>名札には「この人を確かに確認しました」と書いてある。仕様の言葉では <strong>ID トークン</strong>。</p>
+          <p>これで<span class="e-good">「開けてよい」と「これは誰々です」が、別々の紙に分かれました。</span></p>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <svg viewBox="0 0 420 160" role="img" aria-label="合鍵と、名前が書かれた名札が一緒に渡される図">
+            <g transform="translate(24 50)">
+              <circle cx="20" cy="20" r="16" fill="none" stroke="var(--e-ink)" stroke-width="3"/>
+              <path d="M36 20 h58 M76 20 v12 M92 20 v14"
+                    fill="none" stroke="var(--e-ink)" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <text x="80" y="122" text-anchor="middle" font-family="var(--e-mono)"
+                  font-size="13" fill="var(--e-ink-soft)">合鍵</text>
+            <text x="176" y="86" text-anchor="middle" font-size="22" fill="var(--e-ink-soft)">+</text>
+            <rect x="214" y="26" width="182" height="82" rx="9"
+                  fill="var(--e-surface)" stroke="var(--e-accent)" stroke-width="3"/>
+            <circle cx="248" cy="58" r="14" fill="none" stroke="var(--e-accent)" stroke-width="3"/>
+            <path d="M234 92 a14 16 0 0 1 28 0" fill="none" stroke="var(--e-accent)" stroke-width="3"/>
+            <path d="M278 52 h94 M278 74 h64" stroke="var(--e-ink-soft)"
+                  stroke-width="3" stroke-linecap="round"/>
+            <text x="305" y="122" text-anchor="middle" font-family="var(--e-mono)"
+                  font-size="13" fill="var(--e-accent)">名札</text>
+          </svg>
+          <figcaption>鍵は仕事のまま。誰かを言うのは、隣の名札の仕事。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step e-step--good">
+      <div class="e-step-head">
+        <span class="e-num">06</span>
+        <span class="e-chip e-chip--fix">こう直した</span>
+        <h2>名札には、必ず 5 つ書いてある</h2>
+      </div>
+      <div>
+        <p>推測が要らなくなったのは、名札の書式が<strong>決まっている</strong>からです。どの預かり所の名札でも、この 5 つは必ずあります。</p>
+        <div class="e-map">
+          <table>
+            <thead>
+              <tr><th scope="col">名札に書いてあること</th><th scope="col">仕様の名前</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>どこの預かり所が出したか</td><td>iss</td></tr>
+              <tr><td>誰のことか</td><td>sub</td></tr>
+              <tr><td>どのお店宛か</td><td>aud</td></tr>
+              <tr><td>いつまで有効か</td><td>exp</td></tr>
+              <tr><td>いつ出したか</td><td>iat</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="e-note">
+          <b>「どのお店宛か」が効く</b>
+          <span>名札は宛名を持っています。よそ宛の名札を拾ってきて自分のところで使うことができません。合鍵にはなかった性質です。</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="e-step e-step--good">
+      <div class="e-step-head">
+        <span class="e-num">07</span>
+        <span class="e-chip e-chip--fix">こう直した</span>
+        <h2>名札には、封がしてある</h2>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>名札はただの紙ではなく、預かり所の<strong>封</strong>がしてあります。仕様の言葉では署名です。</p>
+          <p>だからお店は、名札を<span class="e-good">受け取った時点で確かめられます</span>。棚を開けに行く必要がありません。</p>
+          <p>途中で誰かが名前を書き換えれば、封が合わなくなって分かります。</p>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <svg viewBox="0 0 400 150" role="img" aria-label="封のついた名札と、封が破れて無効になった名札を比べる図">
+            <g>
+              <rect x="20" y="30" width="150" height="76" rx="9"
+                    fill="var(--e-surface)" stroke="var(--e-accent)" stroke-width="3"/>
+              <path d="M42 60 h74 M42 82 h50" stroke="var(--e-ink-soft)"
+                    stroke-width="3" stroke-linecap="round"/>
+              <circle cx="150" cy="30" r="13" fill="var(--e-accent)"/>
+              <text x="95" y="132" text-anchor="middle" font-family="var(--e-mono)"
+                    font-size="13" fill="var(--e-accent)">封が合う</text>
+            </g>
+            <g>
+              <rect x="230" y="30" width="150" height="76" rx="9"
+                    fill="var(--e-surface)" stroke="var(--e-warn)" stroke-width="3"
+                    stroke-dasharray="8 6"/>
+              <path d="M252 60 h74 M252 82 h50" stroke="var(--e-ink-soft)"
+                    stroke-width="3" stroke-linecap="round"/>
+              <path d="M348 20 l16 20 M364 20 l-16 20" stroke="var(--e-warn)"
+                    stroke-width="3" stroke-linecap="round"/>
+              <text x="305" y="132" text-anchor="middle" font-family="var(--e-mono)"
+                    font-size="13" fill="var(--e-warn)">書き換えられた</text>
+            </g>
+          </svg>
+          <figcaption>封が合わない名札は、その場で捨てられる。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step">
+      <div class="e-step-head">
+        <span class="e-num">08</span>
+        <h2>名札が欲しいときは、そう言う</h2>
+      </div>
+      <div>
+        <p>合鍵だけが欲しい日もあります。だから名札は<strong>頼んだときだけ</strong>出ます。</p>
+        <p>頼み方は決まっていて、お願いの中に <strong>openid</strong> という一語を入れる。これが入っていなければ、預かり所は今まで通り合鍵だけを渡します。<strong>同じ窓口が、言い方ひとつで両方に使えます。</strong></p>
+        <dl class="e-tally">
+          <div>
+            <dt>言わなかった</dt>
+            <dd>合鍵だけ<small>棚を開ける許可。誰かは分からない</small></dd>
+          </div>
+          <div>
+            <dt>openid と言った</dt>
+            <dd>合鍵 + 名札<small>許可に加えて、確かめられる身元</small></dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="e-step">
+      <div class="e-step-head">
+        <span class="e-num">09</span>
+        <h2>ほんとうは、こういう話でした</h2>
+      </div>
+      <div class="e-map">
+        <table>
+          <thead>
+            <tr><th scope="col">たとえ</th><th scope="col">ほんとう</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>預かり所</td><td>認可サーバ / リソースサーバ</td></tr>
+            <tr><td>お店</td><td>クライアント（アプリ）</td></tr>
+            <tr><td>合鍵</td><td>アクセストークン</td></tr>
+            <tr><td>開けてよい棚</td><td>スコープ</td></tr>
+            <tr><td>名札</td><td>ID トークン</td></tr>
+            <tr><td>名札の封</td><td>JWS による署名</td></tr>
+            <tr><td>宛名</td><td>aud クレーム</td></tr>
+            <tr><td>合鍵の仕組み</td><td>OAuth 2.0</td></tr>
+            <tr><td>名札を足した約束</td><td>OpenID Connect</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <section class="e-close">
+    <h2>ひとことで言うと</h2>
+    <p><strong>OAuth は「何をしてよいか」を渡す仕組みで、そこに「誰か」は入っていません。</strong>入っていないものを読み取ろうとしたから、みんなが違うやり方で推測することになりました。</p>
+    <p>OIDC は作り直したのではなく、<strong>足りなかった一言を、決まった形で載せられるようにした</strong>ものです。だから OAuth の上に乗ります。</p>
+  </section>
+
+  <footer class="e-foot">
+    <p>ID トークンの必須項目と openid スコープの扱いは OpenID Connect Core 1.0、アクセストークンの位置づけは RFC 6749 による。</p>
+  </footer>
+</div>
+</body>
+</html>
