@@ -3,123 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ロッカーの鍵とりちがえ事件</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<link rel="stylesheet" href="../eli5.css">
+<title>ロッカーの鍵とりちがえ事件</title>
+<meta name="description" content="未ログインのログアウトがセッション ID を付け替え、進行中のログインを壊していた話。空のセッションなら何もしない">
 
 <style>
-  :root {
-    --ground:   #E6ECE8;
-    --surface:  #F5F8F5;
-    --sunk:     #DCE5E0;
-    --ink:      #14302C;
-    --ink-soft: #4E6B66;
-    --line:     #C6D3CD;
-    --enamel:   #2C6A5F;
-    --enamel-2: #3E8375;
-    --brass:    #A9781F;
-    --rust:     #A03D28;
-    --tag-text: #FFF8E8;
-    --shadow:   0 1px 0 rgba(20,48,44,.06), 0 8px 24px -14px rgba(20,48,44,.35);
-
-    --step: clamp(1rem, 0.6rem + 1.4vw, 1.5rem);
-    --maxw: 1120px;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --ground:   #0E1E1C;
-      --surface:  #152B28;
-      --sunk:     #0A1716;
-      --ink:      #E4EDE9;
-      --ink-soft: #93AAA5;
-      --line:     #244440;
-      --enamel:   #4F9D8D;
-      --enamel-2: #5FB6A5;
-      --brass:    #D9A94E;
-      --rust:     #DE7259;
-      --tag-text: #171208;
-      --shadow:   0 1px 0 rgba(0,0,0,.3), 0 10px 28px -16px rgba(0,0,0,.8);
-    }
-  }
-
-  :root[data-theme="dark"] {
-    --ground:   #0E1E1C;
-    --surface:  #152B28;
-    --sunk:     #0A1716;
-    --ink:      #E4EDE9;
-    --ink-soft: #93AAA5;
-    --line:     #244440;
-    --enamel:   #4F9D8D;
-    --enamel-2: #5FB6A5;
-    --brass:    #D9A94E;
-    --rust:     #DE7259;
-    --tag-text: #171208;
-    --shadow:   0 1px 0 rgba(0,0,0,.3), 0 10px 28px -16px rgba(0,0,0,.8);
-  }
-
-  * { box-sizing: border-box; }
-
-  body {
-    margin: 0;
-    background: var(--ground);
-    color: var(--ink);
-    font-family: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
-    font-size: clamp(1rem, 0.94rem + 0.28vw, 1.125rem);
-    line-height: 1.85;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  .wrap {
-    max-width: var(--maxw);
-    margin: 0 auto;
-    padding: 0 var(--step);
-  }
-
-  /* ---------- hero ---------- */
-
-  .hero {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: clamp(1.5rem, 4vw, 3rem);
-    align-items: center;
-    padding: clamp(3rem, 8vw, 6rem) 0 clamp(2rem, 5vw, 3.5rem);
-  }
-
-  @media (min-width: 820px) {
-    .hero { grid-template-columns: 1.15fr 0.85fr; }
-  }
-
-  .eyebrow {
-    font-family: "DM Mono", ui-monospace, monospace;
-    font-size: 0.8rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--brass);
-    margin: 0 0 0.9rem;
-  }
-
-  h1 {
-    font-family: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", sans-serif;
-    font-weight: 900;
-    font-size: clamp(2.1rem, 1.3rem + 4vw, 4rem);
-    line-height: 1.18;
-    letter-spacing: -0.01em;
-    text-wrap: balance;
-    margin: 0 0 1rem;
-  }
-
-  .lede {
-    font-size: clamp(1.05rem, 0.98rem + 0.4vw, 1.3rem);
-    color: var(--ink-soft);
-    max-width: 34em;
-    margin: 0;
-  }
-
-  .hero__art { display: grid; place-items: center; }
-  .hero__art svg { width: 100%; max-width: 380px; height: auto; }
-
+  /* the hero's key swings; everything else about this page is in eli5.css */
   @media (prefers-reduced-motion: no-preference) {
     .swing {
       transform-origin: 168px 26px;
@@ -130,284 +22,125 @@
       50%      { transform: rotate(3.5deg); }
     }
   }
-
-  /* ---------- beats ---------- */
-
-  .beats {
-    display: flex;
-    flex-direction: column;
-    gap: clamp(1rem, 2.5vw, 1.75rem);
-    padding-bottom: clamp(2rem, 5vw, 4rem);
-  }
-
-  .beat {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 18px;
-    box-shadow: var(--shadow);
-    padding: clamp(1.25rem, 3vw, 2.25rem);
-    display: grid;
-    gap: clamp(1rem, 2.5vw, 2rem);
-    grid-template-columns: 1fr;
-  }
-
-  @media (min-width: 760px) {
-    .beat__body {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: clamp(1.25rem, 3vw, 2.5rem);
-      align-items: center;
-    }
-  }
-
-  .beat__head {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-  }
-
-  .n {
-    font-family: "DM Mono", ui-monospace, monospace;
-    font-size: 0.85rem;
-    color: var(--ink-soft);
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0.1em;
-  }
-
-  .chip {
-    font-family: "Zen Maru Gothic", sans-serif;
-    font-weight: 700;
-    font-size: 0.78rem;
-    letter-spacing: 0.06em;
-    padding: 0.2rem 0.7rem 0.28rem;
-    border-radius: 999px;
-    border: 1.5px solid currentColor;
-  }
-  .chip--setup   { color: var(--ink-soft); }
-  .chip--problem { color: var(--rust); }
-  .chip--fix     { color: var(--enamel); }
-
-  .beat h2 {
-    font-family: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", sans-serif;
-    font-weight: 700;
-    font-size: clamp(1.35rem, 1.05rem + 1.2vw, 1.9rem);
-    line-height: 1.4;
-    text-wrap: balance;
-    margin: 0 0 0.6rem;
-  }
-
-  .beat p {
-    margin: 0 0 0.7rem;
-    max-width: 30em;
-  }
-  .beat p:last-child { margin-bottom: 0; }
-
-  .beat--bad  { border-color: color-mix(in srgb, var(--rust) 45%, var(--line)); }
-  .beat--good { border-color: color-mix(in srgb, var(--enamel) 45%, var(--line)); }
-
-  .art {
-    background: var(--sunk);
-    border-radius: 12px;
-    padding: clamp(0.75rem, 2vw, 1.25rem);
-    overflow-x: auto;
-  }
-  .art svg { width: 100%; min-width: 320px; height: auto; display: block; }
-
-  .say {
-    font-family: "DM Mono", ui-monospace, monospace;
-    font-size: 0.85em;
-    color: var(--brass);
-  }
-
-  strong { font-weight: 700; }
-  .bad  { color: var(--rust); font-weight: 700; }
-  .good { color: var(--enamel); font-weight: 700; }
-
-  /* ---------- mapping ---------- */
-
-  .decoder {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 18px;
-    box-shadow: var(--shadow);
-    padding: clamp(1.25rem, 3vw, 2.25rem);
-    margin-bottom: clamp(2.5rem, 6vw, 5rem);
-  }
-
-  .decoder h2 {
-    font-family: "Zen Maru Gothic", sans-serif;
-    font-weight: 700;
-    font-size: 1.4rem;
-    margin: 0 0 1.25rem;
-  }
-
-  .table-scroll { overflow-x: auto; }
-
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    min-width: 460px;
-    font-size: 0.95rem;
-  }
-
-  th, td {
-    text-align: left;
-    padding: 0.7rem 0.9rem;
-    border-bottom: 1px solid var(--line);
-    vertical-align: top;
-  }
-
-  thead th {
-    font-family: "DM Mono", ui-monospace, monospace;
-    font-size: 0.72rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-    font-weight: 500;
-    border-bottom-width: 2px;
-  }
-
-  tbody tr:last-child td { border-bottom: none; }
-
-  td.real {
-    font-family: "DM Mono", ui-monospace, monospace;
-    font-size: 0.88rem;
-    color: var(--enamel);
-  }
-
-  footer {
-    border-top: 1px solid var(--line);
-    padding: 1.5rem 0 3rem;
-    color: var(--ink-soft);
-    font-size: 0.85rem;
-  }
-  footer a { color: var(--brass); }
-  a:focus-visible, [tabindex]:focus-visible {
-    outline: 2.5px solid var(--brass);
-    outline-offset: 3px;
-    border-radius: 4px;
-  }
 </style>
-<link rel="stylesheet" href="../chrome.css">
 </head>
 <body>
 <a class="eli5-up" href="../">&larr; eli5</a>
-<div class="wrap">
+<div class="e-page">
 
-  <header class="hero">
+  <header class="e-head">
     <div>
-      <p class="eyebrow">セッションと認証</p>
+      <p class="e-eyebrow">セッションと認証</p>
       <h1>ロッカーの鍵、<br>とりちがえ事件</h1>
-      <p class="lede">ログインの途中で「ログアウト」が走ると、ログインが失敗する。<br>原因はぜんぶ、<strong>鍵の番号</strong>の話でした。</p>
+      <p class="e-lede">ログインの途中で「ログアウト」が走ると、ログインが失敗する。<br>原因はぜんぶ、<strong>鍵の番号</strong>の話でした。</p>
     </div>
-    <div class="hero__art">
+    <div class="e-head-art">
       <svg viewBox="0 0 340 300" role="img" aria-label="フックに掛かった、S1 と刻印された真鍮のロッカー鍵タグ">
-        <line x1="80" y1="20" x2="256" y2="20" stroke="var(--line)" stroke-width="5" stroke-linecap="round"/>
-        <circle cx="168" cy="26" r="7" fill="var(--ink-soft)"/>
+        <line x1="80" y1="20" x2="256" y2="20" stroke="var(--e-line)" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="168" cy="26" r="7" fill="var(--e-ink-soft)"/>
         <g class="swing">
-          <line x1="168" y1="26" x2="168" y2="96" stroke="var(--ink-soft)" stroke-width="4"/>
-          <rect x="88" y="96" width="160" height="128" rx="18" fill="var(--brass)"/>
-          <circle cx="168" cy="126" r="13" fill="var(--sunk)"/>
-          <text x="168" y="196" text-anchor="middle" font-family="DM Mono, monospace" font-size="58" font-weight="500" fill="var(--tag-text)">S1</text>
+          <line x1="168" y1="26" x2="168" y2="96" stroke="var(--e-ink-soft)" stroke-width="4"/>
+          <rect x="88" y="96" width="160" height="128" rx="18" fill="var(--e-mark)"/>
+          <circle cx="168" cy="126" r="13" fill="var(--e-sunk)"/>
+          <text x="168" y="196" text-anchor="middle" font-family="DM Mono, monospace" font-size="58" font-weight="500" fill="var(--e-ground)">S1</text>
         </g>
       </svg>
     </div>
   </header>
 
-  <main class="beats">
+  <main class="e-steps">
 
     <!-- 01 -->
-    <section class="beat">
-      <div class="beat__head">
-        <span class="chip chip--setup">まえおき</span>
-        <span class="n">01</span>
+    <section class="e-step">
+      <div class="e-step-head">
+        <span class="e-chip">まえおき</span>
+        <span class="e-num">01</span>
       </div>
-      <div class="beat__body">
-        <div class="art">
+      <div class="e-two">
+        <div class="e-fig e-fig--panel">
           <svg viewBox="0 0 480 240" role="img" aria-label="人が窓口から、鍵 S1 の入った返事の封筒を受け取り、その先に番号 S1 のロッカーがある図">
-            <circle cx="52" cy="70" r="24" fill="var(--ink-soft)"/>
-            <path d="M14 178a38 38 0 0 1 76 0z" fill="var(--ink-soft)"/>
-            <text x="52" y="212" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--ink-soft)">あなた</text>
-            <rect x="126" y="72" width="150" height="86" rx="10" fill="var(--surface)" stroke="var(--line)" stroke-width="2.5"/>
-            <path d="M126 72l75 46 75-46" fill="none" stroke="var(--line)" stroke-width="2.5"/>
-            <rect x="168" y="82" width="66" height="32" rx="7" fill="var(--brass)"/>
-            <text x="201" y="105" text-anchor="middle" font-family="DM Mono, monospace" font-size="17" fill="var(--tag-text)">S1</text>
-            <text x="201" y="186" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--ink-soft)">返事の封筒</text>
-            <text x="201" y="210" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="13" fill="var(--brass)">中に鍵が1本</text>
-            <path d="M292 114h28" stroke="var(--ink-soft)" stroke-width="4" fill="none"/>
-            <path d="M320 114l-16-9v18z" fill="var(--ink-soft)"/>
-            <rect x="336" y="26" width="128" height="164" rx="10" fill="var(--enamel)"/>
-            <rect x="352" y="44" width="96" height="6" rx="3" fill="var(--surface)" opacity=".45"/>
-            <rect x="352" y="58" width="96" height="6" rx="3" fill="var(--surface)" opacity=".45"/>
-            <rect x="366" y="86" width="68" height="34" rx="6" fill="var(--sunk)"/>
-            <text x="400" y="111" text-anchor="middle" font-family="DM Mono, monospace" font-size="21" fill="var(--ink)">S1</text>
-            <circle cx="444" cy="150" r="8" fill="var(--sunk)" opacity=".8"/>
-            <text x="400" y="212" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--ink-soft)">ロッカー</text>
+            <circle cx="52" cy="70" r="24" fill="var(--e-ink-soft)"/>
+            <path d="M14 178a38 38 0 0 1 76 0z" fill="var(--e-ink-soft)"/>
+            <text x="52" y="212" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--e-ink-soft)">あなた</text>
+            <rect x="126" y="72" width="150" height="86" rx="10" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2.5"/>
+            <path d="M126 72l75 46 75-46" fill="none" stroke="var(--e-line)" stroke-width="2.5"/>
+            <rect x="168" y="82" width="66" height="32" rx="7" fill="var(--e-mark)"/>
+            <text x="201" y="105" text-anchor="middle" font-family="DM Mono, monospace" font-size="17" fill="var(--e-ground)">S1</text>
+            <text x="201" y="186" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--e-ink-soft)">返事の封筒</text>
+            <text x="201" y="210" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="13" fill="var(--e-mark)">中に鍵が1本</text>
+            <path d="M292 114h28" stroke="var(--e-ink-soft)" stroke-width="4" fill="none"/>
+            <path d="M320 114l-16-9v18z" fill="var(--e-ink-soft)"/>
+            <rect x="336" y="26" width="128" height="164" rx="10" fill="var(--e-accent)"/>
+            <rect x="352" y="44" width="96" height="6" rx="3" fill="var(--e-surface)" opacity=".45"/>
+            <rect x="352" y="58" width="96" height="6" rx="3" fill="var(--e-surface)" opacity=".45"/>
+            <rect x="366" y="86" width="68" height="34" rx="6" fill="var(--e-sunk)"/>
+            <text x="400" y="111" text-anchor="middle" font-family="DM Mono, monospace" font-size="21" fill="var(--e-ink)">S1</text>
+            <circle cx="444" cy="150" r="8" fill="var(--e-sunk)" opacity=".8"/>
+            <text x="400" y="212" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--e-ink-soft)">ロッカー</text>
           </svg>
         </div>
         <div>
           <h2>やりとりは、ぜんぶ窓口ごし</h2>
           <p>あなたがサイトに何かを頼むと、窓口から<strong>返事の封筒</strong>が返ってきます。この封筒が、このあと何度も出てきます。</p>
-          <p>封筒には必ず<strong>番号つきの鍵が1本</strong>。ログインで手に入る「持ちもの」は、その番号のロッカーにしまわれます。<br><span class="say">鍵 S1 → ロッカー S1</span></p>
+          <p>封筒には必ず<strong>番号つきの鍵が1本</strong>。ログインで手に入る「持ちもの」は、その番号のロッカーにしまわれます。<br><span class="e-say">鍵 S1 → ロッカー S1</span></p>
         </div>
       </div>
     </section>
 
     <!-- 02 -->
-    <section class="beat">
-      <div class="beat__head">
-        <span class="chip chip--setup">まえおき</span>
-        <span class="n">02</span>
+    <section class="e-step">
+      <div class="e-step-head">
+        <span class="e-chip">まえおき</span>
+        <span class="e-num">02</span>
       </div>
-      <div class="beat__body">
-        <div class="art">
+      <div class="e-two">
+        <div class="e-fig e-fig--panel">
           <svg viewBox="0 0 480 240" role="img" aria-label="S1 の鍵を持った人が受付から守衛所へ行き、スタンプをもらって戻ってくる往復の図">
-            <rect x="16" y="150" width="120" height="70" rx="8" fill="var(--enamel)"/>
-            <rect x="34" y="172" width="52" height="26" rx="5" fill="var(--sunk)"/>
-            <text x="60" y="192" text-anchor="middle" font-family="DM Mono, monospace" font-size="17" fill="var(--ink)">S1</text>
-            <path d="M300 62h100v42H300z" fill="var(--surface)" stroke="var(--line)" stroke-width="3"/>
-            <path d="M292 62l58-38 58 38z" fill="var(--brass)"/>
-            <circle cx="350" cy="86" r="13" fill="var(--rust)" opacity=".85"/>
-            <text x="350" y="140" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="17" fill="var(--ink-soft)">守衛所</text>
-            <path d="M150 118h120" stroke="var(--ink-soft)" stroke-width="4" stroke-dasharray="9 8" fill="none"/>
-            <path d="M270 118l-16-9v18z" fill="var(--ink-soft)"/>
-            <path d="M270 176H150" stroke="var(--brass)" stroke-width="4" fill="none"/>
-            <path d="M150 176l16-9v18z" fill="var(--brass)"/>
-            <text x="210" y="106" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="15" fill="var(--ink-soft)">いってきます</text>
-            <text x="210" y="205" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="15" fill="var(--brass)">スタンプ、もらった</text>
+            <rect x="16" y="150" width="120" height="70" rx="8" fill="var(--e-accent)"/>
+            <rect x="34" y="172" width="52" height="26" rx="5" fill="var(--e-sunk)"/>
+            <text x="60" y="192" text-anchor="middle" font-family="DM Mono, monospace" font-size="17" fill="var(--e-ink)">S1</text>
+            <path d="M300 62h100v42H300z" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="3"/>
+            <path d="M292 62l58-38 58 38z" fill="var(--e-mark)"/>
+            <circle cx="350" cy="86" r="13" fill="var(--e-warn)" opacity=".85"/>
+            <text x="350" y="140" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="17" fill="var(--e-ink-soft)">守衛所</text>
+            <path d="M150 118h120" stroke="var(--e-ink-soft)" stroke-width="4" stroke-dasharray="9 8" fill="none"/>
+            <path d="M270 118l-16-9v18z" fill="var(--e-ink-soft)"/>
+            <path d="M270 176H150" stroke="var(--e-mark)" stroke-width="4" fill="none"/>
+            <path d="M150 176l16-9v18z" fill="var(--e-mark)"/>
+            <text x="210" y="106" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="15" fill="var(--e-ink-soft)">いってきます</text>
+            <text x="210" y="205" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="15" fill="var(--e-mark)">スタンプ、もらった</text>
           </svg>
         </div>
         <div>
           <h2>ログインは、往復する</h2>
           <p>となりの<strong>守衛所の窓口</strong>まで自分で行って、スタンプをもらって戻ってくる。運ぶのはあなたです。</p>
-          <p>その間、サイトの窓口はメモを1枚持っています。<br><span class="say">「鍵 S1 の人が、帰りを待っている」</span></p>
+          <p>その間、サイトの窓口はメモを1枚持っています。<br><span class="e-say">「鍵 S1 の人が、帰りを待っている」</span></p>
         </div>
       </div>
     </section>
 
     <!-- 03 -->
-    <section class="beat">
-      <div class="beat__head">
-        <span class="chip chip--setup">まえおき</span>
-        <span class="n">03</span>
+    <section class="e-step">
+      <div class="e-step-head">
+        <span class="e-chip">まえおき</span>
+        <span class="e-num">03</span>
       </div>
-      <div class="beat__body">
-        <div class="art">
+      <div class="e-two">
+        <div class="e-fig e-fig--panel">
           <svg viewBox="0 0 480 240" role="img" aria-label="ロッカーの中身が捨てられ、鍵タグが S1 から S2 に付け替えられる図">
-            <rect x="28" y="34" width="120" height="172" rx="10" fill="var(--enamel)"/>
-            <rect x="52" y="88" width="72" height="34" rx="6" fill="var(--sunk)"/>
-            <text x="88" y="113" text-anchor="middle" font-family="DM Mono, monospace" font-size="21" fill="var(--ink)">S1</text>
-            <path d="M176 120h56" stroke="var(--ink-soft)" stroke-width="4" fill="none"/>
-            <path d="M232 120l-16-9v18z" fill="var(--ink-soft)"/>
-            <text x="204" y="102" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="15" fill="var(--ink-soft)">からっぽに</text>
-            <rect x="262" y="94" width="86" height="48" rx="10" fill="var(--brass)" opacity=".35"/>
-            <text x="305" y="126" text-anchor="middle" font-family="DM Mono, monospace" font-size="24" fill="var(--ink-soft)">S1</text>
-            <line x1="268" y1="140" x2="342" y2="98" stroke="var(--rust)" stroke-width="5" stroke-linecap="round"/>
-            <rect x="374" y="94" width="86" height="48" rx="10" fill="var(--brass)"/>
-            <circle cx="392" cy="118" r="7" fill="var(--sunk)"/>
-            <text x="424" y="127" text-anchor="middle" font-family="DM Mono, monospace" font-size="24" fill="var(--tag-text)">S2</text>
-            <text x="360" y="176" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="15" fill="var(--ink-soft)">鍵は付け替え</text>
+            <rect x="28" y="34" width="120" height="172" rx="10" fill="var(--e-accent)"/>
+            <rect x="52" y="88" width="72" height="34" rx="6" fill="var(--e-sunk)"/>
+            <text x="88" y="113" text-anchor="middle" font-family="DM Mono, monospace" font-size="21" fill="var(--e-ink)">S1</text>
+            <path d="M176 120h56" stroke="var(--e-ink-soft)" stroke-width="4" fill="none"/>
+            <path d="M232 120l-16-9v18z" fill="var(--e-ink-soft)"/>
+            <text x="204" y="102" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="15" fill="var(--e-ink-soft)">からっぽに</text>
+            <rect x="262" y="94" width="86" height="48" rx="10" fill="var(--e-mark)" opacity=".35"/>
+            <text x="305" y="126" text-anchor="middle" font-family="DM Mono, monospace" font-size="24" fill="var(--e-ink-soft)">S1</text>
+            <line x1="268" y1="140" x2="342" y2="98" stroke="var(--e-warn)" stroke-width="5" stroke-linecap="round"/>
+            <rect x="374" y="94" width="86" height="48" rx="10" fill="var(--e-mark)"/>
+            <circle cx="392" cy="118" r="7" fill="var(--e-sunk)"/>
+            <text x="424" y="127" text-anchor="middle" font-family="DM Mono, monospace" font-size="24" fill="var(--e-ground)">S2</text>
+            <text x="360" y="176" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="15" fill="var(--e-ink-soft)">鍵は付け替え</text>
           </svg>
         </div>
         <div>
@@ -419,90 +152,90 @@
     </section>
 
     <!-- 04 -->
-    <section class="beat beat--bad">
-      <div class="beat__head">
-        <span class="chip chip--problem">こまった</span>
-        <span class="n">04</span>
+    <section class="e-step e-step--bad">
+      <div class="e-step-head">
+        <span class="e-chip e-chip--problem">こまった</span>
+        <span class="e-num">04</span>
       </div>
-      <div class="beat__body">
-        <div class="art">
+      <div class="e-two">
+        <div class="e-fig e-fig--panel">
           <svg viewBox="0 0 480 240" role="img" aria-label="守衛所から S1 の鍵で戻ってきたが、受付のメモは S2 に変わっていて一致しない図">
-            <rect x="16" y="30" width="150" height="52" rx="9" fill="var(--surface)" stroke="var(--line)" stroke-width="2.5"/>
-            <text x="91" y="63" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="16" fill="var(--ink-soft)">ログアウトが走る</text>
-            <path d="M91 88v34" stroke="var(--rust)" stroke-width="4" fill="none"/>
-            <path d="M91 122l-9-16h18z" fill="var(--rust)"/>
-            <rect x="30" y="134" width="122" height="46" rx="9" fill="var(--brass)"/>
-            <text x="91" y="166" text-anchor="middle" font-family="DM Mono, monospace" font-size="24" fill="var(--tag-text)">S2</text>
-            <text x="91" y="206" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="15" fill="var(--rust)">鍵が変わった</text>
-            <path d="M186 118h72" stroke="var(--ink-soft)" stroke-width="4" stroke-dasharray="9 8" fill="none"/>
-            <rect x="286" y="46" width="172" height="60" rx="10" fill="var(--surface)" stroke="var(--line)" stroke-width="2.5"/>
-            <text x="372" y="72" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="15" fill="var(--ink-soft)">受付のメモ</text>
-            <text x="372" y="94" text-anchor="middle" font-family="DM Mono, monospace" font-size="17" fill="var(--ink)">まってる人 = S1</text>
-            <rect x="286" y="126" width="172" height="60" rx="10" fill="var(--surface)" stroke="var(--rust)" stroke-width="2.5"/>
-            <text x="372" y="152" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="15" fill="var(--ink-soft)">帰ってきた人</text>
-            <text x="372" y="174" text-anchor="middle" font-family="DM Mono, monospace" font-size="17" fill="var(--rust)">S2</text>
-            <text x="372" y="216" text-anchor="middle" font-family="Zen Maru Gothic, sans-serif" font-weight="700" font-size="19" fill="var(--rust)">どなたですか？</text>
+            <rect x="16" y="30" width="150" height="52" rx="9" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2.5"/>
+            <text x="91" y="63" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="16" fill="var(--e-ink-soft)">ログアウトが走る</text>
+            <path d="M91 88v34" stroke="var(--e-warn)" stroke-width="4" fill="none"/>
+            <path d="M91 122l-9-16h18z" fill="var(--e-warn)"/>
+            <rect x="30" y="134" width="122" height="46" rx="9" fill="var(--e-mark)"/>
+            <text x="91" y="166" text-anchor="middle" font-family="DM Mono, monospace" font-size="24" fill="var(--e-ground)">S2</text>
+            <text x="91" y="206" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="15" fill="var(--e-warn)">鍵が変わった</text>
+            <path d="M186 118h72" stroke="var(--e-ink-soft)" stroke-width="4" stroke-dasharray="9 8" fill="none"/>
+            <rect x="286" y="46" width="172" height="60" rx="10" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2.5"/>
+            <text x="372" y="72" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="15" fill="var(--e-ink-soft)">受付のメモ</text>
+            <text x="372" y="94" text-anchor="middle" font-family="DM Mono, monospace" font-size="17" fill="var(--e-ink)">まってる人 = S1</text>
+            <rect x="286" y="126" width="172" height="60" rx="10" fill="var(--e-surface)" stroke="var(--e-warn)" stroke-width="2.5"/>
+            <text x="372" y="152" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="15" fill="var(--e-ink-soft)">帰ってきた人</text>
+            <text x="372" y="174" text-anchor="middle" font-family="DM Mono, monospace" font-size="17" fill="var(--e-warn)">S2</text>
+            <text x="372" y="216" text-anchor="middle" font-family="Zen Maru Gothic, sans-serif" font-weight="700" font-size="19" fill="var(--e-warn)">どなたですか？</text>
           </svg>
         </div>
         <div>
           <h2>まだログインしてないのに、鍵を替えられた</h2>
           <p>ログアウトのボタンは、<strong>ログインしていなくても押せて</strong>しまいました。ロッカーはからっぽ。なのに鍵だけ S1 → S2 に付け替わる。</p>
-          <p>スタンプを持って戻ると、受付のメモは <span class="say">S1</span> のまま。<span class="bad">照合できず、ログイン失敗。</span></p>
+          <p>スタンプを持って戻ると、受付のメモは <span class="e-say">S1</span> のまま。<span class="e-bad">照合できず、ログイン失敗。</span></p>
         </div>
       </div>
     </section>
 
     <!-- 05 -->
-    <section class="beat beat--good">
-      <div class="beat__head">
-        <span class="chip chip--fix">なおした ①</span>
-        <span class="n">05</span>
+    <section class="e-step e-step--good">
+      <div class="e-step-head">
+        <span class="e-chip e-chip--fix">なおした ①</span>
+        <span class="e-num">05</span>
       </div>
-      <div class="beat__body">
-        <div class="art">
+      <div class="e-two">
+        <div class="e-fig e-fig--panel">
           <svg viewBox="0 0 480 240" role="img" aria-label="からっぽのロッカーを確認して、鍵を付け替えずそのままにする図">
-            <rect x="40" y="40" width="130" height="160" rx="10" fill="var(--enamel)" opacity=".35"/>
-            <rect x="66" y="94" width="78" height="36" rx="6" fill="var(--sunk)"/>
-            <text x="105" y="121" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="17" fill="var(--ink-soft)">からっぽ</text>
-            <path d="M198 120h56" stroke="var(--enamel)" stroke-width="4" fill="none"/>
-            <path d="M254 120l-16-9v18z" fill="var(--enamel)"/>
-            <text x="226" y="102" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="15" fill="var(--enamel)">なら</text>
-            <rect x="286" y="88" width="130" height="62" rx="12" fill="var(--brass)"/>
-            <circle cx="310" cy="119" r="9" fill="var(--sunk)"/>
-            <text x="356" y="130" text-anchor="middle" font-family="DM Mono, monospace" font-size="30" fill="var(--tag-text)">S1</text>
-            <text x="351" y="186" text-anchor="middle" font-family="Zen Maru Gothic, sans-serif" font-weight="700" font-size="20" fill="var(--enamel)">なにもしない</text>
+            <rect x="40" y="40" width="130" height="160" rx="10" fill="var(--e-accent)" opacity=".35"/>
+            <rect x="66" y="94" width="78" height="36" rx="6" fill="var(--e-sunk)"/>
+            <text x="105" y="121" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="17" fill="var(--e-ink-soft)">からっぽ</text>
+            <path d="M198 120h56" stroke="var(--e-accent)" stroke-width="4" fill="none"/>
+            <path d="M254 120l-16-9v18z" fill="var(--e-accent)"/>
+            <text x="226" y="102" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="15" fill="var(--e-accent)">なら</text>
+            <rect x="286" y="88" width="130" height="62" rx="12" fill="var(--e-mark)"/>
+            <circle cx="310" cy="119" r="9" fill="var(--e-sunk)"/>
+            <text x="356" y="130" text-anchor="middle" font-family="DM Mono, monospace" font-size="30" fill="var(--e-ground)">S1</text>
+            <text x="351" y="186" text-anchor="middle" font-family="Zen Maru Gothic, sans-serif" font-weight="700" font-size="20" fill="var(--e-accent)">なにもしない</text>
           </svg>
         </div>
         <div>
           <h2>からっぽなら、なにもしない</h2>
-          <p>しまうものが無いロッカーは、開ける意味がない。<span class="good">鍵はそのまま。</span></p>
+          <p>しまうものが無いロッカーは、開ける意味がない。<span class="e-good">鍵はそのまま。</span></p>
           <p>返事は今までどおり「はい、ログアウトしました」。<strong>二度押しても平気</strong>という、ログアウト本来の性質はそのまま守ります。</p>
         </div>
       </div>
     </section>
 
     <!-- 06 -->
-    <section class="beat">
-      <div class="beat__head">
-        <span class="chip chip--setup">ここが大事</span>
-        <span class="n">06</span>
+    <section class="e-step">
+      <div class="e-step-head">
+        <span class="e-chip">ここが大事</span>
+        <span class="e-num">06</span>
       </div>
-      <div class="beat__body">
-        <div class="art">
+      <div class="e-two">
+        <div class="e-fig e-fig--panel">
           <svg viewBox="0 0 480 240" role="img" aria-label="返事の封筒に入っていた鍵で、ポケットの中の鍵が上書きされる図">
-            <rect x="24" y="70" width="164" height="94" rx="10" fill="var(--surface)" stroke="var(--line)" stroke-width="2.5"/>
-            <path d="M24 70l82 50 82-50" fill="none" stroke="var(--line)" stroke-width="2.5"/>
-            <rect x="72" y="82" width="68" height="34" rx="7" fill="var(--brass)"/>
-            <text x="106" y="106" text-anchor="middle" font-family="DM Mono, monospace" font-size="18" fill="var(--tag-text)">S1</text>
-            <text x="106" y="192" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="15" fill="var(--ink-soft)">返ってきた封筒</text>
-            <path d="M208 116h44" stroke="var(--ink-soft)" stroke-width="4" fill="none"/>
-            <path d="M252 116l-16-9v18z" fill="var(--ink-soft)"/>
-            <rect x="286" y="58" width="170" height="118" rx="14" fill="var(--sunk)" stroke="var(--line)" stroke-width="2.5"/>
-            <text x="371" y="84" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="15" fill="var(--ink-soft)">あなたのポケット</text>
-            <rect x="322" y="96" width="98" height="46" rx="9" fill="var(--brass)"/>
-            <circle cx="342" cy="119" r="7" fill="var(--sunk)"/>
-            <text x="386" y="129" text-anchor="middle" font-family="DM Mono, monospace" font-size="24" fill="var(--tag-text)">S1</text>
-            <text x="371" y="196" text-anchor="middle" font-family="Zen Maru Gothic, sans-serif" font-weight="700" font-size="18" fill="var(--ink)">だまって入れ替わる</text>
+            <rect x="24" y="70" width="164" height="94" rx="10" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2.5"/>
+            <path d="M24 70l82 50 82-50" fill="none" stroke="var(--e-line)" stroke-width="2.5"/>
+            <rect x="72" y="82" width="68" height="34" rx="7" fill="var(--e-mark)"/>
+            <text x="106" y="106" text-anchor="middle" font-family="DM Mono, monospace" font-size="18" fill="var(--e-ground)">S1</text>
+            <text x="106" y="192" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="15" fill="var(--e-ink-soft)">返ってきた封筒</text>
+            <path d="M208 116h44" stroke="var(--e-ink-soft)" stroke-width="4" fill="none"/>
+            <path d="M252 116l-16-9v18z" fill="var(--e-ink-soft)"/>
+            <rect x="286" y="58" width="170" height="118" rx="14" fill="var(--e-sunk)" stroke="var(--e-line)" stroke-width="2.5"/>
+            <text x="371" y="84" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="15" fill="var(--e-ink-soft)">あなたのポケット</text>
+            <rect x="322" y="96" width="98" height="46" rx="9" fill="var(--e-mark)"/>
+            <circle cx="342" cy="119" r="7" fill="var(--e-sunk)"/>
+            <text x="386" y="129" text-anchor="middle" font-family="DM Mono, monospace" font-size="24" fill="var(--e-ground)">S1</text>
+            <text x="371" y="196" text-anchor="middle" font-family="Zen Maru Gothic, sans-serif" font-weight="700" font-size="18" fill="var(--e-ink)">だまって入れ替わる</text>
           </svg>
         </div>
         <div>
@@ -514,28 +247,28 @@
     </section>
 
     <!-- 07 -->
-    <section class="beat">
-      <div class="beat__head">
-        <span class="chip chip--setup">ここが大事</span>
-        <span class="n">07</span>
+    <section class="e-step">
+      <div class="e-step-head">
+        <span class="e-chip">ここが大事</span>
+        <span class="e-num">07</span>
       </div>
-      <div class="beat__body">
-        <div class="art">
+      <div class="e-two">
+        <div class="e-fig e-fig--panel">
           <svg viewBox="0 0 480 240" role="img" aria-label="窓口からあなたへ、ログインの封筒とログアウトの封筒が別々に返ってきていて、どちらが後になるか分からない図">
-            <rect x="16" y="82" width="92" height="76" rx="10" fill="var(--enamel)"/>
-            <text x="62" y="128" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="16" fill="var(--surface)">窓口</text>
-            <circle cx="432" cy="100" r="22" fill="var(--ink-soft)"/>
-            <path d="M396 168a36 36 0 0 1 72 0z" fill="var(--ink-soft)"/>
-            <path d="M126 74h230" stroke="var(--enamel)" stroke-width="4" fill="none"/>
-            <path d="M356 74l-16-9v18z" fill="var(--enamel)"/>
-            <rect x="176" y="34" width="118" height="30" rx="7" fill="var(--surface)" stroke="var(--enamel)" stroke-width="2"/>
-            <text x="235" y="55" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--enamel)">ログインの封筒</text>
-            <path d="M126 190h230" stroke="var(--brass)" stroke-width="4" fill="none"/>
-            <path d="M356 190l-16-9v18z" fill="var(--brass)"/>
-            <rect x="172" y="200" width="126" height="30" rx="7" fill="var(--surface)" stroke="var(--brass)" stroke-width="2"/>
-            <text x="235" y="221" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--brass)">ログアウトの封筒</text>
-            <text x="235" y="140" text-anchor="middle" font-family="Zen Maru Gothic, sans-serif" font-weight="900" font-size="46" fill="var(--ink-soft)">?</text>
-            <text x="235" y="166" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--ink-soft)">どっちが後に返ってくる？</text>
+            <rect x="16" y="82" width="92" height="76" rx="10" fill="var(--e-accent)"/>
+            <text x="62" y="128" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="16" fill="var(--e-surface)">窓口</text>
+            <circle cx="432" cy="100" r="22" fill="var(--e-ink-soft)"/>
+            <path d="M396 168a36 36 0 0 1 72 0z" fill="var(--e-ink-soft)"/>
+            <path d="M126 74h230" stroke="var(--e-accent)" stroke-width="4" fill="none"/>
+            <path d="M356 74l-16-9v18z" fill="var(--e-accent)"/>
+            <rect x="176" y="34" width="118" height="30" rx="7" fill="var(--e-surface)" stroke="var(--e-accent)" stroke-width="2"/>
+            <text x="235" y="55" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--e-accent)">ログインの封筒</text>
+            <path d="M126 190h230" stroke="var(--e-mark)" stroke-width="4" fill="none"/>
+            <path d="M356 190l-16-9v18z" fill="var(--e-mark)"/>
+            <rect x="172" y="200" width="126" height="30" rx="7" fill="var(--e-surface)" stroke="var(--e-mark)" stroke-width="2"/>
+            <text x="235" y="221" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--e-mark)">ログアウトの封筒</text>
+            <text x="235" y="140" text-anchor="middle" font-family="Zen Maru Gothic, sans-serif" font-weight="900" font-size="46" fill="var(--e-ink-soft)">?</text>
+            <text x="235" y="166" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--e-ink-soft)">どっちが後に返ってくる？</text>
           </svg>
         </div>
         <div>
@@ -547,106 +280,107 @@
     </section>
 
     <!-- 08 -->
-    <section class="beat beat--bad">
-      <div class="beat__head">
-        <span class="chip chip--problem">こまった ②</span>
-        <span class="n">08</span>
+    <section class="e-step e-step--bad">
+      <div class="e-step-head">
+        <span class="e-chip e-chip--problem">こまった ②</span>
+        <span class="e-num">08</span>
       </div>
-      <div class="beat__body">
-        <div class="art">
+      <div class="e-two">
+        <div class="e-fig e-fig--panel">
           <svg viewBox="0 0 480 300" role="img" aria-label="先にログインの返事が届いて鍵が S7 になり、後からログアウトの返事が届いて鍵が S1 に戻り、S7 のロッカーが開かなくなる図">
-            <line x1="40" y1="40" x2="40" y2="228" stroke="var(--line)" stroke-width="3"/>
-            <text x="40" y="252" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="13" fill="var(--ink-soft)">時間</text>
-            <path d="M40 228l-8-14h16z" fill="var(--line)"/>
+            <line x1="40" y1="40" x2="40" y2="228" stroke="var(--e-line)" stroke-width="3"/>
+            <text x="40" y="252" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="13" fill="var(--e-ink-soft)">時間</text>
+            <path d="M40 228l-8-14h16z" fill="var(--e-line)"/>
 
-            <circle cx="40" cy="72" r="8" fill="var(--enamel)"/>
-            <rect x="66" y="46" width="164" height="54" rx="9" fill="var(--surface)" stroke="var(--enamel)" stroke-width="2.5"/>
-            <path d="M66 46l82 30 82-30" fill="none" stroke="var(--enamel)" stroke-width="2"/>
-            <text x="148" y="88" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--ink-soft)">ログインの封筒 · 鍵 S7</text>
-            <text x="286" y="80" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--enamel)">ポケット → S7 ✓</text>
+            <circle cx="40" cy="72" r="8" fill="var(--e-accent)"/>
+            <rect x="66" y="46" width="164" height="54" rx="9" fill="var(--e-surface)" stroke="var(--e-accent)" stroke-width="2.5"/>
+            <path d="M66 46l82 30 82-30" fill="none" stroke="var(--e-accent)" stroke-width="2"/>
+            <text x="148" y="88" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--e-ink-soft)">ログインの封筒 · 鍵 S7</text>
+            <text x="286" y="80" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--e-accent)">ポケット → S7 ✓</text>
 
-            <circle cx="40" cy="164" r="8" fill="var(--rust)"/>
-            <rect x="66" y="138" width="164" height="54" rx="9" fill="var(--surface)" stroke="var(--rust)" stroke-width="2.5"/>
-            <path d="M66 138l82 30 82-30" fill="none" stroke="var(--rust)" stroke-width="2"/>
-            <text x="148" y="180" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--ink-soft)">ログアウトの封筒 · 鍵 S1</text>
-            <text x="286" y="172" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--rust)">ポケット → S1 に逆戻り</text>
+            <circle cx="40" cy="164" r="8" fill="var(--e-warn)"/>
+            <rect x="66" y="138" width="164" height="54" rx="9" fill="var(--e-surface)" stroke="var(--e-warn)" stroke-width="2.5"/>
+            <path d="M66 138l82 30 82-30" fill="none" stroke="var(--e-warn)" stroke-width="2"/>
+            <text x="148" y="180" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--e-ink-soft)">ログアウトの封筒 · 鍵 S1</text>
+            <text x="286" y="172" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--e-warn)">ポケット → S1 に逆戻り</text>
 
-            <rect x="150" y="216" width="112" height="66" rx="8" fill="var(--enamel)"/>
-            <rect x="170" y="234" width="72" height="30" rx="5" fill="var(--sunk)"/>
-            <text x="206" y="256" text-anchor="middle" font-family="DM Mono, monospace" font-size="19" fill="var(--ink)">S7</text>
-            <line x1="156" y1="278" x2="256" y2="220" stroke="var(--rust)" stroke-width="6" stroke-linecap="round"/>
-            <text x="290" y="256" font-family="Zen Maru Gothic, sans-serif" font-weight="700" font-size="18" fill="var(--rust)">もう開かない</text>
+            <rect x="150" y="216" width="112" height="66" rx="8" fill="var(--e-accent)"/>
+            <rect x="170" y="234" width="72" height="30" rx="5" fill="var(--e-sunk)"/>
+            <text x="206" y="256" text-anchor="middle" font-family="DM Mono, monospace" font-size="19" fill="var(--e-ink)">S7</text>
+            <line x1="156" y1="278" x2="256" y2="220" stroke="var(--e-warn)" stroke-width="6" stroke-linecap="round"/>
+            <text x="290" y="256" font-family="Zen Maru Gothic, sans-serif" font-weight="700" font-size="18" fill="var(--e-warn)">もう開かない</text>
           </svg>
         </div>
         <div>
           <h2>後から返ってきた封筒に、古い鍵が入っていた</h2>
           <p>鍵を替えるのはやめました。でも<strong>返事の封筒には、まだ古い鍵 S1 が入ったまま</strong>だったんです。</p>
-          <p>先にログイン成功の封筒が返ってきて、ポケットは S7。荷物も S7 のロッカーへ。<br>そのあとログアウトの封筒が返ってくると、<span class="bad">ポケットが S1 に上書きされ、S7 のロッカーが開かなくなる。</span></p>
+          <p>先にログイン成功の封筒が返ってきて、ポケットは S7。荷物も S7 のロッカーへ。<br>そのあとログアウトの封筒が返ってくると、<span class="e-bad">ポケットが S1 に上書きされ、S7 のロッカーが開かなくなる。</span></p>
         </div>
       </div>
     </section>
 
     <!-- 09 -->
-    <section class="beat beat--good">
-      <div class="beat__head">
-        <span class="chip chip--fix">なおした ②</span>
-        <span class="n">09</span>
+    <section class="e-step e-step--good">
+      <div class="e-step-head">
+        <span class="e-chip e-chip--fix">なおした ②</span>
+        <span class="e-num">09</span>
       </div>
-      <div class="beat__body">
-        <div class="art">
+      <div class="e-two">
+        <div class="e-fig e-fig--panel">
           <svg viewBox="0 0 480 240" role="img" aria-label="なにもしなかった時は鍵を入れない空の封筒、本当にログアウトした時は新しい鍵を同封した封筒、という対比の図">
-            <rect x="24" y="52" width="182" height="76" rx="10" fill="var(--surface)" stroke="var(--enamel)" stroke-width="2.5"/>
-            <path d="M24 52l91 48 91-48" fill="none" stroke="var(--enamel)" stroke-width="2.5"/>
-            <text x="115" y="160" text-anchor="middle" font-family="Zen Maru Gothic, sans-serif" font-weight="700" font-size="19" fill="var(--enamel)">鍵は入れない</text>
-            <text x="115" y="188" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--ink-soft)">なにもしなかった時</text>
-            <text x="115" y="214" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="13" fill="var(--ink-soft)">→ 後から返ってきても何も起きない</text>
-            <line x1="240" y1="42" x2="240" y2="198" stroke="var(--line)" stroke-width="2.5" stroke-dasharray="8 8"/>
-            <rect x="274" y="52" width="182" height="76" rx="10" fill="var(--surface)" stroke="var(--line)" stroke-width="2.5"/>
-            <path d="M274 52l91 48 91-48" fill="none" stroke="var(--line)" stroke-width="2.5"/>
-            <rect x="330" y="66" width="70" height="34" rx="7" fill="var(--brass)"/>
-            <text x="365" y="90" text-anchor="middle" font-family="DM Mono, monospace" font-size="18" fill="var(--tag-text)">S2</text>
-            <text x="365" y="160" text-anchor="middle" font-family="Zen Maru Gothic, sans-serif" font-weight="700" font-size="19" fill="var(--ink)">新しい鍵を同封</text>
-            <text x="365" y="188" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--ink-soft)">本当にログアウトした時</text>
-            <text x="365" y="214" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="13" fill="var(--ink-soft)">→ 返ってくることが、効いたということ</text>
+            <rect x="24" y="52" width="182" height="76" rx="10" fill="var(--e-surface)" stroke="var(--e-accent)" stroke-width="2.5"/>
+            <path d="M24 52l91 48 91-48" fill="none" stroke="var(--e-accent)" stroke-width="2.5"/>
+            <text x="115" y="160" text-anchor="middle" font-family="Zen Maru Gothic, sans-serif" font-weight="700" font-size="19" fill="var(--e-accent)">鍵は入れない</text>
+            <text x="115" y="188" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--e-ink-soft)">なにもしなかった時</text>
+            <text x="115" y="214" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="13" fill="var(--e-ink-soft)">→ 後から返ってきても何も起きない</text>
+            <line x1="240" y1="42" x2="240" y2="198" stroke="var(--e-line)" stroke-width="2.5" stroke-dasharray="8 8"/>
+            <rect x="274" y="52" width="182" height="76" rx="10" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2.5"/>
+            <path d="M274 52l91 48 91-48" fill="none" stroke="var(--e-line)" stroke-width="2.5"/>
+            <rect x="330" y="66" width="70" height="34" rx="7" fill="var(--e-mark)"/>
+            <text x="365" y="90" text-anchor="middle" font-family="DM Mono, monospace" font-size="18" fill="var(--e-ground)">S2</text>
+            <text x="365" y="160" text-anchor="middle" font-family="Zen Maru Gothic, sans-serif" font-weight="700" font-size="19" fill="var(--e-ink)">新しい鍵を同封</text>
+            <text x="365" y="188" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--e-ink-soft)">本当にログアウトした時</text>
+            <text x="365" y="214" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="13" fill="var(--e-ink-soft)">→ 返ってくることが、効いたということ</text>
           </svg>
         </div>
         <div>
           <h2>なにもしなかったなら、鍵の話もしない</h2>
-          <p>ロッカーに手をつけていないなら、<strong>封筒に鍵を入れない</strong>。<span class="good">あとから返ってきても、ポケットは何も入れ替わりません。</span></p>
+          <p>ロッカーに手をつけていないなら、<strong>封筒に鍵を入れない</strong>。<span class="e-good">あとから返ってきても、ポケットは何も入れ替わりません。</span></p>
           <p>ほんとうにログアウトしたときは、これまでどおり新しい鍵を同封します。<strong>それが届くことが、ログアウトが効いたということ</strong>なので。</p>
         </div>
       </div>
     </section>
 
-  </main>
+  
 
-  <section class="decoder">
+  <section class="e-step">
     <h2>ほんとうは、こういう話でした</h2>
-    <div class="table-scroll">
+    <div class="e-map">
       <table>
         <thead>
           <tr><th scope="col">たとえ</th><th scope="col">ほんとう</th></tr>
         </thead>
         <tbody>
-          <tr><td>あなた</td><td class="real">ブラウザ</td></tr>
-          <tr><td>サイトの窓口</td><td class="real">API サーバ</td></tr>
-          <tr><td>返事の封筒</td><td class="real">HTTP レスポンス</td></tr>
-          <tr><td>ロッカーの鍵</td><td class="real">セッション Cookie</td></tr>
-          <tr><td>鍵の番号</td><td class="real">セッション ID</td></tr>
-          <tr><td>ロッカーの中身</td><td class="real">OAuth トークン一式</td></tr>
-          <tr><td>守衛所へ往復</td><td class="real">/authorize → 認可サーバ → /callback</td></tr>
-          <tr><td>受付のメモ</td><td class="real">認可リクエストの session binding</td></tr>
-          <tr><td>鍵の付け替え</td><td class="real">session()-&gt;invalidate() による ID ローテーション</td></tr>
-          <tr><td>返事に鍵が同封されている</td><td class="real">レスポンスの Set-Cookie</td></tr>
-          <tr><td>ポケットの鍵が入れ替わる</td><td class="real">ブラウザが Cookie を上書きする</td></tr>
-          <tr><td>お願いを2つ同時に出す</td><td class="real">並行リクエスト（返る順は保証されない）</td></tr>
-          <tr><td>鍵を入れない封筒</td><td class="real">Set-Cookie を付けないレスポンス</td></tr>
+          <tr><td>あなた</td><td >ブラウザ</td></tr>
+          <tr><td>サイトの窓口</td><td >API サーバ</td></tr>
+          <tr><td>返事の封筒</td><td >HTTP レスポンス</td></tr>
+          <tr><td>ロッカーの鍵</td><td >セッション Cookie</td></tr>
+          <tr><td>鍵の番号</td><td >セッション ID</td></tr>
+          <tr><td>ロッカーの中身</td><td >OAuth トークン一式</td></tr>
+          <tr><td>守衛所へ往復</td><td >/authorize → 認可サーバ → /callback</td></tr>
+          <tr><td>受付のメモ</td><td >認可リクエストの session binding</td></tr>
+          <tr><td>鍵の付け替え</td><td >session()-&gt;invalidate() による ID ローテーション</td></tr>
+          <tr><td>返事に鍵が同封されている</td><td >レスポンスの Set-Cookie</td></tr>
+          <tr><td>ポケットの鍵が入れ替わる</td><td >ブラウザが Cookie を上書きする</td></tr>
+          <tr><td>お願いを2つ同時に出す</td><td >並行リクエスト（返る順は保証されない）</td></tr>
+          <tr><td>鍵を入れない封筒</td><td >Set-Cookie を付けないレスポンス</td></tr>
         </tbody>
       </table>
     </div>
   </section>
 
-  <footer>
+  </main>
+  <footer class="e-foot">
     <p>残った宿題は CSRF のパススルー撤去と、ユーザー側にある同じ形の問題。</p>
   </footer>
 

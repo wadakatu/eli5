@@ -3,256 +3,33 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>切替のあとかたづけ</title>
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Public+Sans:wght@400;600&display=swap">
-
-<style>
-  :root {
-    --ground: #eaeee9;
-    --surface: #f6f8f5;
-    --edge: #cbd6cd;
-    --ink: #16211e;
-    --muted: #62756c;
-    --lamp: #1e5f4b;
-    --brass: #a2701f;
-    --wrong: #a83f28;
-    --shadow: 0 1px 0 rgba(22, 33, 30, .06), 0 12px 32px -20px rgba(22, 33, 30, .5);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --ground: #101715;
-      --surface: #18211d;
-      --edge: #2c3a34;
-      --ink: #dee7e0;
-      --muted: #8ca194;
-      --lamp: #58c69b;
-      --brass: #dcac5c;
-      --wrong: #e5806a;
-      --shadow: 0 1px 0 rgba(0, 0, 0, .3), 0 12px 32px -20px rgba(0, 0, 0, .9);
-    }
-  }
-
-  :root[data-theme="dark"] {
-    --ground: #101715;
-    --surface: #18211d;
-    --edge: #2c3a34;
-    --ink: #dee7e0;
-    --muted: #8ca194;
-    --lamp: #58c69b;
-    --brass: #dcac5c;
-    --wrong: #e5806a;
-    --shadow: 0 1px 0 rgba(0, 0, 0, .3), 0 12px 32px -20px rgba(0, 0, 0, .9);
-  }
-
-  body {
-    background: var(--ground);
-    color: var(--ink);
-    font-family: "Public Sans", "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
-    font-size: 17px;
-    line-height: 1.75;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  .page {
-    max-width: 60rem;
-    margin: 0 auto;
-    padding: clamp(2.5rem, 6vw, 5.5rem) clamp(1.1rem, 4vw, 2.5rem) 6rem;
-    display: flex;
-    flex-direction: column;
-    gap: clamp(3.5rem, 7vw, 6rem);
-  }
-
-  .lede {
-    display: flex;
-    flex-direction: column;
-    gap: 1.1rem;
-    max-width: 34ch;
-  }
-
-  .kicker {
-    font-family: "DM Mono", ui-monospace, monospace;
-    font-size: .78rem;
-    letter-spacing: .16em;
-    text-transform: uppercase;
-    color: var(--brass);
-  }
-
-  h1 {
-    font-family: Fraunces, "Hiragino Mincho ProN", serif;
-    font-variation-settings: "SOFT" 40, "WONK" 1;
-    font-weight: 800;
-    font-size: clamp(2.6rem, 9vw, 4.6rem);
-    line-height: 1.02;
-    letter-spacing: -.015em;
-    text-wrap: balance;
-  }
-
-  .lede p {
-    font-size: clamp(1.05rem, 2.4vw, 1.25rem);
-    color: var(--muted);
-    max-width: 30ch;
-  }
-
-  .scene {
-    display: flex;
-    flex-direction: column;
-    gap: 1.4rem;
-  }
-
-  .step {
-    display: flex;
-    align-items: baseline;
-    gap: .9rem;
-  }
-
-  .step-no {
-    font-family: "DM Mono", ui-monospace, monospace;
-    font-size: .85rem;
-    font-weight: 500;
-    color: var(--brass);
-    padding-top: .35rem;
-  }
-
-  h2 {
-    font-family: Fraunces, "Hiragino Mincho ProN", serif;
-    font-variation-settings: "SOFT" 40, "WONK" 1;
-    font-weight: 600;
-    font-size: clamp(1.55rem, 4.4vw, 2.25rem);
-    line-height: 1.25;
-    letter-spacing: -.01em;
-    text-wrap: balance;
-  }
-
-  .scene > p {
-    max-width: 42ch;
-    color: var(--muted);
-  }
-
-  .scene > p strong {
-    color: var(--ink);
-    font-weight: 600;
-  }
-
-  figure {
-    background: var(--surface);
-    border: 1px solid var(--edge);
-    border-radius: 4px;
-    box-shadow: var(--shadow);
-    padding: clamp(1rem, 3vw, 1.8rem);
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    overflow-x: auto;
-  }
-
-  figure svg {
-    display: block;
-    width: 100%;
-    min-width: 30rem;
-    height: auto;
-    color: var(--ink);
-  }
-
-  figcaption {
-    font-size: .92rem;
-    color: var(--muted);
-    max-width: 52ch;
-  }
-
-  .rail {
-    border-left: 3px solid var(--lamp);
-    padding-left: 1.2rem;
-    display: flex;
-    flex-direction: column;
-    gap: .5rem;
-  }
-
-  .rail b {
-    font-weight: 600;
-  }
-
-  .tally {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-    gap: 1px;
-    background: var(--edge);
-    border: 1px solid var(--edge);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-
-  .tally div {
-    background: var(--surface);
-    padding: 1.3rem 1.2rem;
-    display: flex;
-    flex-direction: column;
-    gap: .3rem;
-  }
-
-  .tally dt {
-    font-size: .8rem;
-    letter-spacing: .06em;
-    color: var(--muted);
-  }
-
-  .tally dd {
-    font-family: "DM Mono", ui-monospace, monospace;
-    font-variant-numeric: tabular-nums;
-    font-size: 1.7rem;
-    line-height: 1.1;
-    color: var(--lamp);
-  }
-
-  .tally dd small {
-    font-size: .8rem;
-    color: var(--muted);
-  }
-
-  footer {
-    border-top: 1px solid var(--edge);
-    padding-top: 1.6rem;
-    font-size: .9rem;
-    color: var(--muted);
-  }
-
-  footer code {
-    font-family: "DM Mono", ui-monospace, monospace;
-    color: var(--ink);
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .scene, .lede { animation: rise .5s ease-out both; }
-    .scene:nth-of-type(2) { animation-delay: .04s; }
-    .scene:nth-of-type(3) { animation-delay: .08s; }
-  }
-
-  @keyframes rise {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: none; }
-  }
-</style>
-<link rel="stylesheet" href="../chrome.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<link rel="stylesheet" href="../eli5.css">
+<title>切替のあとかたづけ</title>
+<meta name="description" content="プロジェクトを切り替えたとき、前のプロジェクトの状態が残って別プロジェクトのデータに混ざっていた話。切替前のリセットと、遅れて返る非同期処理の破棄">
 </head>
 <body>
 <a class="eli5-up" href="../">&larr; eli5</a>
-<div class="page">
+<div class="e-page">
 
-  <header class="lede">
-    <span class="kicker">ELI5</span>
+  <header class="e-head">
+    <div>
+    <p class="e-eyebrow">ELI5</p>
     <h1>切替の<br>あとかたづけ</h1>
-    <p>となりの部屋へ移るとき、前の部屋の片づけをしていなかった話。</p>
+    <p class="e-lede">となりの部屋へ移るとき、前の部屋の片づけをしていなかった話。</p>
+      </div>
   </header>
 
-  <section class="scene">
-    <div class="step"><span class="step-no">01</span>
+  <main class="e-steps">
+
+  <section class="e-step">
+    <div class="e-step-head"><span class="e-num">01</span>
       <h2>プロジェクトは「閲覧室」</h2>
     </div>
     <p>アプリの中のプロジェクトを、図書館の閲覧室だと思ってください。部屋にはあなた専用の<strong>記録カード</strong>（最近開いたページ）と、ドアの<strong>名札</strong>（いま誰が居るか）があります。</p>
-    <figure>
+    <figure class="e-fig">
       <svg viewBox="0 0 720 190" role="img" aria-label="閲覧室には記録カードとドアの名札があり、退出時に片づけて名札を外す">
         <g fill="none" stroke="currentColor" stroke-width="1.5">
           <rect x="40" y="30" width="250" height="130" rx="3" />
@@ -268,44 +45,44 @@
         <text x="125" y="150" font-size="12.5" fill="currentColor" text-anchor="middle">記録カード</text>
         <text x="260" y="128" font-size="12.5" fill="currentColor" text-anchor="middle">名札</text>
 
-        <g stroke="var(--lamp)" stroke-width="1.6" fill="none">
+        <g stroke="var(--e-accent)" stroke-width="1.6" fill="none">
           <path d="M330 95 h60" marker-end="url(#a1)" />
         </g>
         <defs>
           <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-            <path d="M0 0 L10 5 L0 10 z" fill="var(--lamp)" />
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--e-accent)" />
           </marker>
         </defs>
-        <text x="360" y="80" font-size="12" fill="var(--lamp)" text-anchor="middle" font-weight="600">退出</text>
+        <text x="360" y="80" font-size="12" fill="var(--e-accent)" text-anchor="middle" font-weight="600">退出</text>
 
         <g fill="none" stroke="currentColor" stroke-width="1.5">
           <rect x="420" y="30" width="250" height="130" rx="3" />
           <rect x="450" y="66" width="110" height="62" rx="2" />
         </g>
-        <g stroke="var(--lamp)" stroke-width="1.6">
+        <g stroke="var(--e-accent)" stroke-width="1.6">
           <line x1="470" y1="88" x2="540" y2="88" opacity=".3" />
           <line x1="470" y1="104" x2="540" y2="104" opacity=".3" />
         </g>
         <text x="420" y="20" font-size="12" fill="currentColor" font-family="DM Mono, monospace" opacity=".65">片づけたあと</text>
-        <text x="505" y="150" font-size="12.5" fill="var(--lamp)" text-anchor="middle" font-weight="600">カードを閉じ、名札を外す</text>
+        <text x="505" y="150" font-size="12.5" fill="var(--e-accent)" text-anchor="middle" font-weight="600">カードを閉じ、名札を外す</text>
       </svg>
       <figcaption>部屋を出るときは、カードをしまい、ドアの名札を外す。これが「あとかたづけ」。</figcaption>
     </figure>
   </section>
 
-  <section class="scene">
-    <div class="step"><span class="step-no">02</span>
+  <section class="e-step">
+    <div class="e-step-head"><span class="e-num">02</span>
       <h2>移るときだけ、片づけが飛んでいた</h2>
     </div>
     <p>片づけは<strong>「建物を出るとき」</strong>にだけ動く作りでした。部屋から部屋へ移るのは建物を出たことにならないので、何も片づかないまま次の部屋に入っていました。</p>
-    <figure>
+    <figure class="e-fig">
       <svg viewBox="0 0 720 240" role="img" aria-label="期待では A から片づけを経て B へ移るが、実際は片づけを飛ばして B へ移っていた">
         <defs>
           <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
             <path d="M0 0 L10 5 L0 10 z" fill="currentColor" />
           </marker>
           <marker id="a2r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-            <path d="M0 0 L10 5 L0 10 z" fill="var(--wrong)" />
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--e-warn)" />
           </marker>
         </defs>
 
@@ -316,7 +93,7 @@
           <rect x="550" y="40" width="150" height="54" rx="3" />
         </g>
         <text x="95" y="73" font-size="13" fill="currentColor" text-anchor="middle">部屋 A</text>
-        <text x="360" y="73" font-size="13" fill="var(--lamp)" text-anchor="middle" font-weight="600">片づけ</text>
+        <text x="360" y="73" font-size="13" fill="var(--e-accent)" text-anchor="middle" font-weight="600">片づけ</text>
         <text x="625" y="73" font-size="13" fill="currentColor" text-anchor="middle">部屋 B</text>
         <g stroke="currentColor" stroke-width="1.5" fill="none">
           <path d="M170 67 h100" marker-end="url(#a2)" />
@@ -325,7 +102,7 @@
 
         <line x1="20" y1="128" x2="700" y2="128" stroke="currentColor" stroke-width="1" opacity=".2" />
 
-        <text x="20" y="160" font-size="12" fill="var(--wrong)" font-family="DM Mono, monospace">実際</text>
+        <text x="20" y="160" font-size="12" fill="var(--e-warn)" font-family="DM Mono, monospace">実際</text>
         <g fill="none" stroke="currentColor" stroke-width="1.5">
           <rect x="20" y="174" width="150" height="54" rx="3" />
           <rect x="550" y="174" width="150" height="54" rx="3" />
@@ -334,42 +111,42 @@
         <text x="95" y="207" font-size="13" fill="currentColor" text-anchor="middle">部屋 A</text>
         <text x="360" y="207" font-size="13" fill="currentColor" text-anchor="middle" opacity=".4">片づけ</text>
         <text x="625" y="207" font-size="13" fill="currentColor" text-anchor="middle">部屋 B</text>
-        <path d="M170 190 C 260 150, 460 150, 545 188" fill="none" stroke="var(--wrong)" stroke-width="1.8" marker-end="url(#a2r)" />
-        <text x="360" y="152" font-size="12.5" fill="var(--wrong)" text-anchor="middle" font-weight="600">素通り</text>
+        <path d="M170 190 C 260 150, 460 150, 545 188" fill="none" stroke="var(--e-warn)" stroke-width="1.8" marker-end="url(#a2r)" />
+        <text x="360" y="152" font-size="12.5" fill="var(--e-warn)" text-anchor="middle" font-weight="600">素通り</text>
       </svg>
       <figcaption>部屋の移動では「退出」の処理が呼ばれず、片づけの箱ごと素通りしていた。</figcaption>
     </figure>
   </section>
 
-  <section class="scene">
-    <div class="step"><span class="step-no">03</span>
+  <section class="e-step">
+    <div class="e-step-head"><span class="e-num">03</span>
       <h2>Aの記録が、Bのカードに書かれた</h2>
     </div>
     <p>カードを持ったまま次の部屋に入ったので、<strong>その部屋には存在しないページ</strong>が記録として書き込まれました。ドアの名札も A に残ったままで、同僚からはまだ A に居るように見えていました。</p>
-    <figure>
+    <figure class="e-fig">
       <svg viewBox="0 0 720 230" role="img" aria-label="部屋Bの記録カードに、Bには存在しないAのページが3件書き込まれている">
         <text x="20" y="26" font-size="12" fill="currentColor" font-family="DM Mono, monospace" opacity=".65">部屋 B の記録カード</text>
         <rect x="20" y="40" width="440" height="170" rx="3" fill="none" stroke="currentColor" stroke-width="1.5" />
 
         <g font-family="DM Mono, monospace" font-size="13">
-          <circle cx="48" cy="72" r="5" fill="var(--lamp)" />
+          <circle cx="48" cy="72" r="5" fill="var(--e-accent)" />
           <text x="66" y="77" fill="currentColor">bf9fed39</text>
-          <text x="200" y="77" fill="var(--lamp)">B の Home</text>
+          <text x="200" y="77" fill="var(--e-accent)">B の Home</text>
 
-          <circle cx="48" cy="110" r="5" fill="var(--wrong)" />
+          <circle cx="48" cy="110" r="5" fill="var(--e-warn)" />
           <text x="66" y="115" fill="currentColor" opacity=".55">65331068</text>
-          <line x1="64" y1="110" x2="152" y2="110" stroke="var(--wrong)" stroke-width="1.4" />
-          <text x="200" y="115" fill="var(--wrong)">A のページ</text>
+          <line x1="64" y1="110" x2="152" y2="110" stroke="var(--e-warn)" stroke-width="1.4" />
+          <text x="200" y="115" fill="var(--e-warn)">A のページ</text>
 
-          <circle cx="48" cy="148" r="5" fill="var(--wrong)" />
+          <circle cx="48" cy="148" r="5" fill="var(--e-warn)" />
           <text x="66" y="153" fill="currentColor" opacity=".55">56c06ca0</text>
-          <line x1="64" y1="148" x2="152" y2="148" stroke="var(--wrong)" stroke-width="1.4" />
-          <text x="200" y="153" fill="var(--wrong)">A のページ</text>
+          <line x1="64" y1="148" x2="152" y2="148" stroke="var(--e-warn)" stroke-width="1.4" />
+          <text x="200" y="153" fill="var(--e-warn)">A のページ</text>
 
-          <circle cx="48" cy="186" r="5" fill="var(--wrong)" />
+          <circle cx="48" cy="186" r="5" fill="var(--e-warn)" />
           <text x="66" y="191" fill="currentColor" opacity=".55">649c9b61</text>
-          <line x1="64" y1="186" x2="152" y2="186" stroke="var(--wrong)" stroke-width="1.4" />
-          <text x="200" y="191" fill="var(--wrong)">A のページ</text>
+          <line x1="64" y1="186" x2="152" y2="186" stroke="var(--e-warn)" stroke-width="1.4" />
+          <text x="200" y="191" fill="var(--e-warn)">A のページ</text>
         </g>
 
         <text x="510" y="26" font-size="12" fill="currentColor" font-family="DM Mono, monospace" opacity=".65">部屋 A のドア</text>
@@ -377,38 +154,38 @@
           <rect x="510" y="40" width="120" height="170" rx="3" />
           <circle cx="618" cy="128" r="4" />
         </g>
-        <rect x="528" y="88" width="84" height="46" rx="2" fill="none" stroke="var(--wrong)" stroke-width="1.6" />
-        <text x="570" y="110" font-size="12.5" fill="var(--wrong)" text-anchor="middle" font-weight="600">あなた</text>
-        <text x="570" y="126" font-size="11" fill="var(--wrong)" text-anchor="middle">（居ない）</text>
-        <text x="570" y="164" font-size="12" fill="var(--muted)" text-anchor="middle">名札が残る</text>
+        <rect x="528" y="88" width="84" height="46" rx="2" fill="none" stroke="var(--e-warn)" stroke-width="1.6" />
+        <text x="570" y="110" font-size="12.5" fill="var(--e-warn)" text-anchor="middle" font-weight="600">あなた</text>
+        <text x="570" y="126" font-size="11" fill="var(--e-warn)" text-anchor="middle">（居ない）</text>
+        <text x="570" y="164" font-size="12" fill="var(--e-ink-soft)" text-anchor="middle">名札が残る</text>
       </svg>
       <figcaption>4枠のうち3枠が「開けないページ」で埋まる。A のドアには居ないはずの名札が残る。</figcaption>
     </figure>
   </section>
 
-  <section class="scene">
-    <div class="step"><span class="step-no">04</span>
+  <section class="e-step">
+    <div class="e-step-head"><span class="e-num">04</span>
       <h2>直し方 ①　入る前に、片づける</h2>
     </div>
     <p>次の部屋の準備を始める場所で、<strong>「前の部屋がまだ開いていたら先に閉じる」</strong>を一箇所だけ足しました。ここは部屋を移るどの入口からも必ず通る場所です。</p>
-    <div class="rail">
+    <div class="e-note">
       <p><b>結果:</b> B のカードには B のページだけが並び、A の名札も消えました。</p>
     </div>
   </section>
 
-  <section class="scene">
-    <div class="step"><span class="step-no">05</span>
+  <section class="e-step">
+    <div class="e-step-head"><span class="e-num">05</span>
       <h2>ところが、早歩きすると崩れる</h2>
     </div>
     <p>A で司書に本を頼んだあと、B、C と足早に移ると、<strong>遅れて届いた A の本</strong>が、いま居る C の棚に入ってしまいます。返事が届く順番は、頼んだ順番とは限りません。</p>
-    <figure>
+    <figure class="e-fig">
       <svg viewBox="0 0 720 250" role="img" aria-label="Aで頼んだ本が遅れて届き、いま居るCの棚に入ってしまう時系列">
         <defs>
           <marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-            <path d="M0 0 L10 5 L0 10 z" fill="var(--wrong)" />
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--e-warn)" />
           </marker>
           <marker id="a3g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-            <path d="M0 0 L10 5 L0 10 z" fill="var(--lamp)" />
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--e-accent)" />
           </marker>
         </defs>
 
@@ -429,73 +206,73 @@
         <rect x="480" y="60" width="120" height="60" rx="3" fill="none" stroke="currentColor" stroke-width="1.5" />
         <text x="540" y="96" font-size="13" fill="currentColor" text-anchor="middle">C の棚</text>
 
-        <path d="M370 140 C 400 110, 450 95, 476 92" fill="none" stroke="var(--lamp)" stroke-width="1.6" marker-end="url(#a3g)" />
-        <text x="415" y="126" font-size="11.5" fill="var(--lamp)" text-anchor="middle">C の本</text>
+        <path d="M370 140 C 400 110, 450 95, 476 92" fill="none" stroke="var(--e-accent)" stroke-width="1.6" marker-end="url(#a3g)" />
+        <text x="415" y="126" font-size="11.5" fill="var(--e-accent)" text-anchor="middle">C の本</text>
 
-        <path d="M90 140 C 150 20, 420 20, 500 56" fill="none" stroke="var(--wrong)" stroke-width="1.8" marker-end="url(#a3)" />
-        <text x="300" y="34" font-size="12.5" fill="var(--wrong)" text-anchor="middle" font-weight="600">A の本が遅れて届く → C の棚へ</text>
+        <path d="M90 140 C 150 20, 420 20, 500 56" fill="none" stroke="var(--e-warn)" stroke-width="1.8" marker-end="url(#a3)" />
+        <text x="300" y="34" font-size="12.5" fill="var(--e-warn)" text-anchor="middle" font-weight="600">A の本が遅れて届く → C の棚へ</text>
 
-        <text x="540" y="140" font-size="12" fill="var(--wrong)" text-anchor="middle">中身が A に戻る</text>
+        <text x="540" y="140" font-size="12" fill="var(--e-warn)" text-anchor="middle">中身が A に戻る</text>
       </svg>
       <figcaption>返事の到着順は依頼順と一致しない。古い返事が、いまの部屋の棚を上書きする。</figcaption>
     </figure>
   </section>
 
-  <section class="scene">
-    <div class="step"><span class="step-no">06</span>
+  <section class="e-step">
+    <div class="e-step-head"><span class="e-num">06</span>
       <h2>直し方 ②　依頼に番号札をつける</h2>
     </div>
     <p>頼むときに<strong>番号札</strong>を渡し、届いた瞬間に「この番号はまだ最新か」を見ます。古ければ棚に入れずに捨てます。番号は部屋ごとではなく<strong>依頼ごと</strong>なので、A → B → A と戻ってきても、古い A と新しい A を取り違えません。</p>
-    <figure>
+    <figure class="e-fig">
       <svg viewBox="0 0 720 220" role="img" aria-label="届いた返事の番号札を最新の番号と照合し、古ければ棚に入れずに捨てる">
         <defs>
           <marker id="a4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
             <path d="M0 0 L10 5 L0 10 z" fill="currentColor" />
           </marker>
           <marker id="a4g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-            <path d="M0 0 L10 5 L0 10 z" fill="var(--lamp)" />
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--e-accent)" />
           </marker>
         </defs>
 
         <g font-family="DM Mono, monospace" font-size="12.5">
-          <rect x="20" y="34" width="150" height="46" rx="3" fill="none" stroke="var(--wrong)" stroke-width="1.5" />
-          <text x="95" y="63" fill="var(--wrong)" text-anchor="middle">A の返事 ・ 札 1</text>
+          <rect x="20" y="34" width="150" height="46" rx="3" fill="none" stroke="var(--e-warn)" stroke-width="1.5" />
+          <text x="95" y="63" fill="var(--e-warn)" text-anchor="middle">A の返事 ・ 札 1</text>
 
-          <rect x="20" y="132" width="150" height="46" rx="3" fill="none" stroke="var(--lamp)" stroke-width="1.5" />
-          <text x="95" y="161" fill="var(--lamp)" text-anchor="middle">C の返事 ・ 札 3</text>
+          <rect x="20" y="132" width="150" height="46" rx="3" fill="none" stroke="var(--e-accent)" stroke-width="1.5" />
+          <text x="95" y="161" fill="var(--e-accent)" text-anchor="middle">C の返事 ・ 札 3</text>
         </g>
 
         <rect x="280" y="66" width="130" height="80" rx="3" fill="none" stroke="currentColor" stroke-width="1.5" />
         <text x="345" y="100" font-size="12.5" fill="currentColor" text-anchor="middle">番号を照合</text>
-        <text x="345" y="120" font-size="12" fill="var(--muted)" text-anchor="middle" font-family="DM Mono, monospace">いま = 札 3</text>
+        <text x="345" y="120" font-size="12" fill="var(--e-ink-soft)" text-anchor="middle" font-family="DM Mono, monospace">いま = 札 3</text>
 
         <path d="M170 57 C 220 57, 240 82, 276 96" fill="none" stroke="currentColor" stroke-width="1.5" marker-end="url(#a4)" />
         <path d="M170 155 C 220 155, 240 130, 276 116" fill="none" stroke="currentColor" stroke-width="1.5" marker-end="url(#a4)" />
 
-        <path d="M410 96 C 450 96, 470 60, 500 54" fill="none" stroke="var(--wrong)" stroke-width="1.6" stroke-dasharray="5 4" />
-        <text x="560" y="58" font-size="12.5" fill="var(--wrong)" text-anchor="middle" font-weight="600">古い → 捨てる</text>
+        <path d="M410 96 C 450 96, 470 60, 500 54" fill="none" stroke="var(--e-warn)" stroke-width="1.6" stroke-dasharray="5 4" />
+        <text x="560" y="58" font-size="12.5" fill="var(--e-warn)" text-anchor="middle" font-weight="600">古い → 捨てる</text>
 
-        <path d="M410 116 C 450 116, 470 152, 500 158" fill="none" stroke="var(--lamp)" stroke-width="1.6" marker-end="url(#a4g)" />
-        <text x="560" y="163" font-size="12.5" fill="var(--lamp)" text-anchor="middle" font-weight="600">最新 → 棚へ</text>
+        <path d="M410 116 C 450 116, 470 152, 500 158" fill="none" stroke="var(--e-accent)" stroke-width="1.6" marker-end="url(#a4g)" />
+        <text x="560" y="163" font-size="12.5" fill="var(--e-accent)" text-anchor="middle" font-weight="600">最新 → 棚へ</text>
       </svg>
       <figcaption>棚に入れる直前に照合するのがポイント。届いてから捨てるのでは間に合わない場所がある。</figcaption>
     </figure>
   </section>
 
-  <section class="scene">
-    <div class="step"><span class="step-no">07</span>
+  <section class="e-step">
+    <div class="e-step-head"><span class="e-num">07</span>
       <h2>直し方 ③　退出は、いつでも片づける</h2>
     </div>
     <p>片づけには時間がかかり、その間の入室は<strong>順番待ちの列</strong>に並びます。「誰も居ないなら片づけ不要」と判断すると、列で待っている入室を取り消せません。退出のときは何も確かめずに片づけを呼ぶことにしました。</p>
-    <figure>
+    <figure class="e-fig">
       <svg viewBox="0 0 720 250" role="img" aria-label="順番待ちの入室を、二度目の退出が取り消せていなかった問題と、その修正">
         <defs>
           <marker id="a5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-            <path d="M0 0 L10 5 L0 10 z" fill="var(--wrong)" />
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--e-warn)" />
           </marker>
         </defs>
 
-        <text x="20" y="24" font-size="12" fill="var(--wrong)" font-family="DM Mono, monospace">修正前</text>
+        <text x="20" y="24" font-size="12" fill="var(--e-warn)" font-family="DM Mono, monospace">修正前</text>
         <g fill="none" stroke="currentColor" stroke-width="1.5">
           <rect x="20" y="36" width="170" height="50" rx="3" />
           <rect x="210" y="36" width="170" height="50" rx="3" stroke-dasharray="5 5" />
@@ -503,32 +280,32 @@
         <text x="105" y="66" font-size="12.5" fill="currentColor" text-anchor="middle">片づけ①（処理中）</text>
         <text x="295" y="66" font-size="12.5" fill="currentColor" text-anchor="middle">入室（順番待ち）</text>
         <text x="470" y="55" font-size="12.5" fill="currentColor">退出② →「誰も居ない」</text>
-        <text x="470" y="76" font-size="12.5" fill="var(--wrong)" font-weight="600">片づけを呼ばない</text>
-        <path d="M295 90 C 295 108, 295 108, 295 112" fill="none" stroke="var(--wrong)" stroke-width="1.6" marker-end="url(#a5)" />
-        <text x="310" y="112" font-size="12.5" fill="var(--wrong)">あとから入室が成立して残る</text>
+        <text x="470" y="76" font-size="12.5" fill="var(--e-warn)" font-weight="600">片づけを呼ばない</text>
+        <path d="M295 90 C 295 108, 295 108, 295 112" fill="none" stroke="var(--e-warn)" stroke-width="1.6" marker-end="url(#a5)" />
+        <text x="310" y="112" font-size="12.5" fill="var(--e-warn)">あとから入室が成立して残る</text>
 
         <line x1="20" y1="136" x2="700" y2="136" stroke="currentColor" stroke-width="1" opacity=".2" />
 
-        <text x="20" y="168" font-size="12" fill="var(--lamp)" font-family="DM Mono, monospace">修正後</text>
+        <text x="20" y="168" font-size="12" fill="var(--e-accent)" font-family="DM Mono, monospace">修正後</text>
         <g fill="none" stroke="currentColor" stroke-width="1.5">
           <rect x="20" y="180" width="170" height="50" rx="3" />
           <rect x="210" y="180" width="170" height="50" rx="3" stroke-dasharray="5 5" opacity=".45" />
         </g>
         <text x="105" y="210" font-size="12.5" fill="currentColor" text-anchor="middle">片づけ①（処理中）</text>
         <text x="295" y="210" font-size="12.5" fill="currentColor" text-anchor="middle" opacity=".45">入室（順番待ち）</text>
-        <line x1="228" y1="222" x2="362" y2="188" stroke="var(--lamp)" stroke-width="1.8" />
+        <line x1="228" y1="222" x2="362" y2="188" stroke="var(--e-accent)" stroke-width="1.8" />
         <text x="470" y="199" font-size="12.5" fill="currentColor">退出② → 無条件に片づけ</text>
-        <text x="470" y="220" font-size="12.5" fill="var(--lamp)" font-weight="600">待っている入室も取り消す</text>
+        <text x="470" y="220" font-size="12.5" fill="var(--e-accent)" font-weight="600">待っている入室も取り消す</text>
       </svg>
       <figcaption>「片づける必要があるか」を判断する条件そのものが、取り消しの取りこぼしを生んでいた。</figcaption>
     </figure>
   </section>
 
-  <section class="scene">
-    <div class="step"><span class="step-no">08</span>
+  <section class="e-step">
+    <div class="e-step-head"><span class="e-num">08</span>
       <h2>いまの状態</h2>
     </div>
-    <dl class="tally">
+    <dl class="e-tally">
       <div>
         <dt>B に混入した A のページ</dt>
         <dd>0 <small>件（修正前 3 件）</small></dd>
@@ -545,7 +322,9 @@
     <p>実機（ローカルの Firebase エミュレータ）でも、A → B の切替後に B のカードには B のページだけが並び、A のドアの名札が消えることを確認しています。</p>
   </section>
 
-  <footer>
+  </main>
+
+  <footer class="e-foot">
     プロジェクトを切り替えたとき、前のプロジェクトの状態が残っていた問題の説明。実際の変更は、切替時に各ストアの状態をリセットするところにあります。
   </footer>
 

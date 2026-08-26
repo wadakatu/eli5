@@ -2,7 +2,7 @@
   {
     "path": "security/2026-08-25-multi-org-login-pending-token.html",
     "title": "組織を選ぶ引換券",
-    "summary": "複数の組織に属するユーザーのログインで、組織を選ぶ前に本物のセッションを渡さず、1 回きり・5 分で失効する引換券トークンを挟む設計"
+    "summary": "複数の組織に属するユーザーのログインで、組織を選ぶ前にセッションを渡さず、1 回きり・5 分で失効する引換券トークンを挟む設計"
   },
   {
     "path": "security/2026-08-26-how-a-logout-cancels-a-login.html",
@@ -12,7 +12,7 @@
   {
     "path": "tooling/2026-08-25-why-the-lint-cache-did-nothing.html",
     "title": "The Robot's Notebook",
-    "summary": "ESLint の --cache が CI で効かなかった 3 つの理由。cache-strategy content、チェッカーごとの cache-location、Actions cache への保存"
+    "summary": "ESLint の --cache が CI で効かなかった 3 つの理由。中身でキャッシュする、チェッカーごとに分ける、共有の置き場に保存する"
   },
   {
     "path": "tooling/2026-08-25-why-the-lint-cache-went-stale.html",

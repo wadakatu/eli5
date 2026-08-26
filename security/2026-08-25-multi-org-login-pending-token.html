@@ -3,278 +3,54 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>組織を選ぶ引換券</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<link rel="stylesheet" href="../eli5.css">
+<title>組織を選ぶ引換券</title>
+<meta name="description" content="複数の組織に属するユーザーのログインで、組織を選ぶ前にセッションを渡さず、1 回きり・5 分で失効する引換券トークンを挟む設計">
 
 <style>
-  :root {
-    --paper:   #EAEDEF;
-    --card:    #F6F7F8;
-    --ink:     #132430;
-    --ink-mid: #4A5C68;
-    --ink-dim: #7A8994;
-    --rule:    #C9D1D6;
-    --brass:   #9E6E14;
-    --brass-bg:#F0E4C8;
-    --seal:    #A93A2C;
-    --jade:    #2C7A68;
-
-    --f-display: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
-    --f-body:    "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", sans-serif;
-    --f-mono:    "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
-
-    --step-1: 0.82rem;
-    --step0:  1rem;
-    --step1:  1.22rem;
-    --step2:  1.6rem;
-    --step3:  2.2rem;
-    --step4:  3.1rem;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --paper:   #0F1A21;
-      --card:    #16242D;
-      --ink:     #E2E9EC;
-      --ink-mid: #A5B4BD;
-      --ink-dim: #74858F;
-      --rule:    #2C3D48;
-      --brass:   #E0A54A;
-      --brass-bg:#332912;
-      --seal:    #E0796A;
-      --jade:    #5CB79E;
-    }
-  }
-
-  :root[data-theme="dark"] {
-    --paper:   #0F1A21;
-    --card:    #16242D;
-    --ink:     #E2E9EC;
-    --ink-mid: #A5B4BD;
-    --ink-dim: #74858F;
-    --rule:    #2C3D48;
-    --brass:   #E0A54A;
-    --brass-bg:#332912;
-    --seal:    #E0796A;
-    --jade:    #5CB79E;
-  }
-
-  * { box-sizing: border-box; }
-
-  body {
-    margin: 0;
-    background: var(--paper);
-    color: var(--ink);
-    font-family: var(--f-body);
-    font-size: var(--step0);
-    line-height: 1.85;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  .wrap {
-    max-width: 40rem;
-    margin: 0 auto;
-    padding: clamp(2.5rem, 7vw, 5rem) 1.4rem 6rem;
-    display: flex;
-    flex-direction: column;
-    gap: clamp(3rem, 7vw, 4.5rem);
-  }
-
-  .eyebrow {
-    font-family: var(--f-mono);
-    font-size: var(--step-1);
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--brass);
-    margin: 0 0 0.9rem;
-  }
-
-  h1 {
-    font-family: var(--f-display);
-    font-weight: 700;
-    font-size: clamp(2rem, 7.5vw, var(--step4));
-    line-height: 1.28;
-    letter-spacing: 0.01em;
-    text-wrap: balance;
-    margin: 0 0 1.4rem;
-  }
-
-  h2 {
-    font-family: var(--f-display);
-    font-weight: 700;
-    font-size: var(--step2);
-    line-height: 1.45;
-    text-wrap: balance;
-    margin: 0 0 0.7rem;
-  }
-
-  h3 {
-    font-family: var(--f-display);
-    font-weight: 700;
-    font-size: var(--step1);
-    line-height: 1.5;
-    margin: 0 0 0.35rem;
-  }
-
-  p { margin: 0 0 1rem; }
-  p:last-child { margin-bottom: 0; }
-
-  .lede {
-    font-size: var(--step1);
-    line-height: 1.9;
-    color: var(--ink-mid);
-  }
-
-  .hero-rule {
-    height: 3px;
-    width: 5rem;
-    background: var(--brass);
-    border-radius: 2px;
-    margin-top: 2rem;
-  }
-
-  section { display: flex; flex-direction: column; gap: 1.1rem; }
-
-  .num {
-    font-family: var(--f-mono);
-    font-size: var(--step-1);
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    color: var(--brass);
-    display: block;
-    margin-bottom: 0.3rem;
-  }
-
-  figure {
-    margin: 0;
-    background: var(--card);
-    border: 1px solid var(--rule);
-    border-radius: 10px;
-    padding: 1.4rem 1.2rem 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.9rem;
-    overflow-x: auto;
-  }
-
-  figure svg {
-    display: block;
-    width: 100%;
-    min-width: 22rem;
-    height: auto;
-    color: var(--ink);
-  }
-
-  /* 図の意味色はトークン経由。リテラル hex は属性側に残してあるが CSS が必ず勝つ */
-  figure svg .st-ok    { stroke: var(--jade); }
-  figure svg .fl-ok    { fill:   var(--jade); }
-  figure svg .st-bad   { stroke: var(--seal); }
-  figure svg .fl-bad   { fill:   var(--seal); }
-  figure svg .st-brass { stroke: var(--brass); }
-  figure svg .fl-brass { fill:   var(--brass); }
-
-  figcaption {
-    font-size: var(--step-1);
-    line-height: 1.8;
-    color: var(--ink-dim);
-    border-top: 1px solid var(--rule);
-    padding-top: 0.8rem;
-  }
-
-  .guards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
-    gap: 0.9rem;
-  }
-
-  .guard {
-    background: var(--card);
-    border: 1px solid var(--rule);
-    border-left: 3px solid var(--brass);
-    border-radius: 8px;
-    padding: 1rem 1rem 1.1rem;
-  }
-
-  .guard .tag {
-    font-family: var(--f-mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
-    color: var(--brass);
-    display: block;
-    margin-bottom: 0.5rem;
-  }
-
-  .guard p {
-    font-size: var(--step-1);
-    line-height: 1.75;
-    color: var(--ink-mid);
-    margin: 0;
-  }
-
-  .kicker {
-    background: var(--brass-bg);
-    color: var(--ink);
-    border-radius: 8px;
-    padding: 1.2rem 1.3rem;
-    font-size: var(--step-1);
-    line-height: 1.8;
-  }
-
-  code {
-    font-family: var(--f-mono);
-    font-size: 0.86em;
-    background: var(--card);
-    border: 1px solid var(--rule);
-    border-radius: 4px;
-    padding: 0.1em 0.36em;
-  }
-
-  footer {
-    border-top: 1px solid var(--rule);
-    padding-top: 1.4rem;
-    font-size: var(--step-1);
-    color: var(--ink-dim);
-    line-height: 1.85;
-  }
-
-  a { color: var(--brass); text-underline-offset: 3px; }
-  a:focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; border-radius: 2px; }
-
-  @media (prefers-reduced-motion: reduce) {
-    * { animation: none !important; transition: none !important; }
-  }
+  /* the drawings paint by class; everything else about this page is in eli5.css */
+  .st-ok    { stroke: var(--e-accent); }
+  .fl-ok    { fill:   var(--e-accent); }
+  .st-bad   { stroke: var(--e-warn); }
+  .fl-bad   { fill:   var(--e-warn); }
+  .st-brass { stroke: var(--e-mark); }
+  .fl-brass { fill:   var(--e-mark); }
 </style>
-<link rel="stylesheet" href="../chrome.css">
 </head>
 <body>
 <a class="eli5-up" href="../">&larr; eli5</a>
-<div class="wrap">
+<div class="e-page">
 
-  <header>
-    <p class="eyebrow">Pending Token</p>
+  <header class="e-head">
+    <div>
+    <p class="e-eyebrow">Pending Token</p>
     <h1>鍵は渡さない。<br>先に引換券を渡す。</h1>
-    <p class="lede">
+    <p class="e-lede">
       あなたが 3 つの会社に所属していると、ログインの入口は
       「どの会社の人として入りますか？」を勝手に決められない。
       だから一度、<strong>引換券</strong>を渡す。
     </p>
-    <div class="hero-rule"></div>
+    <div ></div>
+      </div>
   </header>
 
-  <section>
-    <h2><span class="num">01</span>所属が 1 つなら、迷わない</h2>
+  <main class="e-steps">
+
+  <section class="e-step">
+    <div class="e-step-head"><span class="e-num">01</span><h2>所属が 1 つなら、迷わない</h2></div>
     <p>入口は「あなた＝A 社の人」と決めて、そのまま通せる。ところが所属が 3 つあると、決め手がない。</p>
 
-    <figure>
+    <figure class="e-fig">
       <svg viewBox="0 0 600 330" role="img" aria-label="所属が1つなら入口はそのまま社員証を出せるが、所属が3つあると誰として入れるか決められない">
         <defs>
           <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
             <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"></path>
           </marker>
           <marker id="ar-q" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-            <path d="M 0 0 L 10 5 L 0 10 z" class="fl-bad" fill="#A93A2C"></path>
+            <path d="M 0 0 L 10 5 L 0 10 z" class="fl-bad" fill="var(--e-warn)"></path>
           </marker>
         </defs>
 
@@ -292,8 +68,8 @@
         <line x1="224" y1="80" x2="434" y2="80" stroke="currentColor" stroke-width="2" marker-end="url(#ar)"></line>
         <text x="329" y="70" text-anchor="middle" font-size="12" fill="currentColor">そのまま通せる</text>
 
-        <rect x="444" y="52" width="104" height="56" rx="6" fill="none" class="st-ok" stroke="#2C7A68" stroke-width="2"></rect>
-        <text x="496" y="85" text-anchor="middle" font-size="13" class="fl-ok" fill="#2C7A68">A 社の証</text>
+        <rect x="444" y="52" width="104" height="56" rx="6" fill="none" class="st-ok" stroke="var(--e-accent)" stroke-width="2"></rect>
+        <text x="496" y="85" text-anchor="middle" font-size="13" class="fl-ok" fill="var(--e-accent)">A 社の証</text>
 
         <!-- divider -->
         <line x1="20" y1="160" x2="580" y2="160" stroke="currentColor" stroke-width="1" opacity="0.2"></line>
@@ -317,30 +93,30 @@
         <circle cx="351" cy="232" r="3.5" fill="currentColor"></circle>
         <text x="331" y="288" text-anchor="middle" font-size="12" fill="currentColor">C 社</text>
 
-        <line x1="372" y1="230" x2="434" y2="230" class="st-bad" stroke="#A93A2C" stroke-width="2" marker-end="url(#ar-q)"></line>
+        <line x1="372" y1="230" x2="434" y2="230" class="st-bad" stroke="var(--e-warn)" stroke-width="2" marker-end="url(#ar-q)"></line>
 
-        <rect x="444" y="202" width="104" height="56" rx="6" fill="none" class="st-bad" stroke="#A93A2C" stroke-width="2" stroke-dasharray="5 4"></rect>
-        <text x="496" y="240" text-anchor="middle" font-size="22" class="fl-bad" fill="#A93A2C">？</text>
+        <rect x="444" y="202" width="104" height="56" rx="6" fill="none" class="st-bad" stroke="var(--e-warn)" stroke-width="2" stroke-dasharray="5 4"></rect>
+        <text x="496" y="240" text-anchor="middle" font-size="22" class="fl-bad" fill="var(--e-warn)">？</text>
       </svg>
       <figcaption>上：所属が 1 つなら入口が代わりに決められる。下：3 つあると決め手がなく、入口は止まる。この「止まった状態」をどう扱うかが本題。</figcaption>
     </figure>
   </section>
 
-  <section>
-    <h2><span class="num">02</span>これまでは、白紙の証を出していた</h2>
+  <section class="e-step">
+    <div class="e-step-head"><span class="e-num">02</span><h2>これまでは、白紙の証を出していた</h2></div>
     <p>決められないので、会社の欄が空っぽの証を発行していた。持っている本人も、受け取った側も、どの会社の話なのか分からない。</p>
 
-    <div class="kicker">
+    <div class="e-note">
       決められないときに「とりあえず空欄で出す」のは、決めたことにはならない。<br>
       空欄の証は、あとで誰かが埋めてしまえる。
     </div>
   </section>
 
-  <section>
-    <h2><span class="num">03</span>これからは、引換券を渡す</h2>
+  <section class="e-step">
+    <div class="e-step-head"><span class="e-num">03</span><h2>これからは、引換券を渡す</h2></div>
     <p>入口は証の代わりに<strong>引換券</strong>を渡して、こう言う。「どの会社か選んで、この券を持ってまた来て」</p>
 
-    <figure>
+    <figure class="e-fig">
       <svg viewBox="0 0 680 210" role="img" aria-label="入口が引換券を渡し、利用者が会社を選び、券と引き換えに本物の証を受け取る4段階の流れ">
         <defs>
           <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -355,10 +131,10 @@
         <line x1="140" y1="104" x2="182" y2="104" stroke="currentColor" stroke-width="2" marker-end="url(#ar2)"></line>
         <text x="161" y="56" text-anchor="middle" font-size="11" fill="currentColor">渡す</text>
 
-        <rect x="188" y="66" width="120" height="76" rx="7" fill="none" class="st-brass" stroke="#9E6E14" stroke-width="2.5"></rect>
-        <line x1="188" y1="118" x2="308" y2="118" class="st-brass" stroke="#9E6E14" stroke-width="1.5" stroke-dasharray="4 4"></line>
-        <text x="248" y="96" text-anchor="middle" font-size="13" class="fl-brass" fill="#9E6E14">引換券</text>
-        <text x="248" y="134" text-anchor="middle" font-size="10.5" class="fl-brass" fill="#9E6E14" font-family="monospace">5 分・1 回きり</text>
+        <rect x="188" y="66" width="120" height="76" rx="7" fill="none" class="st-brass" stroke="var(--e-mark)" stroke-width="2.5"></rect>
+        <line x1="188" y1="118" x2="308" y2="118" class="st-brass" stroke="var(--e-mark)" stroke-width="1.5" stroke-dasharray="4 4"></line>
+        <text x="248" y="96" text-anchor="middle" font-size="13" class="fl-brass" fill="var(--e-mark)">引換券</text>
+        <text x="248" y="134" text-anchor="middle" font-size="10.5" class="fl-brass" fill="var(--e-mark)" font-family="monospace">5 分・1 回きり</text>
 
         <line x1="312" y1="104" x2="354" y2="104" stroke="currentColor" stroke-width="2" marker-end="url(#ar2)"></line>
         <text x="333" y="56" text-anchor="middle" font-size="11" fill="currentColor">見せる</text>
@@ -370,19 +146,19 @@
         <line x1="484" y1="104" x2="526" y2="104" stroke="currentColor" stroke-width="2" marker-end="url(#ar2)"></line>
         <text x="505" y="56" text-anchor="middle" font-size="11" fill="currentColor">交換</text>
 
-        <rect x="532" y="66" width="120" height="76" rx="7" fill="none" class="st-ok" stroke="#2C7A68" stroke-width="2"></rect>
-        <text x="592" y="98" text-anchor="middle" font-size="13" class="fl-ok" fill="#2C7A68">B 社の証</text>
-        <text x="592" y="118" text-anchor="middle" font-size="11" class="fl-ok" fill="#2C7A68" opacity="0.75">会社が入った</text>
+        <rect x="532" y="66" width="120" height="76" rx="7" fill="none" class="st-ok" stroke="var(--e-accent)" stroke-width="2"></rect>
+        <text x="592" y="98" text-anchor="middle" font-size="13" class="fl-ok" fill="var(--e-accent)">B 社の証</text>
+        <text x="592" y="118" text-anchor="middle" font-size="11" class="fl-ok" fill="var(--e-accent)" opacity="0.75">会社が入った</text>
       </svg>
       <figcaption>引換券そのものでは何もできない。「選んだ会社」と一緒に持ち帰って、はじめて本物の証と交換される。</figcaption>
     </figure>
   </section>
 
-  <section>
-    <h2><span class="num">04</span>控えは、指紋だけ取っておく</h2>
+  <section class="e-step">
+    <div class="e-step-head"><span class="e-num">04</span><h2>控えは、指紋だけ取っておく</h2></div>
     <p>券を配ったら、番号を控えておかないと本物か確かめられない。でも番号をそのまま棚に書き写すと、棚を盗まれた人が券を作れてしまう。だから<strong>指紋だけ</strong>を取る。</p>
 
-    <figure>
+    <figure class="e-fig">
       <svg viewBox="0 0 620 250" role="img" aria-label="券の番号を一方向の変換にかけた指紋だけを棚に保存し、指紋から番号は戻せない">
         <defs>
           <marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -390,9 +166,9 @@
           </marker>
         </defs>
 
-        <rect x="16" y="42" width="150" height="58" rx="6" fill="none" class="st-brass" stroke="#9E6E14" stroke-width="2"></rect>
-        <text x="91" y="66" text-anchor="middle" font-size="12" class="fl-brass" fill="#9E6E14">券の番号</text>
-        <text x="91" y="86" text-anchor="middle" font-size="10.5" class="fl-brass" fill="#9E6E14" font-family="monospace">a3f9…2b7c</text>
+        <rect x="16" y="42" width="150" height="58" rx="6" fill="none" class="st-brass" stroke="var(--e-mark)" stroke-width="2"></rect>
+        <text x="91" y="66" text-anchor="middle" font-size="12" class="fl-brass" fill="var(--e-mark)">券の番号</text>
+        <text x="91" y="86" text-anchor="middle" font-size="10.5" class="fl-brass" fill="var(--e-mark)" font-family="monospace">a3f9…2b7c</text>
 
         <line x1="170" y1="71" x2="222" y2="71" stroke="currentColor" stroke-width="2" marker-end="url(#ar3)"></line>
 
@@ -402,84 +178,86 @@
 
         <line x1="362" y1="71" x2="414" y2="71" stroke="currentColor" stroke-width="2" marker-end="url(#ar3)"></line>
 
-        <rect x="420" y="42" width="150" height="58" rx="6" fill="none" class="st-ok" stroke="#2C7A68" stroke-width="2"></rect>
-        <text x="495" y="66" text-anchor="middle" font-size="12" class="fl-ok" fill="#2C7A68">指紋</text>
-        <text x="495" y="86" text-anchor="middle" font-size="10.5" class="fl-ok" fill="#2C7A68" font-family="monospace">9c14…f0a8</text>
+        <rect x="420" y="42" width="150" height="58" rx="6" fill="none" class="st-ok" stroke="var(--e-accent)" stroke-width="2"></rect>
+        <text x="495" y="66" text-anchor="middle" font-size="12" class="fl-ok" fill="var(--e-accent)">指紋</text>
+        <text x="495" y="86" text-anchor="middle" font-size="10.5" class="fl-ok" fill="var(--e-accent)" font-family="monospace">9c14…f0a8</text>
 
         <line x1="495" y1="104" x2="495" y2="140" stroke="currentColor" stroke-width="2" marker-end="url(#ar3)"></line>
         <rect x="405" y="146" width="180" height="52" rx="6" fill="none" stroke="currentColor" stroke-width="2"></rect>
         <text x="495" y="177" text-anchor="middle" font-size="12" fill="currentColor">棚に置くのはこれだけ</text>
 
         <!-- reverse, crossed out -->
-        <line x1="414" y1="222" x2="172" y2="222" class="st-bad" stroke="#A93A2C" stroke-width="2" stroke-dasharray="6 5"></line>
-        <line x1="280" y1="206" x2="306" y2="238" class="st-bad" stroke="#A93A2C" stroke-width="2.5"></line>
-        <line x1="306" y1="206" x2="280" y2="238" class="st-bad" stroke="#A93A2C" stroke-width="2.5"></line>
-        <text x="130" y="227" text-anchor="end" font-size="12" class="fl-bad" fill="#A93A2C">戻せない</text>
+        <line x1="414" y1="222" x2="172" y2="222" class="st-bad" stroke="var(--e-warn)" stroke-width="2" stroke-dasharray="6 5"></line>
+        <line x1="280" y1="206" x2="306" y2="238" class="st-bad" stroke="var(--e-warn)" stroke-width="2.5"></line>
+        <line x1="306" y1="206" x2="280" y2="238" class="st-bad" stroke="var(--e-warn)" stroke-width="2.5"></line>
+        <text x="130" y="227" text-anchor="end" font-size="12" class="fl-bad" fill="var(--e-warn)">戻せない</text>
       </svg>
       <figcaption>指紋から番号は復元できない。だから棚ごと盗まれても、使える券は作れない。持ち込まれた券は、その場で指紋を取り直して照合する。</figcaption>
     </figure>
   </section>
 
-  <section>
-    <h2><span class="num">05</span>券には、3 つの安全装置がついている</h2>
+  <section class="e-step">
+    <div class="e-step-head"><span class="e-num">05</span><h2>券には、3 つの安全装置がついている</h2></div>
 
-    <div class="guards">
-      <div class="guard">
-        <span class="tag">01</span>
+    <div >
+      <div class="e-note">
+        <span class="e-chip">01</span>
         <h3>指紋だけ</h3>
         <p>番号そのものはどこにも残さない。</p>
       </div>
-      <div class="guard">
-        <span class="tag">02</span>
+      <div class="e-note">
+        <span class="e-chip">02</span>
         <h3>1 回きり</h3>
         <p>使った瞬間に破る。2 度目は通らない。</p>
       </div>
-      <div class="guard">
-        <span class="tag">03</span>
+      <div class="e-note">
+        <span class="e-chip">03</span>
         <h3>5 分で失効</h3>
         <p>選ぶのに十分で、拾われて悪用されるには短い。</p>
       </div>
     </div>
 
-    <figure>
+    <figure class="e-fig">
       <svg viewBox="0 0 620 170" role="img" aria-label="券は発行から5分で失効し、1度使うと2度目は通らない">
         <line x1="40" y1="52" x2="560" y2="52" stroke="currentColor" stroke-width="2"></line>
-        <circle cx="40" cy="52" r="6" class="fl-brass" fill="#9E6E14"></circle>
-        <text x="40" y="34" text-anchor="middle" font-size="12" class="fl-brass" fill="#9E6E14">発行</text>
+        <circle cx="40" cy="52" r="6" class="fl-brass" fill="var(--e-mark)"></circle>
+        <text x="40" y="34" text-anchor="middle" font-size="12" class="fl-brass" fill="var(--e-mark)">発行</text>
 
-        <circle cx="300" cy="52" r="6" class="fl-ok" fill="#2C7A68"></circle>
-        <text x="300" y="34" text-anchor="middle" font-size="12" class="fl-ok" fill="#2C7A68">交換できる</text>
+        <circle cx="300" cy="52" r="6" class="fl-ok" fill="var(--e-accent)"></circle>
+        <text x="300" y="34" text-anchor="middle" font-size="12" class="fl-ok" fill="var(--e-accent)">交換できる</text>
 
-        <circle cx="560" cy="52" r="6" class="fl-bad" fill="#A93A2C"></circle>
-        <text x="560" y="34" text-anchor="middle" font-size="12" class="fl-bad" fill="#A93A2C">失効</text>
+        <circle cx="560" cy="52" r="6" class="fl-bad" fill="var(--e-warn)"></circle>
+        <text x="560" y="34" text-anchor="middle" font-size="12" class="fl-bad" fill="var(--e-warn)">失効</text>
         <text x="560" y="76" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.65">5 分後</text>
 
         <line x1="40" y1="118" x2="180" y2="118" stroke="currentColor" stroke-width="2"></line>
         <text x="110" y="142" text-anchor="middle" font-size="12" fill="currentColor">1 回目：通る</text>
-        <path d="M196 110 l10 12 l18 -22" fill="none" class="st-ok" stroke="#2C7A68" stroke-width="3"></path>
+        <path d="M196 110 l10 12 l18 -22" fill="none" class="st-ok" stroke="var(--e-accent)" stroke-width="3"></path>
 
         <line x1="300" y1="118" x2="440" y2="118" stroke="currentColor" stroke-width="2" stroke-dasharray="6 5" opacity="0.5"></line>
         <text x="370" y="142" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.65">2 回目：止まる</text>
-        <line x1="456" y1="108" x2="478" y2="130" class="st-bad" stroke="#A93A2C" stroke-width="3"></line>
-        <line x1="478" y1="108" x2="456" y2="130" class="st-bad" stroke="#A93A2C" stroke-width="3"></line>
+        <line x1="456" y1="108" x2="478" y2="130" class="st-bad" stroke="var(--e-warn)" stroke-width="3"></line>
+        <line x1="478" y1="108" x2="456" y2="130" class="st-bad" stroke="var(--e-warn)" stroke-width="3"></line>
       </svg>
       <figcaption>拾った人が使うには、5 分以内で、かつ本人より先に使うしかない。しかも先に使われれば本人が気づく。</figcaption>
     </figure>
   </section>
 
-  <section>
-    <h2><span class="num">06</span>今回作ったのは、券を置く棚だけ</h2>
+  <section class="e-step">
+    <div class="e-step-head"><span class="e-num">06</span><h2>今回作ったのは、券を置く棚だけ</h2></div>
     <p>大きな流れを 4 つに割った、その 1 つめ。作ったのは <strong>券を置く棚</strong>（テーブル）と、<strong>指紋の取り方の決まり</strong>（ハッシュ契約）だけ。</p>
     <p>券を配る人も、受け取って交換する人も、まだいない。だから今の動きは何も変わらない。棚が先にできただけ。</p>
 
-    <div class="kicker">
+    <div class="e-note">
       指紋の取り方を 1 か所に集めたのには理由がある。<br>
       配る人・調べる人・交換する人が別々に指紋を取ると、取り方が少しずつズレて、
       <strong>正しい券なのに「そんな券は無い」と言われる</strong>ようになる。しかもエラーにならず、静かに。
     </div>
   </section>
 
-  <footer>
+  </main>
+
+  <footer class="e-foot">
     棚は <code>pending_authentication_tokens</code>、指紋は SHA-256、券の寿命は 300 秒。
     「指紋だけ保存する」「1 回きりにする」「短命にする」はいずれも OAuth のセキュリティ指針（RFC 6819）に沿った作り。
   </footer>
