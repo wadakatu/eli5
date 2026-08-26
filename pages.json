@@ -1,0 +1,27 @@
+[
+  {
+    "path": "security/2026-08-25-multi-org-login-pending-token.html",
+    "title": "組織を選ぶ引換券",
+    "summary": "複数の組織に属するユーザーのログインで、組織を選ぶ前にセッションを渡さず、1 回きり・5 分で失効する引換券トークンを挟む設計"
+  },
+  {
+    "path": "security/2026-08-26-how-a-logout-cancels-a-login.html",
+    "title": "ロッカーの鍵とりちがえ事件",
+    "summary": "未ログインのログアウトがセッション ID を付け替え、進行中のログインを壊していた話。空のセッションなら何もしない"
+  },
+  {
+    "path": "tooling/2026-08-25-why-the-lint-cache-did-nothing.html",
+    "title": "The Robot's Notebook",
+    "summary": "ESLint の --cache が CI で効かなかった 3 つの理由。中身でキャッシュする、チェッカーごとに分ける、共有の置き場に保存する"
+  },
+  {
+    "path": "tooling/2026-08-25-why-the-lint-cache-went-stale.html",
+    "title": "The Vanishing Rulebook",
+    "summary": "lint のキャッシュキーが設定内の関数を写し取れず、ルール変更に気づけなかった話。プラグインのバージョンを設定に書いて解決"
+  },
+  {
+    "path": "web/2026-08-26-project-switch-cleanup.html",
+    "title": "切替のあとかたづけ",
+    "summary": "プロジェクトを切り替えたとき、前のプロジェクトの状態が残って別プロジェクトのデータに混ざっていた話。切替前のリセットと、遅れて返る非同期処理の破棄"
+  }
+]

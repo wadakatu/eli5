@@ -1,0 +1,521 @@
+/* eli5 — the shared design for every explainer in this archive.
+ *
+ * Each page used to bring its own palette, its own three fonts and its own
+ * names for the same six things (step / beat / scene / page for one numbered
+ * section). The drawings are what differ between explainers; the furniture
+ * around them never did. So the furniture lives here, once.
+ *
+ * A page may still carry a <style> block, but only to animate or position its
+ * own illustrations. Everything below — colour, type, spacing, the shape of a
+ * step — is settled here and must not be redefined per page.
+ *
+ * Illustrations should paint with the tokens rather than with literal colours.
+ * An <svg> drawn in var(--e-ink) and var(--e-accent) follows the reader into
+ * dark mode for free; one drawn in #14302C does not.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  --e-ground: #e6ece8;
+  --e-surface: #f5f8f5;
+  --e-sunk: #dce5e0;
+  --e-ink: #14302c;
+  --e-ink-soft: #4e6b66;
+  --e-line: #c6d3cd;
+
+  /* the three voices a picture story needs: neutral, wrong, fixed */
+  --e-accent: #2c6a5f;
+  --e-warn: #a03d28;
+  --e-mark: #a9781f;
+
+  --e-shadow: 0 1px 0 rgb(20 48 44 / 6%), 0 8px 24px -14px rgb(20 48 44 / 35%);
+
+  --e-display: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
+  --e-body: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
+  --e-mono: "DM Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  /* one spacing step, so every gap on the page is a multiple of the same thing */
+  --e-step: clamp(1rem, 0.6rem + 1.4vw, 1.5rem);
+  --e-maxw: 1120px;
+  --e-radius: 18px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --e-ground: #0e1e1c;
+    --e-surface: #152b28;
+    --e-sunk: #0a1716;
+    --e-ink: #e4ede9;
+    --e-ink-soft: #93aaa5;
+    --e-line: #244440;
+
+    --e-accent: #4f9d8d;
+    --e-warn: #de7259;
+    --e-mark: #d9a94e;
+
+    --e-shadow: 0 1px 0 rgb(0 0 0 / 30%), 0 10px 28px -16px rgb(0 0 0 / 80%);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--e-ground);
+  color: var(--e-ink);
+  font-family: var(--e-body);
+  font-size: clamp(1rem, 0.94rem + 0.28vw, 1.125rem);
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* the link back to the index, injected into every page */
+.eli5-up {
+  display: inline-block;
+  margin: 1.25rem 0 0 1.25rem;
+  font-family: var(--e-mono);
+  font-size: 0.8125rem;
+  line-height: 1;
+  color: var(--e-ink-soft);
+  text-decoration: none;
+}
+
+.eli5-up:hover,
+.eli5-up:focus-visible {
+  color: var(--e-ink);
+  text-decoration: underline;
+}
+
+.e-page {
+  max-width: var(--e-maxw);
+  margin: 0 auto;
+  padding: 0 var(--e-step);
+}
+
+/* ---------- opening ---------- */
+
+.e-head {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: center;
+  padding: clamp(2rem, 6vw, 4.5rem) 0 clamp(2rem, 5vw, 3.5rem);
+}
+
+/* the art sits beside the title only when there is room for both to breathe */
+@media (min-width: 820px) {
+  .e-head:has(.e-head-art) {
+    grid-template-columns: 1.15fr 0.85fr;
+  }
+}
+
+.e-eyebrow {
+  margin: 0 0 0.9rem;
+  font-family: var(--e-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--e-mark);
+}
+
+.e-head h1 {
+  margin: 0 0 1rem;
+  font-family: var(--e-display);
+  font-weight: 700;
+  font-size: clamp(2.1rem, 1.3rem + 4vw, 4rem);
+  line-height: 1.18;
+  text-wrap: balance;
+}
+
+.e-lede {
+  margin: 0;
+  max-width: 34em;
+  font-size: clamp(1.05rem, 0.98rem + 0.4vw, 1.3rem);
+  color: var(--e-ink-soft);
+}
+
+.e-head-art {
+  display: grid;
+  place-items: center;
+}
+
+.e-head-art svg {
+  width: 100%;
+  max-width: 380px;
+  height: auto;
+}
+
+/* ---------- the numbered steps ---------- */
+
+.e-steps {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 2.5vw, 1.75rem);
+  padding-bottom: clamp(2rem, 5vw, 4rem);
+}
+
+.e-step {
+  padding: clamp(1.25rem, 3vw, 2.25rem);
+  background: var(--e-surface);
+  border: 1px solid var(--e-line);
+  border-radius: var(--e-radius);
+  box-shadow: var(--e-shadow);
+  display: grid;
+  gap: clamp(1rem, 2.5vw, 2rem);
+}
+
+/* a step that shows the fault, and one that shows the repair */
+.e-step--bad {
+  border-color: color-mix(in srgb, var(--e-warn) 45%, var(--e-line));
+}
+
+.e-step--good {
+  border-color: color-mix(in srgb, var(--e-accent) 45%, var(--e-line));
+}
+
+.e-step-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.e-num {
+  font-family: var(--e-mono);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.1em;
+  color: var(--e-ink-soft);
+}
+
+.e-step h2 {
+  margin: 0;
+  font-family: var(--e-display);
+  font-weight: 700;
+  font-size: clamp(1.25rem, 1.1rem + 0.7vw, 1.6rem);
+  line-height: 1.4;
+}
+
+.e-step p {
+  margin: 0 0 0.9em;
+}
+
+.e-step p:last-child {
+  margin-bottom: 0;
+}
+
+.e-chip {
+  padding: 0.2rem 0.7rem 0.28rem;
+  border: 1.5px solid currentcolor;
+  border-radius: 999px;
+  font-family: var(--e-display);
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  color: var(--e-ink-soft);
+}
+
+.e-chip--problem {
+  color: var(--e-warn);
+}
+
+.e-chip--fix {
+  color: var(--e-accent);
+}
+
+/* prose on one side, the drawing on the other */
+.e-two {
+  display: grid;
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  align-items: center;
+}
+
+@media (min-width: 760px) {
+  .e-two {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+/* ---------- illustrations ---------- */
+
+/* stretch, not centre: a bar chart or a table placed here needs the full width,
+   and only the drawing itself wants to be centred */
+.e-fig {
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.e-fig svg {
+  width: 100%;
+  height: auto;
+  max-width: 520px;
+  margin-inline: auto;
+  overflow: visible;
+}
+
+/* a ground for drawings whose strokes would otherwise float on the card */
+.e-fig--panel {
+  padding: clamp(0.75rem, 2vw, 1.25rem);
+  background: var(--e-sunk);
+  border-radius: 12px;
+  overflow-x: auto;
+  justify-items: stretch;
+}
+
+.e-fig--panel svg {
+  max-width: none;
+  min-width: 320px;
+}
+
+.e-fig figcaption {
+  font-family: var(--e-mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  text-align: center;
+  color: var(--e-ink-soft);
+  text-wrap: balance;
+}
+
+/* an aside the eye should stop on, without becoming a card of its own */
+.e-note {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-left: 1.2rem;
+  border-left: 3px solid var(--e-accent);
+}
+
+/* a handful of labelled facts, side by side */
+.e-tally {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1px;
+  margin: 0;
+  background: var(--e-line);
+  border: 1px solid var(--e-line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.e-tally > div {
+  padding: 0.9rem 1rem;
+  background: var(--e-surface);
+}
+
+.e-tally dt {
+  font-family: var(--e-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--e-ink-soft);
+}
+
+.e-tally dd {
+  margin: 0.35rem 0 0;
+  font-family: var(--e-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.e-tally dd small {
+  display: block;
+  font-family: var(--e-body);
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: var(--e-ink-soft);
+}
+
+/* ---------- metaphor to reality ---------- */
+
+.e-map {
+  overflow-x: auto;
+  border: 1px solid var(--e-line);
+  border-radius: var(--e-radius);
+  background: var(--e-sunk);
+}
+
+.e-map table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.e-map th,
+.e-map td {
+  padding: 0.6rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--e-line);
+}
+
+.e-map tr:last-child th,
+.e-map tr:last-child td {
+  border-bottom: 0;
+}
+
+.e-map th {
+  font-family: var(--e-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--e-ink-soft);
+  font-weight: 400;
+}
+
+/* the right-hand column is the un-metaphored truth */
+.e-map td:last-child {
+  font-family: var(--e-mono);
+  font-size: 0.85rem;
+  color: var(--e-accent);
+}
+
+/* ---------- measured numbers ---------- */
+
+.e-bars {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.e-bar {
+  display: grid;
+  grid-template-columns: minmax(6rem, auto) 1fr minmax(3.5rem, auto);
+  gap: 0.75rem;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+/* these are spans in the markup, so they need to be told they are boxes --
+   an inline element ignores width, which silently makes every bar look full */
+.e-bar-track {
+  display: block;
+  height: 0.6rem;
+  border-radius: 999px;
+  background: var(--e-sunk);
+  border: 1px solid var(--e-line);
+  overflow: hidden;
+}
+
+/* width comes from a style attribute: the value is data, not design */
+.e-bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--e-accent);
+}
+
+.e-bar--slow .e-bar-fill {
+  background: var(--e-warn);
+}
+
+.e-bar-num {
+  font-family: var(--e-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--e-ink-soft);
+}
+
+/* ---------- closing ---------- */
+
+.e-close {
+  margin: clamp(1rem, 2.5vw, 1.75rem) 0 0;
+  padding: clamp(1.5rem, 3.5vw, 2.5rem);
+  border: 1px solid var(--e-line);
+  border-left: 4px solid var(--e-mark);
+  border-radius: var(--e-radius);
+  background: var(--e-surface);
+}
+
+.e-close h2 {
+  margin: 0 0 0.6rem;
+  font-family: var(--e-display);
+  font-size: clamp(1.15rem, 1.05rem + 0.5vw, 1.4rem);
+}
+
+.e-close p:last-child {
+  margin-bottom: 0;
+}
+
+.e-foot {
+  padding: clamp(2rem, 5vw, 3.5rem) 0;
+  font-family: var(--e-mono);
+  font-size: 0.78rem;
+  color: var(--e-ink-soft);
+}
+
+/* ---------- inline ---------- */
+
+.e-step strong,
+.e-close strong {
+  color: var(--e-ink);
+  font-weight: 700;
+  background: linear-gradient(transparent 62%, color-mix(in srgb, var(--e-mark) 30%, transparent) 0);
+}
+
+/* the two verdicts a picture story keeps making, and the voice of a caption */
+.e-bad {
+  color: var(--e-warn);
+  font-weight: 700;
+}
+
+.e-good {
+  color: var(--e-accent);
+  font-weight: 700;
+}
+
+.e-say {
+  font-family: var(--e-mono);
+  font-size: 0.85em;
+  color: var(--e-mark);
+}
+
+.e-step code,
+.e-close code {
+  padding: 0.1em 0.4em;
+  border-radius: 5px;
+  background: var(--e-sunk);
+  font-family: var(--e-mono);
+  font-size: 0.88em;
+}
+
+/* every page enters the same way, so the archive feels like one publication */
+@media (prefers-reduced-motion: no-preference) {
+  .e-head,
+  .e-step {
+    animation: e-rise 0.5s ease-out both;
+  }
+
+  .e-step:nth-of-type(2) {
+    animation-delay: 0.04s;
+  }
+
+  .e-step:nth-of-type(n + 3) {
+    animation-delay: 0.08s;
+  }
+
+  @keyframes e-rise {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2.5px solid var(--e-mark);
+  outline-offset: 3px;
+  border-radius: 4px;
+}

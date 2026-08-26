@@ -1,11 +1,10 @@
----
----
 <!doctype html>
 <html lang="ja">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>eli5</title>
+<meta name="description" content="5 本の絵で説明する解説。">
 <style>
   :root { color-scheme: light dark; }
   body { font: 16px/1.7 system-ui, sans-serif; max-width: 42rem; margin: 4rem auto; padding: 0 1.5rem; }
@@ -16,30 +15,42 @@
   ul { list-style: none; padding: 0; margin: 0; }
   li { padding: .5rem 0; border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent); }
   time { opacity: .6; font-variant-numeric: tabular-nums; margin-right: .75rem; }
+  p.sum { margin: .15rem 0 0; font-size: .875rem; opacity: .6; }
   p.empty { opacity: .6; }
 </style>
 </head>
 <body>
-<!-- same domain: the user site at wadakatu.github.io carries the CNAME, and this
-     repo is published underneath it at /eli5/ -->
+<!-- Written by tools/archive.py from what is on disk. Do not edit by hand. -->
 <a class="up" href="/">&larr; wadakatu.dev</a>
 <h1>eli5</h1>
-{% assign pages = site.static_files | where: "extname", ".html" %}
-{% if pages.size == 0 %}
-<p class="empty">まだ何もありません。</p>
-{% else %}
-{% assign groups = pages | group_by_exp: "f", "f.path | remove_first: '/' | split: '/' | first" | sort: "name" %}
-{% for g in groups %}
-<h2>{{ g.name }}</h2>
+<h2>security</h2>
 <ul>
-{% assign entries = g.items | sort: "name" | reverse %}
-{% for f in entries %}
-  {% assign date = f.basename | slice: 0, 10 %}
-  {% assign slug = f.basename | remove_first: date | remove_first: "-" | replace: "-", " " %}
-  <li><a href="{{ f.path | remove_first: '/' }}"><time>{{ date }}</time>{{ slug }}</a></li>
-{% endfor %}
+  <li>
+    <a href="security/2026-08-26-how-a-logout-cancels-a-login.html"><time>2026-08-26</time>ロッカーの鍵とりちがえ事件</a>
+    <p class="sum">未ログインのログアウトがセッション ID を付け替え、進行中のログインを壊していた話。空のセッションなら何もしない</p>
+  </li>
+  <li>
+    <a href="security/2026-08-25-multi-org-login-pending-token.html"><time>2026-08-25</time>組織を選ぶ引換券</a>
+    <p class="sum">複数の組織に属するユーザーのログインで、組織を選ぶ前にセッションを渡さず、1 回きり・5 分で失効する引換券トークンを挟む設計</p>
+  </li>
 </ul>
-{% endfor %}
-{% endif %}
+<h2>tooling</h2>
+<ul>
+  <li>
+    <a href="tooling/2026-08-25-why-the-lint-cache-went-stale.html"><time>2026-08-25</time>The Vanishing Rulebook</a>
+    <p class="sum">lint のキャッシュキーが設定内の関数を写し取れず、ルール変更に気づけなかった話。プラグインのバージョンを設定に書いて解決</p>
+  </li>
+  <li>
+    <a href="tooling/2026-08-25-why-the-lint-cache-did-nothing.html"><time>2026-08-25</time>The Robot&#x27;s Notebook</a>
+    <p class="sum">ESLint の --cache が CI で効かなかった 3 つの理由。中身でキャッシュする、チェッカーごとに分ける、共有の置き場に保存する</p>
+  </li>
+</ul>
+<h2>web</h2>
+<ul>
+  <li>
+    <a href="web/2026-08-26-project-switch-cleanup.html"><time>2026-08-26</time>切替のあとかたづけ</a>
+    <p class="sum">プロジェクトを切り替えたとき、前のプロジェクトの状態が残って別プロジェクトのデータに混ざっていた話。切替前のリセットと、遅れて返る非同期処理の破棄</p>
+  </li>
+</ul>
 </body>
 </html>

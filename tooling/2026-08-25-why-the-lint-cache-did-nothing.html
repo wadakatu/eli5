@@ -1,319 +1,41 @@
 <!doctype html>
-<html lang="en">
+<html lang="ja">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="A picture story about why a robot that kept a notebook still read every file, twice.">
-<title>The Robot's Notebook</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,400..800&family=Karla:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<link rel="stylesheet" href="../eli5.css">
+<title>The Robot's Notebook</title>
+<meta name="description" content="ESLint の --cache が CI で効かなかった 3 つの理由。中身でキャッシュする、チェッカーごとに分ける、共有の置き場に保存する">
 
 <style>
-  :root {
-    --paper: #edf0ea;
-    --card: #f6f8f3;
-    --ink: #16332e;
-    --ink-soft: #4d6560;
-    --rule: #cfd8cf;
-    --teal: #12796c;
-    --brick: #a8412f;
-    --marigold: #a97710;
-
-    --display: "Fraunces", "Iowan Old Style", Georgia, serif;
-    --body: "Karla", "Helvetica Neue", Arial, sans-serif;
-    --mono: "DM Mono", "SFMono-Regular", Menlo, monospace;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --paper: #0e1a18;
-      --card: #152422;
-      --ink: #e4ede9;
-      --ink-soft: #9bb0aa;
-      --rule: #2a3b38;
-      --teal: #4ecebb;
-      --brick: #e4796a;
-      --marigold: #efb944;
-    }
-  }
-
-  :root[data-theme="dark"] {
-    --paper: #0e1a18;
-    --card: #152422;
-    --ink: #e4ede9;
-    --ink-soft: #9bb0aa;
-    --rule: #2a3b38;
-    --teal: #4ecebb;
-    --brick: #e4796a;
-    --marigold: #efb944;
-  }
-
-  * { box-sizing: border-box; }
-
-  body {
-    background: var(--paper);
-    color: var(--ink);
-    font-family: var(--body);
-    font-size: 17px;
-    line-height: 1.55;
-    margin: 0;
-    padding: 0 20px 96px;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  .wrap {
-    max-width: 780px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 88px;
-  }
-
-  /* ---------- opening ---------- */
-
-  .opening {
-    padding: 88px 0 0;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .eyebrow {
-    font-family: var(--mono);
-    font-size: 13px;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-    margin: 0;
-  }
-
-  h1 {
-    font-family: var(--display);
-    font-variation-settings: "opsz" 144;
-    font-weight: 700;
-    font-size: clamp(48px, 11vw, 88px);
-    line-height: 0.98;
-    letter-spacing: -0.02em;
-    text-wrap: balance;
-    margin: 0;
-  }
-
-  .standfirst {
-    font-size: clamp(18px, 2.4vw, 21px);
-    color: var(--ink-soft);
-    max-width: 34em;
-    margin: 0;
-  }
-
-  /* ---------- pages ---------- */
-
-  .page {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
-
-  .page-no {
-    font-family: var(--mono);
-    font-size: 13px;
-    letter-spacing: 0.13em;
-    color: var(--ink-soft);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 0;
-  }
-
-  .page-no::after {
-    content: "";
-    flex: 1;
-    height: 1px;
-    background: var(--rule);
-  }
-
-  .big {
-    font-family: var(--display);
-    font-variation-settings: "opsz" 96;
-    font-weight: 600;
-    font-size: clamp(30px, 5.4vw, 46px);
-    line-height: 1.1;
-    letter-spacing: -0.015em;
-    text-wrap: balance;
-    margin: 0;
-  }
-
-  .big em {
-    font-style: normal;
-    color: var(--teal);
-  }
-
-  .big .bad {
-    color: var(--brick);
-  }
-
-  .aside {
-    font-size: 17px;
-    color: var(--ink-soft);
-    max-width: 34em;
-    margin: 0;
-  }
-
-  figure {
-    margin: 0;
-    background: var(--card);
-    border: 1px solid var(--rule);
-    border-radius: 4px;
-    padding: 28px 20px 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    overflow-x: auto;
-  }
-
-  figure svg {
-    display: block;
-    width: 100%;
-    max-width: 100%;
-    height: auto;
-    min-width: 420px;
-    color: var(--ink);
-  }
-
-  figcaption {
-    font-family: var(--mono);
-    font-size: 12.5px;
-    line-height: 1.5;
-    color: var(--ink-soft);
-    text-align: center;
-  }
-
-  .ink-teal { color: var(--teal); }
-  .ink-brick { color: var(--brick); }
-
-  /* ---------- closing ---------- */
-
-  .closing {
-    border-top: 2px solid var(--ink);
-    padding-top: 40px;
-    display: flex;
-    flex-direction: column;
-    gap: 32px;
-  }
-
-  .score {
-    display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 8px 18px;
-    font-family: var(--display);
-    font-variation-settings: "opsz" 144;
-    font-weight: 700;
-    font-size: clamp(40px, 9vw, 72px);
-    line-height: 1;
-    letter-spacing: -0.02em;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .score .from { color: var(--brick); }
-  .score .to { color: var(--teal); }
-  .score .arrow { color: var(--ink-soft); font-size: 0.55em; }
-
-  .score-note {
-    font-family: var(--mono);
-    font-size: 13px;
-    color: var(--ink-soft);
-    margin: 0;
-  }
-
-  .fixes {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 22px;
-  }
-
-  .fixes li {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    border-left: 3px solid var(--teal);
-    padding-left: 18px;
-  }
-
-  .fixes b {
-    font-family: var(--display);
-    font-variation-settings: "opsz" 48;
-    font-weight: 600;
-    font-size: 21px;
-    letter-spacing: -0.01em;
-  }
-
-  .fixes span { color: var(--ink-soft); }
-
-  code {
-    font-family: var(--mono);
-    font-size: 0.92em;
-    background: var(--paper);
-    border: 1px solid var(--rule);
-    border-radius: 3px;
-    padding: 1px 6px;
-    white-space: nowrap;
-  }
-
-  .colophon {
-    font-size: 15px;
-    color: var(--ink-soft);
-    border-top: 1px solid var(--rule);
-    padding-top: 24px;
-    margin: 0;
-    max-width: 40em;
-  }
-
-  /* ---------- reveal ---------- */
-
-  .page, .closing {
-    opacity: 0;
-    transform: translateY(18px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
-  }
-
-  .page.seen, .closing.seen {
-    opacity: 1;
-    transform: none;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .page, .closing {
-      opacity: 1;
-      transform: none;
-      transition: none;
-    }
-  }
-
-  :focus-visible {
-    outline: 2px solid var(--teal);
-    outline-offset: 3px;
-  }
+  /* the drawings colour themselves by class; everything else is in eli5.css */
+  .ink-teal  { color: var(--e-accent); }
+  .ink-brick { color: var(--e-warn); }
 </style>
 </head>
 <body>
-<div class="wrap">
+<a class="eli5-up" href="../">&larr; eli5</a>
+<div class="e-page">
 
-  <header class="opening">
-    <p class="eyebrow">A picture story about a very fast mistake</p>
+  <header class="e-head">
+    <div>
+    <p class="e-eyebrow">A picture story about a very fast mistake</p>
     <h1>The Robot's Notebook</h1>
-    <p class="standfirst">There is a robot that reads every file we write and points out the mistakes. It kept a notebook so it wouldn't have to read everything twice. For a long time, the notebook did nothing at all.</p>
+    <p class="e-lede">There is a robot that reads every file we write and points out the mistakes. It kept a notebook so it wouldn't have to read everything twice. For a long time, the notebook did nothing at all.</p>
+      </div>
   </header>
 
-  <!-- ============ 1 ============ -->
-  <section class="page">
-    <p class="page-no">One</p>
-    <h2 class="big">The robot reads <em>every single file</em>.</h2>
+  <main class="e-steps">
 
-    <figure>
+  <!-- ============ 1 ============ -->
+  <section class="e-step">
+    <div class="e-step-head"><span class="e-num">01</span>
+        <h2>The robot reads <em>every single file</em>.</h2></div>
+
+    <figure class="e-fig">
       <svg viewBox="0 0 640 250" role="img" aria-label="A robot reading a grid of four thousand files, taking seventeen seconds.">
         <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
           <!-- robot -->
@@ -359,12 +81,12 @@
   </section>
 
   <!-- ============ 2 ============ -->
-  <section class="page">
-    <p class="page-no">Two</p>
-    <h2 class="big">So it keeps a notebook: <em>&ldquo;this one was fine.&rdquo;</em></h2>
-    <p class="aside">Next time, it only reads the files that changed. Seventeen seconds becomes three.</p>
+  <section class="e-step">
+    <div class="e-step-head"><span class="e-num">02</span>
+        <h2>So it keeps a notebook: <em>&ldquo;this one was fine.&rdquo;</em></h2></div>
+    <p class="e-note">Next time, it only reads the files that changed. Seventeen seconds becomes three.</p>
 
-    <figure>
+    <figure class="e-fig">
       <svg viewBox="0 0 640 250" role="img" aria-label="The robot writes fine into a notebook, then uses the notebook to skip files it already checked.">
         <defs>
           <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -421,12 +143,12 @@
   </section>
 
   <!-- ============ 3 ============ -->
-  <section class="page">
-    <p class="page-no">Three</p>
-    <h2 class="big">But the notebook was <span class="bad">thrown away every time</span>.</h2>
-    <p class="aside">The robot works on a fresh borrowed desk for each job, and the desk is wiped when it leaves. So the notebook never survived to the next run &mdash; and the robot started from zero, forever.</p>
+  <section class="e-step">
+    <div class="e-step-head"><span class="e-num">03</span>
+        <h2>But the notebook was <span class="e-bad">thrown away every time</span>.</h2></div>
+    <p class="e-note">The robot works on a fresh borrowed desk for each job, and the desk is wiped when it leaves. So the notebook never survived to the next run &mdash; and the robot started from zero, forever.</p>
 
-    <figure>
+    <figure class="e-fig">
       <svg viewBox="0 0 640 250" role="img" aria-label="Three runs in a row, each starting with an empty notebook and ending with the notebook in the bin.">
         <defs>
           <marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -480,12 +202,12 @@
   </section>
 
   <!-- ============ 4 ============ -->
-  <section class="page">
-    <p class="page-no">Four</p>
-    <h2 class="big">We saved the notebook. It <span class="bad">still</span> didn't work.</h2>
-    <p class="aside">Because of what the robot wrote down. Next to each file it noted <strong>what time the file was last touched</strong> &mdash; not what was inside it. And copying the code to a fresh desk stamps <em>every</em> file with the time it was copied. Four thousand files, all looking brand new.</p>
+  <section class="e-step">
+    <div class="e-step-head"><span class="e-num">04</span>
+        <h2>We saved the notebook. It <span class="e-bad">still</span> didn't work.</h2></div>
+    <p class="e-note">Because of what the robot wrote down. Next to each file it noted <strong>what time the file was last touched</strong> &mdash; not what was inside it. And copying the code to a fresh desk stamps <em>every</em> file with the time it was copied. Four thousand files, all looking brand new.</p>
 
-    <figure>
+    <figure class="e-fig">
       <svg viewBox="0 0 660 330" role="img" aria-label="Left: a file noted by its clock time looks changed after being copied. Right: a file noted by its fingerprint looks the same after being copied.">
         <defs>
           <marker id="a4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -542,12 +264,12 @@
   </section>
 
   <!-- ============ 5 ============ -->
-  <section class="page">
-    <p class="page-no">Five</p>
-    <h2 class="big">And two robots were <span class="bad">sharing one notebook</span>.</h2>
-    <p class="aside">One robot checks one kind of file, another robot checks a different kind &mdash; at the same time, on the same desk. Both wrote into the same notebook, and whoever finished last wiped out the other one's pages. We opened the notebook and one robot's work was simply gone.</p>
+  <section class="e-step">
+    <div class="e-step-head"><span class="e-num">05</span>
+        <h2>And two robots were <span class="e-bad">sharing one notebook</span>.</h2></div>
+    <p class="e-note">One robot checks one kind of file, another robot checks a different kind &mdash; at the same time, on the same desk. Both wrote into the same notebook, and whoever finished last wiped out the other one's pages. We opened the notebook and one robot's work was simply gone.</p>
 
-    <figure>
+    <figure class="e-fig">
       <svg viewBox="0 0 660 300" role="img" aria-label="Before: two robots write to one notebook and one robot's pages are erased. After: each robot has its own notebook and both sets of pages survive.">
         <defs>
           <marker id="a5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -632,12 +354,12 @@
   </section>
 
   <!-- ============ 6 ============ -->
-  <section class="page">
-    <p class="page-no">Six</p>
-    <h2 class="big">Now the notebook lives in <em>a locker</em>.</h2>
-    <p class="aside">One robot fills it in after the work is merged, and puts it away. Every robot after that borrows a copy instead of starting empty. Nobody else is allowed to write in it &mdash; one writer, many readers, so it can't get scribbled over.</p>
+  <section class="e-step">
+    <div class="e-step-head"><span class="e-num">06</span>
+        <h2>Now the notebook lives in <em>a locker</em>.</h2></div>
+    <p class="e-note">One robot fills it in after the work is merged, and puts it away. Every robot after that borrows a copy instead of starting empty. Nobody else is allowed to write in it &mdash; one writer, many readers, so it can't get scribbled over.</p>
 
-    <figure>
+    <figure class="e-fig">
       <svg viewBox="0 0 660 260" role="img" aria-label="One robot saves the notebook into a locker after merge; three later robots each borrow a copy from the locker.">
         <defs>
           <marker id="a6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -692,54 +414,25 @@
   </section>
 
   <!-- ============ closing ============ -->
-  <section class="closing">
+  </main>
+
+  <section class="e-close">
     <div>
-      <p class="score">
-        <span class="from">17s</span>
-        <span class="arrow">&rarr;</span>
-        <span class="to">3s</span>
-      </p>
-      <p class="score-note">measured on one folder, after all three fixes</p>
+      <dl class="e-tally">
+        <div><dt>before</dt><dd>17s</dd></div>
+        <div><dt>after</dt><dd>3s<small>measured on one folder, after all three fixes</small></dd></div>
+      </dl>
     </div>
 
-    <ul class="fixes">
-      <li>
-        <b>Write down the insides, not the time</b>
-        <span>One flag: <code>--cache-strategy content</code>. Without it, a fresh copy of the code looks 100% new and the notebook is useless.</span>
-      </li>
-      <li>
-        <b>Give each robot its own notebook</b>
-        <span><code>--cache-location</code> per checker. Two checkers, one file: the second one erased the first. The proof was a notebook with zero <code>.vue</code> pages in it.</span>
-      </li>
-      <li>
-        <b>Keep the notebook in a locker</b>
-        <span>Saved once after each merge, borrowed by every job after that. Only one job is allowed to write, so it can't be scribbled over or half-filled.</span>
-      </li>
-    </ul>
+    
+      <div class="e-note"><b>Write down the insides, not the time</b><span>One flag: <code>--cache-strategy content</code>. Without it, a fresh copy of the code looks 100% new and the notebook is useless.</span></div>
+      <div class="e-note"><b>Give each robot its own notebook</b><span><code>--cache-location</code> per checker. Two checkers, one file: the second one erased the first. The proof was a notebook with zero <code>.vue</code> pages in it.</span></div>
+      <div class="e-note"><b>Keep the notebook in a locker</b><span>Saved once after each merge, borrowed by every job after that. Only one job is allowed to write, so it can't be scribbled over or half-filled.</span></div>
+    
 
-    <p class="colophon">The tool is ESLint, the notebook is <code>.eslintcache</code>, and the locker is GitHub Actions cache. The flag had been switched on the whole time &mdash; it just had nothing to remember with, nowhere to live, and two writers fighting over it.</p>
+    <p class="e-foot">The tool is ESLint, the notebook is <code>.eslintcache</code>, and the locker is GitHub Actions cache. The flag had been switched on the whole time &mdash; it just had nothing to remember with, nowhere to live, and two writers fighting over it.</p>
   </section>
 
 </div>
-
-<script>
-  (function () {
-    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var panels = document.querySelectorAll(".page, .closing");
-    if (reduce || !("IntersectionObserver" in window)) {
-      panels.forEach(function (p) { p.classList.add("seen"); });
-      return;
-    }
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (e.isIntersecting) {
-          e.target.classList.add("seen");
-          io.unobserve(e.target);
-        }
-      });
-    }, { rootMargin: "0px 0px -12% 0px", threshold: 0.08 });
-    panels.forEach(function (p) { io.observe(p); });
-  })();
-</script>
 </body>
 </html>
