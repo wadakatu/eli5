@@ -317,24 +317,31 @@
       </div>
       <div class="beat__body">
         <div class="art">
-          <svg viewBox="0 0 480 240" role="img" aria-label="人が S1 の鍵タグを持ち、番号 S1 のロッカーの前に立っている">
-            <circle cx="76" cy="76" r="26" fill="var(--ink-soft)"/>
-            <path d="M34 190a42 42 0 0 1 84 0z" fill="var(--ink-soft)"/>
-            <rect x="120" y="110" width="76" height="42" rx="9" fill="var(--brass)"/>
-            <circle cx="136" cy="131" r="6" fill="var(--sunk)"/>
-            <text x="166" y="140" text-anchor="middle" font-family="DM Mono, monospace" font-size="22" fill="var(--tag-text)">S1</text>
-            <rect x="300" y="30" width="140" height="180" rx="10" fill="var(--enamel)"/>
-            <rect x="316" y="48" width="108" height="6" rx="3" fill="var(--surface)" opacity=".45"/>
-            <rect x="316" y="62" width="108" height="6" rx="3" fill="var(--surface)" opacity=".45"/>
-            <rect x="336" y="92" width="68" height="34" rx="6" fill="var(--sunk)"/>
-            <text x="370" y="117" text-anchor="middle" font-family="DM Mono, monospace" font-size="21" fill="var(--ink)">S1</text>
-            <circle cx="416" cy="165" r="8" fill="var(--sunk)" opacity=".8"/>
+          <svg viewBox="0 0 480 240" role="img" aria-label="人が窓口から、鍵 S1 の入った返事の封筒を受け取り、その先に番号 S1 のロッカーがある図">
+            <circle cx="52" cy="70" r="24" fill="var(--ink-soft)"/>
+            <path d="M14 178a38 38 0 0 1 76 0z" fill="var(--ink-soft)"/>
+            <text x="52" y="212" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--ink-soft)">あなた</text>
+            <rect x="126" y="72" width="150" height="86" rx="10" fill="var(--surface)" stroke="var(--line)" stroke-width="2.5"/>
+            <path d="M126 72l75 46 75-46" fill="none" stroke="var(--line)" stroke-width="2.5"/>
+            <rect x="168" y="82" width="66" height="32" rx="7" fill="var(--brass)"/>
+            <text x="201" y="105" text-anchor="middle" font-family="DM Mono, monospace" font-size="17" fill="var(--tag-text)">S1</text>
+            <text x="201" y="186" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--ink-soft)">返事の封筒</text>
+            <text x="201" y="210" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="13" fill="var(--brass)">中に鍵が1本</text>
+            <path d="M292 114h28" stroke="var(--ink-soft)" stroke-width="4" fill="none"/>
+            <path d="M320 114l-16-9v18z" fill="var(--ink-soft)"/>
+            <rect x="336" y="26" width="128" height="164" rx="10" fill="var(--enamel)"/>
+            <rect x="352" y="44" width="96" height="6" rx="3" fill="var(--surface)" opacity=".45"/>
+            <rect x="352" y="58" width="96" height="6" rx="3" fill="var(--surface)" opacity=".45"/>
+            <rect x="366" y="86" width="68" height="34" rx="6" fill="var(--sunk)"/>
+            <text x="400" y="111" text-anchor="middle" font-family="DM Mono, monospace" font-size="21" fill="var(--ink)">S1</text>
+            <circle cx="444" cy="150" r="8" fill="var(--sunk)" opacity=".8"/>
+            <text x="400" y="212" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--ink-soft)">ロッカー</text>
           </svg>
         </div>
         <div>
-          <h2>サイトは、あなたに鍵をわたす</h2>
-          <p>ブラウザが受けとるのは、番号のついた<strong>ロッカーの鍵</strong>。</p>
-          <p>ログインで手に入る「持ちもの」は、その番号のロッカーにしまわれます。<br><span class="say">鍵 S1 → ロッカー S1</span></p>
+          <h2>やりとりは、ぜんぶ窓口ごし</h2>
+          <p>あなたがサイトに何かを頼むと、窓口から<strong>返事の封筒</strong>が返ってきます。この封筒が、このあと何度も出てきます。</p>
+          <p>封筒には必ず<strong>番号つきの鍵が1本</strong>。ログインで手に入る「持ちもの」は、その番号のロッカーにしまわれます。<br><span class="say">鍵 S1 → ロッカー S1</span></p>
         </div>
       </div>
     </section>
@@ -365,8 +372,8 @@
         </div>
         <div>
           <h2>ログインは、往復する</h2>
-          <p>いちど守衛所へ行って、スタンプをもらって戻ってくる。</p>
-          <p>その間、受付はメモを1枚持っています。<br><span class="say">「鍵 S1 の人が、帰りを待っている」</span></p>
+          <p>となりの<strong>守衛所の窓口</strong>まで自分で行って、スタンプをもらって戻ってくる。運ぶのはあなたです。</p>
+          <p>その間、サイトの窓口はメモを1枚持っています。<br><span class="say">「鍵 S1 の人が、帰りを待っている」</span></p>
         </div>
       </div>
     </section>
@@ -474,12 +481,12 @@
       </div>
       <div class="beat__body">
         <div class="art">
-          <svg viewBox="0 0 480 240" role="img" aria-label="封筒に鍵が同封されていて、受け取るとポケットの中の鍵がそれに入れ替わる図">
+          <svg viewBox="0 0 480 240" role="img" aria-label="返事の封筒に入っていた鍵で、ポケットの中の鍵が上書きされる図">
             <rect x="24" y="70" width="164" height="94" rx="10" fill="var(--surface)" stroke="var(--line)" stroke-width="2.5"/>
             <path d="M24 70l82 50 82-50" fill="none" stroke="var(--line)" stroke-width="2.5"/>
             <rect x="72" y="82" width="68" height="34" rx="7" fill="var(--brass)"/>
             <text x="106" y="106" text-anchor="middle" font-family="DM Mono, monospace" font-size="18" fill="var(--tag-text)">S1</text>
-            <text x="106" y="192" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="15" fill="var(--ink-soft)">サイトからの返事</text>
+            <text x="106" y="192" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="15" fill="var(--ink-soft)">返ってきた封筒</text>
             <path d="M208 116h44" stroke="var(--ink-soft)" stroke-width="4" fill="none"/>
             <path d="M252 116l-16-9v18z" fill="var(--ink-soft)"/>
             <rect x="286" y="58" width="170" height="118" rx="14" fill="var(--sunk)" stroke="var(--line)" stroke-width="2.5"/>
@@ -491,9 +498,9 @@
           </svg>
         </div>
         <div>
-          <h2>返事には、いつも鍵が同封されている</h2>
-          <p>サイトは返事をするたび、封筒に<strong>鍵を1本入れて</strong>きます。</p>
-          <p>あなたは受け取ると、ポケットの鍵をそれに入れ替える。ふだんは同じ番号なので、<strong>誰も気づきません</strong>。</p>
+          <h2>封筒の鍵で、ポケットが上書きされる</h2>
+          <p>封筒を受け取るたび、あなたはポケットの鍵を<strong>中の鍵と入れ替えます</strong>。考えずに、機械的に。</p>
+          <p>ふだんは同じ番号が入っているので、<strong>入れ替わったことに誰も気づきません</strong>。</p>
         </div>
       </div>
     </section>
@@ -506,27 +513,27 @@
       </div>
       <div class="beat__body">
         <div class="art">
-          <svg viewBox="0 0 480 240" role="img" aria-label="サイトからあなたへ、ログインの返事とログアウトの返事の2通が同時に飛んでいて、どちらが後に着くか分からない図">
+          <svg viewBox="0 0 480 240" role="img" aria-label="窓口からあなたへ、ログインの封筒とログアウトの封筒が別々に返ってきていて、どちらが後になるか分からない図">
             <rect x="16" y="82" width="92" height="76" rx="10" fill="var(--enamel)"/>
-            <text x="62" y="128" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="16" fill="var(--surface)">サイト</text>
+            <text x="62" y="128" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="16" fill="var(--surface)">窓口</text>
             <circle cx="432" cy="100" r="22" fill="var(--ink-soft)"/>
             <path d="M396 168a36 36 0 0 1 72 0z" fill="var(--ink-soft)"/>
             <path d="M126 74h230" stroke="var(--enamel)" stroke-width="4" fill="none"/>
             <path d="M356 74l-16-9v18z" fill="var(--enamel)"/>
             <rect x="176" y="34" width="118" height="30" rx="7" fill="var(--surface)" stroke="var(--enamel)" stroke-width="2"/>
-            <text x="235" y="55" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--enamel)">ログインの返事</text>
+            <text x="235" y="55" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--enamel)">ログインの封筒</text>
             <path d="M126 190h230" stroke="var(--brass)" stroke-width="4" fill="none"/>
             <path d="M356 190l-16-9v18z" fill="var(--brass)"/>
             <rect x="172" y="200" width="126" height="30" rx="7" fill="var(--surface)" stroke="var(--brass)" stroke-width="2"/>
-            <text x="235" y="221" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--brass)">ログアウトの返事</text>
+            <text x="235" y="221" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--brass)">ログアウトの封筒</text>
             <text x="235" y="140" text-anchor="middle" font-family="Zen Maru Gothic, sans-serif" font-weight="900" font-size="46" fill="var(--ink-soft)">?</text>
-            <text x="235" y="166" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--ink-soft)">どっちが後に着く？</text>
+            <text x="235" y="166" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--ink-soft)">どっちが後に返ってくる？</text>
           </svg>
         </div>
         <div>
-          <h2>手紙は、2通同時に飛んでいる</h2>
-          <p>ログインの往復と、割り込んだログアウト。<strong>別々の手紙</strong>です。</p>
-          <p>そして<strong>どちらの返事が後に着くかは、決まっていません</strong>。</p>
+          <h2>お願いは、2つ同時に出せる</h2>
+          <p>ログインの手続きと、割り込んだログアウト。<strong>別々の窓口</strong>に出しています。</p>
+          <p>封筒は出来た順に返ってくるので、<strong>どちらが後になるかは決まっていません</strong>。</p>
         </div>
       </div>
     </section>
@@ -547,13 +554,13 @@
             <circle cx="40" cy="72" r="8" fill="var(--enamel)"/>
             <rect x="66" y="46" width="164" height="54" rx="9" fill="var(--surface)" stroke="var(--enamel)" stroke-width="2.5"/>
             <path d="M66 46l82 30 82-30" fill="none" stroke="var(--enamel)" stroke-width="2"/>
-            <text x="148" y="88" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--ink-soft)">ログインの返事 · 鍵 S7</text>
+            <text x="148" y="88" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--ink-soft)">ログインの封筒 · 鍵 S7</text>
             <text x="286" y="80" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--enamel)">ポケット → S7 ✓</text>
 
             <circle cx="40" cy="164" r="8" fill="var(--rust)"/>
             <rect x="66" y="138" width="164" height="54" rx="9" fill="var(--surface)" stroke="var(--rust)" stroke-width="2.5"/>
             <path d="M66 138l82 30 82-30" fill="none" stroke="var(--rust)" stroke-width="2"/>
-            <text x="148" y="180" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--ink-soft)">ログアウトの返事 · 鍵 S1</text>
+            <text x="148" y="180" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--ink-soft)">ログアウトの封筒 · 鍵 S1</text>
             <text x="286" y="172" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--rust)">ポケット → S1 に逆戻り</text>
 
             <rect x="150" y="216" width="112" height="66" rx="8" fill="var(--enamel)"/>
@@ -564,9 +571,9 @@
           </svg>
         </div>
         <div>
-          <h2>後から届いた封筒に、古い鍵が入っていた</h2>
+          <h2>後から返ってきた封筒に、古い鍵が入っていた</h2>
           <p>鍵を替えるのはやめました。でも<strong>返事の封筒には、まだ古い鍵 S1 が入ったまま</strong>だったんです。</p>
-          <p>先にログイン成功の返事が届いて、ポケットは S7。荷物も S7 のロッカーへ。<br>そのあとログアウトの返事が届くと、<span class="bad">ポケットが S1 に戻され、S7 のロッカーが開かなくなる。</span></p>
+          <p>先にログイン成功の封筒が返ってきて、ポケットは S7。荷物も S7 のロッカーへ。<br>そのあとログアウトの封筒が返ってくると、<span class="bad">ポケットが S1 に上書きされ、S7 のロッカーが開かなくなる。</span></p>
         </div>
       </div>
     </section>
@@ -584,7 +591,7 @@
             <path d="M24 52l91 48 91-48" fill="none" stroke="var(--enamel)" stroke-width="2.5"/>
             <text x="115" y="160" text-anchor="middle" font-family="Zen Maru Gothic, sans-serif" font-weight="700" font-size="19" fill="var(--enamel)">鍵は入れない</text>
             <text x="115" y="188" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--ink-soft)">なにもしなかった時</text>
-            <text x="115" y="214" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="13" fill="var(--ink-soft)">→ 後から届いても何も起きない</text>
+            <text x="115" y="214" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="13" fill="var(--ink-soft)">→ 後から返ってきても何も起きない</text>
             <line x1="240" y1="42" x2="240" y2="198" stroke="var(--line)" stroke-width="2.5" stroke-dasharray="8 8"/>
             <rect x="274" y="52" width="182" height="76" rx="10" fill="var(--surface)" stroke="var(--line)" stroke-width="2.5"/>
             <path d="M274 52l91 48 91-48" fill="none" stroke="var(--line)" stroke-width="2.5"/>
@@ -592,12 +599,12 @@
             <text x="365" y="90" text-anchor="middle" font-family="DM Mono, monospace" font-size="18" fill="var(--tag-text)">S2</text>
             <text x="365" y="160" text-anchor="middle" font-family="Zen Maru Gothic, sans-serif" font-weight="700" font-size="19" fill="var(--ink)">新しい鍵を同封</text>
             <text x="365" y="188" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="14" fill="var(--ink-soft)">本当にログアウトした時</text>
-            <text x="365" y="214" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="13" fill="var(--ink-soft)">→ 届くことが、効いたということ</text>
+            <text x="365" y="214" text-anchor="middle" font-family="Zen Kaku Gothic New, sans-serif" font-size="13" fill="var(--ink-soft)">→ 返ってくることが、効いたということ</text>
           </svg>
         </div>
         <div>
           <h2>なにもしなかったなら、鍵の話もしない</h2>
-          <p>ロッカーに手をつけていないなら、<strong>封筒に鍵を入れない</strong>。<span class="good">あとから届いても、ポケットは何も入れ替わりません。</span></p>
+          <p>ロッカーに手をつけていないなら、<strong>封筒に鍵を入れない</strong>。<span class="good">あとから返ってきても、ポケットは何も入れ替わりません。</span></p>
           <p>ほんとうにログアウトしたときは、これまでどおり新しい鍵を同封します。<strong>それが届くことが、ログアウトが効いたということ</strong>なので。</p>
         </div>
       </div>
@@ -613,6 +620,9 @@
           <tr><th scope="col">たとえ</th><th scope="col">ほんとう</th></tr>
         </thead>
         <tbody>
+          <tr><td>あなた</td><td class="real">ブラウザ</td></tr>
+          <tr><td>サイトの窓口</td><td class="real">studio-api（この API）</td></tr>
+          <tr><td>返事の封筒</td><td class="real">HTTP レスポンス</td></tr>
           <tr><td>ロッカーの鍵</td><td class="real">セッション Cookie (admin_session)</td></tr>
           <tr><td>鍵の番号</td><td class="real">セッション ID</td></tr>
           <tr><td>ロッカーの中身</td><td class="real">OAuth トークン一式</td></tr>
@@ -621,7 +631,7 @@
           <tr><td>鍵の付け替え</td><td class="real">session()-&gt;invalidate() による ID ローテーション</td></tr>
           <tr><td>返事に鍵が同封されている</td><td class="real">レスポンスの Set-Cookie</td></tr>
           <tr><td>ポケットの鍵が入れ替わる</td><td class="real">ブラウザが Cookie を上書きする</td></tr>
-          <tr><td>手紙が2通同時に飛ぶ</td><td class="real">並行リクエスト（到着順は保証されない）</td></tr>
+          <tr><td>お願いを2つ同時に出す</td><td class="real">並行リクエスト（返る順は保証されない）</td></tr>
           <tr><td>鍵を入れない封筒</td><td class="real">JsonResponseWithoutSessionCookie</td></tr>
         </tbody>
       </table>
