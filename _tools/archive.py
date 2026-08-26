@@ -18,6 +18,20 @@ Three things happen here, in order:
    content, so the index cannot read a page's title or subject out of the file.
    `_data/pages.json` carries both, and the index enriches its listing from it.
 
+Before any of that, the page is checked for anything that identifies a private
+repository, and archiving is refused if it finds something. This repository is
+public and the explainers are written while working in private ones, so ticket
+numbers and service names leak in through footers and eyebrows without anyone
+deciding to publish them.
+
+The check is mechanical and therefore partial: it catches ticket references,
+repository URLs, local paths and whatever terms are listed in
+`~/.config/eli5/private-terms.txt` (kept outside any repository, so the list of
+private names is itself never published). It cannot recognise an internal class
+or store name it has never been told about -- **read the page's prose before
+archiving it** and generalise anything that names a private repository, service,
+class or ticket.
+
 Paths in the chrome are relative because every page lives exactly one directory
 deep (`<category>/YYYY-MM-DD-slug.html`), making `../` the index from anywhere.
 
@@ -47,6 +61,52 @@ HEAD_TAGS = {"title", "link", "meta", "style", "script", "base", "noscript"}
 RAW_TEXT = {"title", "style", "script", "noscript"}
 
 CJK = re.compile(r"[぀-ヿ一-鿿]")
+
+# Kept outside every repository: a list of private names would leak the same
+# thing it is meant to protect if it lived in a public repo.
+PRIVATE_TERMS = Path.home() / ".config" / "eli5" / "private-terms.txt"
+
+# Matched against the rendered prose only, never the markup -- a stylesheet full
+# of `#16332e` would otherwise read as a page full of ticket numbers.
+LEAK_PATTERNS = {
+    "ticket reference": r"(?:PR|pull request|issue)\s*#?\s*\d+|#\d{2,}",
+    "repository URL": r"github\.com/[\w.\-]+/[\w.\-]+",
+    "local path": r"/Users/[\w.\-]+|~/www/[\w.\-/]*",
+    "email address": r"[\w.\-]+@[\w.\-]+\.[a-z]{2,}",
+    "internal host": r"\b[\w\-]+\.(?:local|internal|corp|test|lan)\b",
+}
+
+
+def visible_text(doc: str) -> str:
+    """The prose a reader sees: no markup, no stylesheets, no scripts, no art."""
+    d = re.sub(r"(?is)<(style|script|svg)\b.*?</\1>", " ", doc)
+    d = re.sub(r"(?is)<!--.*?-->", " ", d)
+    return html.unescape(re.sub(r"<[^>]+>", " ", d))
+
+
+def private_terms() -> list[str]:
+    if not PRIVATE_TERMS.exists():
+        return []
+    lines = PRIVATE_TERMS.read_text(encoding="utf-8").splitlines()
+    return [t.strip() for t in lines if t.strip() and not t.startswith("#")]
+
+
+def find_leaks(doc: str, terms: list[str] | None = None) -> list[tuple[str, str, str]]:
+    """Everything in `doc` that would identify a private repository."""
+    prose = re.sub(r"\s+", " ", visible_text(doc))
+    hits = []
+    for kind, pattern in LEAK_PATTERNS.items():
+        for m in re.finditer(pattern, prose):
+            hits.append((kind, m.group(0), prose[max(0, m.start() - 40) : m.end() + 40]))
+
+    # Terms are matched against the whole file: a private name is just as exposed
+    # in an alt attribute or a comment as it is in the prose.
+    low = doc.lower()
+    for term in private_terms() if terms is None else terms:
+        i = low.find(term.lower())
+        if i >= 0:
+            hits.append(("private term", term, re.sub(r"\s+", " ", doc[max(0, i - 40) : i + len(term) + 40])))
+    return hits
 
 
 def split_head(doc: str) -> int:
@@ -168,7 +228,55 @@ def selftest() -> None:
     else:
         raise AssertionError("expected a refusal for a document with no head or body")
 
+    # --- the privacy gate ---
+    kinds = lambda doc, terms=[]: {k for k, _, _ in find_leaks(doc, terms)}
+
+    assert kinds("<p>PR #18065 の話</p>") == {"ticket reference"}
+    assert kinds("<p>issue #8234 と #8282</p>") == {"ticket reference"}
+    assert kinds("<p>github.com/acme/secret-thing</p>") == {"repository URL"}
+    assert kinds("<p>/Users/someone/src</p>") == {"local path"}
+    assert kinds("<p>someone@example.com</p>") == {"email address"}
+    assert kinds("<p>api.internal を叩く</p>") == {"internal host"}
+
+    # a palette is not a page full of ticket numbers
+    assert kinds("<style>:root{--ink:#16332e;--paper:#edf0ea}</style><p>色の話</p>") == set()
+    assert kinds('<svg><path fill="#4ecebb"/></svg><p>絵の話</p>') == set()
+    assert kinds('<p style="color:#123456">文字</p>') == set()
+
+    # configured terms are matched everywhere, prose or not
+    assert kinds('<img alt="acme-api の図">', ["acme-api"]) == {"private term"}
+    assert kinds("<!-- acme-api -->", ["acme-api"]) == {"private term"}
+    assert kinds("<p>ACME-API</p>", ["acme-api"]) == {"private term"}, "terms are case-insensitive"
+    assert kinds("<p>まったく無害</p>", ["acme-api"]) == set()
+
+    clean = "<title>t</title><p>キャッシュが古い答えを返していた話。</p>"
+    assert find_leaks(clean, []) == []
+
     print("ok")
+
+
+def report_leaks(rel: str, leaks: list[tuple[str, str, str]]) -> bool:
+    if not leaks:
+        return False
+    print(f"{rel}: refusing - this names a private repository", file=sys.stderr)
+    for kind, hit, context in leaks:
+        print(f"  [{kind}] {hit}", file=sys.stderr)
+        print(f"      …{context.strip()}…", file=sys.stderr)
+    print("  generalise these in the HTML, then run this again", file=sys.stderr)
+    return True
+
+
+def scan_all() -> int:
+    """Audit every archived page. Existing pages predate the check."""
+    found = False
+    for path in sorted(ROOT.glob("*/*.html")):
+        if path.parts[len(ROOT.parts)].startswith("_"):
+            continue
+        rel = path.relative_to(ROOT).as_posix()
+        found |= report_leaks(rel, find_leaks(path.read_text(encoding="utf-8")))
+    if not found:
+        print("no private references found")
+    return 1 if found else 0
 
 
 def main() -> int:
@@ -176,18 +284,24 @@ def main() -> int:
     parser.add_argument("path", nargs="?", help="<category>/YYYY-MM-DD-slug.html")
     parser.add_argument("--summary", help="one line, in Japanese, for the index")
     parser.add_argument("--lang", help="override the detected document language")
+    parser.add_argument("--scan", action="store_true", help="audit every archived page and exit")
     parser.add_argument("--selftest", action="store_true")
     args = parser.parse_args()
 
     if args.selftest:
         selftest()
         return 0
+    if args.scan:
+        return scan_all()
     if not args.path or not args.summary:
         parser.error("both a path and --summary are required")
 
     path = Path(args.path)
     rel = path.as_posix()
     doc = (ROOT / path).read_text(encoding="utf-8")
+
+    if report_leaks(rel, find_leaks(doc)):
+        return 1
 
     wrapped = normalize(doc, args.lang)
     out = add_chrome(wrapped)

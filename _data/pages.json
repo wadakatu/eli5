@@ -18,5 +18,10 @@
     "path": "tooling/2026-08-25-why-the-lint-cache-went-stale.html",
     "title": "The Vanishing Rulebook",
     "summary": "lint のキャッシュキーが設定内の関数を写し取れず、ルール変更に気づけなかった話。プラグインのバージョンを設定に書いて解決"
+  },
+  {
+    "path": "web/2026-08-26-project-switch-cleanup.html",
+    "title": "切替のあとかたづけ",
+    "summary": "プロジェクトを切り替えたとき、前のプロジェクトの状態が残って別プロジェクトのデータに混ざっていた話。切替前のリセットと、遅れて返る非同期処理の破棄"
   }
 ]

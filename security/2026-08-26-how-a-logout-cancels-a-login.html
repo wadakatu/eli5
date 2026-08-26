@@ -297,7 +297,7 @@
 
   <header class="hero">
     <div>
-      <p class="eyebrow">studio-api · issue #8234</p>
+      <p class="eyebrow">セッションと認証</p>
       <h1>ロッカーの鍵、<br>とりちがえ事件</h1>
       <p class="lede">ログインの途中で「ログアウト」が走ると、ログインが失敗する。<br>原因はぜんぶ、<strong>鍵の番号</strong>の話でした。</p>
     </div>
@@ -629,25 +629,25 @@
         </thead>
         <tbody>
           <tr><td>あなた</td><td class="real">ブラウザ</td></tr>
-          <tr><td>サイトの窓口</td><td class="real">studio-api（この API）</td></tr>
+          <tr><td>サイトの窓口</td><td class="real">API サーバ</td></tr>
           <tr><td>返事の封筒</td><td class="real">HTTP レスポンス</td></tr>
-          <tr><td>ロッカーの鍵</td><td class="real">セッション Cookie (admin_session)</td></tr>
+          <tr><td>ロッカーの鍵</td><td class="real">セッション Cookie</td></tr>
           <tr><td>鍵の番号</td><td class="real">セッション ID</td></tr>
           <tr><td>ロッカーの中身</td><td class="real">OAuth トークン一式</td></tr>
-          <tr><td>守衛所へ往復</td><td class="real">/authorize → studio-auth → /callback</td></tr>
+          <tr><td>守衛所へ往復</td><td class="real">/authorize → 認可サーバ → /callback</td></tr>
           <tr><td>受付のメモ</td><td class="real">認可リクエストの session binding</td></tr>
           <tr><td>鍵の付け替え</td><td class="real">session()-&gt;invalidate() による ID ローテーション</td></tr>
           <tr><td>返事に鍵が同封されている</td><td class="real">レスポンスの Set-Cookie</td></tr>
           <tr><td>ポケットの鍵が入れ替わる</td><td class="real">ブラウザが Cookie を上書きする</td></tr>
           <tr><td>お願いを2つ同時に出す</td><td class="real">並行リクエスト（返る順は保証されない）</td></tr>
-          <tr><td>鍵を入れない封筒</td><td class="real">JsonResponseWithoutSessionCookie</td></tr>
+          <tr><td>鍵を入れない封筒</td><td class="real">Set-Cookie を付けないレスポンス</td></tr>
         </tbody>
       </table>
     </div>
   </section>
 
   <footer>
-    <p>studio-api issue #8234 / PR #8283。残った宿題は <strong>#8282</strong>（CSRF のパススルー撤去）と <strong>#8284</strong>（user 側にある同じ形の問題）。</p>
+    <p>残った宿題は CSRF のパススルー撤去と、ユーザー側にある同じ形の問題。</p>
   </footer>
 
 </div>
