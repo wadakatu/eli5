@@ -10,6 +10,11 @@
     "summary": "未ログインのログアウトがセッション ID を付け替え、進行中のログインを壊していた話。空のセッションなら何もしない"
   },
   {
+    "path": "security/2026-08-26-oauth-vs-oidc.html",
+    "title": "合鍵に、名札はついていない",
+    "summary": "OAuth のアクセストークンは「開けてよい」としか言わず利用者が誰かを含まない。OIDC が署名付き ID トークンを足して、その一言を標準の形で載せた話"
+  },
+  {
     "path": "tooling/2026-08-25-why-the-lint-cache-did-nothing.html",
     "title": "The Robot's Notebook",
     "summary": "ESLint の --cache が CI で効かなかった 3 つの理由。中身でキャッシュする、チェッカーごとに分ける、共有の置き場に保存する"
