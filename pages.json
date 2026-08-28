@@ -15,6 +15,11 @@
     "summary": "OAuth のアクセストークンは「開けてよい」としか言わず利用者が誰かを含まない。OIDC が署名付き ID トークンを足して、その一言を標準の形で載せた話"
   },
   {
+    "path": "security/2026-08-29-oauth-state-ticket.html",
+    "title": "クロークの引換札",
+    "summary": "外部サービス連携の OAuth で、照合用トークンが偽造・並行消費・開始ブラウザ未検証だった 3 つの問題と、その直し方"
+  },
+  {
     "path": "tooling/2026-08-25-why-the-lint-cache-did-nothing.html",
     "title": "The Robot's Notebook",
     "summary": "ESLint の --cache が CI で効かなかった 3 つの理由。中身でキャッシュする、チェッカーごとに分ける、共有の置き場に保存する"

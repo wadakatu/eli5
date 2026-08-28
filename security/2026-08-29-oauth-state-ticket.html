@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<link rel="stylesheet" href="../eli5.css">
+<title>クロークの引換札</title>
+<meta name="description" content="外部サービス連携の OAuth で、照合用トークンが偽造・並行消費・開始ブラウザ未検証だった 3 つの問題と、その直し方">
+</head>
+<body>
+<a class="eli5-up" href="../">&larr; eli5</a>
+<div class="e-page">
+  <header class="e-head">
+    <div>
+      <p class="e-eyebrow">OAUTH</p>
+      <h1>クロークの<br>引換札</h1>
+      <p class="e-lede">札に棚の番号を書いておくと、その札は誰にでも書ける。</p>
+    </div>
+    <div class="e-head-art">
+      <svg viewBox="0 0 240 160" aria-label="番号の書かれた引換札が 1 枚ぶら下がっている">
+        <line x1="120" y1="0" x2="120" y2="34" stroke="var(--e-line)" stroke-width="2"/>
+        <rect x="62" y="34" width="116" height="76" rx="10" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2"/>
+        <circle cx="120" cy="48" r="5" fill="none" stroke="var(--e-line)" stroke-width="2"/>
+        <text x="120" y="88" text-anchor="middle" font-size="30" font-weight="700" fill="var(--e-accent)">07</text>
+        <line x1="80" y1="98" x2="160" y2="98" stroke="var(--e-line)" stroke-width="2"/>
+        <line x1="92" y1="128" x2="148" y2="128" stroke="var(--e-line)" stroke-width="2" stroke-linecap="round"/>
+        <line x1="104" y1="142" x2="136" y2="142" stroke="var(--e-line)" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </header>
+
+  <div class="e-steps">
+
+    <section class="e-step">
+      <div class="e-step-head">
+        <span class="e-num">01</span>
+        <h2>まず、預ける話から</h2>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>あなたの店には棚がある。そこに「外の店のデータを見にいく鍵」を置いておくと、店が代わりにデータを取ってきてくれる。</p>
+          <p>鍵を置くには、いったん外の店へ行って「この人にどうぞ」と許してもらう必要がある。行って、許してもらって、帰ってくる。帰ってきたときに <strong>どの棚に置くのか</strong> を思い出さないといけない。</p>
+          <p>そのために <strong>引換札</strong> を持って出かける。</p>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <svg viewBox="0 0 320 150" aria-label="自分の店から外の店へ行き、札を持って帰ってきて棚に鍵を置く流れ">
+            <rect x="8" y="42" width="76" height="66" rx="8" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2"/>
+            <text x="46" y="30" text-anchor="middle" font-size="12" fill="var(--e-ink-soft)">じぶんの店</text>
+            <line x1="20" y1="66" x2="72" y2="66" stroke="var(--e-line)" stroke-width="2"/>
+            <line x1="20" y1="86" x2="72" y2="86" stroke="var(--e-line)" stroke-width="2"/>
+            <rect x="236" y="42" width="76" height="66" rx="8" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2"/>
+            <text x="274" y="30" text-anchor="middle" font-size="12" fill="var(--e-ink-soft)">外の店</text>
+            <circle cx="274" cy="75" r="15" fill="none" stroke="var(--e-line)" stroke-width="2"/>
+            <path d="M96 62 H224" stroke="var(--e-accent)" stroke-width="2" fill="none" marker-end="url(#eli5-a1)"/>
+            <path d="M224 96 H96" stroke="var(--e-accent)" stroke-width="2" fill="none" marker-end="url(#eli5-a2)"/>
+            <text x="160" y="54" text-anchor="middle" font-size="11" fill="var(--e-ink-soft)">札をもって出かける</text>
+            <text x="160" y="118" text-anchor="middle" font-size="11" fill="var(--e-ink-soft)">札をもって帰る</text>
+            <defs>
+              <marker id="eli5-a1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                <path d="M0 0 L8 4 L0 8 z" fill="var(--e-accent)"/>
+              </marker>
+              <marker id="eli5-a2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                <path d="M0 0 L8 4 L0 8 z" fill="var(--e-accent)"/>
+              </marker>
+            </defs>
+          </svg>
+          <figcaption>札は「帰ってきたときに、どの棚か思い出すためのもの」</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step e-step--bad">
+      <div class="e-step-head">
+        <span class="e-num">02</span>
+        <h2>札に棚の番号が書いてあった</h2>
+        <span class="e-chip e-chip--problem">もんだい</span>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>むかしの札は、<strong>棚の番号がそのまま書いてある</strong>だけだった。しかも読める字で。</p>
+          <p>札を見れば「7 番の棚」と分かる。帰ってきた店の人は、札の 7 を読んで 7 番の棚に鍵を置く。</p>
+          <p class="e-note">札には印もハンコもない。読めるということは、<strong>書けるということ</strong>でもある。</p>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <svg viewBox="0 0 320 130" aria-label="読める字で棚番号 7 と書かれた札と、それをまねて書いた偽の札">
+            <rect x="24" y="24" width="104" height="80" rx="8" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2"/>
+            <text x="76" y="60" text-anchor="middle" font-size="12" fill="var(--e-ink-soft)">たな</text>
+            <text x="76" y="90" text-anchor="middle" font-size="30" font-weight="700" fill="var(--e-ink)">7</text>
+            <text x="76" y="120" text-anchor="middle" font-size="11" fill="var(--e-ink-soft)">ほんもの</text>
+            <path d="M150 64 H186" stroke="var(--e-warn)" stroke-width="2" stroke-dasharray="5 4"/>
+            <text x="168" y="52" text-anchor="middle" font-size="11" fill="var(--e-warn)">まねる</text>
+            <rect x="200" y="24" width="104" height="80" rx="8" fill="var(--e-surface)" stroke="var(--e-warn)" stroke-width="2" stroke-dasharray="6 4"/>
+            <text x="252" y="60" text-anchor="middle" font-size="12" fill="var(--e-ink-soft)">たな</text>
+            <text x="252" y="90" text-anchor="middle" font-size="30" font-weight="700" fill="var(--e-warn)">7</text>
+            <text x="252" y="120" text-anchor="middle" font-size="11" fill="var(--e-warn)">じぶんで書いた</text>
+          </svg>
+          <figcaption>紙とペンがあれば、誰でも同じ札を作れてしまう</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step e-step--bad">
+      <div class="e-step-head">
+        <span class="e-num">03</span>
+        <h2>よその棚に、自分の鍵を置ける</h2>
+        <span class="e-chip e-chip--problem">もんだい</span>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>悪い人は、<strong>よその人の棚の番号</strong>を書いた札を自分で作る。その札を持って外の店へ行き、<strong>自分の</strong>鍵を許してもらう。</p>
+          <p>帰ってくると、店の人は札に書かれた番号を読んで、よその人の棚に <strong>悪い人の鍵</strong> を置いてしまう。</p>
+          <p>棚の持ち主から見ると、自分の棚に知らない鍵が入っている。以後その棚が持ってくるのは <span class="e-bad">悪い人のデータ</span>で、自分のデータはもう出てこない。</p>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <svg viewBox="0 0 320 170" aria-label="悪い人が他人の棚番号を書いた札を使い、自分の鍵を他人の棚に入れる">
+            <circle cx="44" cy="40" r="15" fill="none" stroke="var(--e-warn)" stroke-width="2"/>
+            <text x="44" y="72" text-anchor="middle" font-size="11" fill="var(--e-warn)">わるい人</text>
+            <rect x="92" y="22" width="56" height="38" rx="6" fill="var(--e-surface)" stroke="var(--e-warn)" stroke-width="2" stroke-dasharray="6 4"/>
+            <text x="120" y="47" text-anchor="middle" font-size="18" font-weight="700" fill="var(--e-warn)">7</text>
+            <text x="120" y="74" text-anchor="middle" font-size="11" fill="var(--e-ink-soft)">にせの札</text>
+            <path d="M64 40 H86" stroke="var(--e-warn)" stroke-width="2" marker-end="url(#eli5-b1)"/>
+            <path d="M154 40 H210" stroke="var(--e-warn)" stroke-width="2" marker-end="url(#eli5-b1)"/>
+            <text x="182" y="30" text-anchor="middle" font-size="11" fill="var(--e-ink-soft)">じぶんの鍵</text>
+            <rect x="216" y="16" width="88" height="48" rx="8" fill="var(--e-surface)" stroke="var(--e-warn)" stroke-width="2"/>
+            <text x="260" y="45" text-anchor="middle" font-size="13" fill="var(--e-warn)">7 番のたな</text>
+            <circle cx="260" cy="118" r="15" fill="none" stroke="var(--e-line)" stroke-width="2"/>
+            <text x="260" y="150" text-anchor="middle" font-size="11" fill="var(--e-ink-soft)">たなの持ちぬし</text>
+            <path d="M260 96 V80" stroke="var(--e-line)" stroke-width="2" stroke-dasharray="4 4"/>
+            <text x="150" y="118" text-anchor="middle" font-size="11" fill="var(--e-warn)">知らない鍵が</text>
+            <text x="150" y="134" text-anchor="middle" font-size="11" fill="var(--e-warn)">入っている</text>
+            <defs>
+              <marker id="eli5-b1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                <path d="M0 0 L8 4 L0 8 z" fill="var(--e-warn)"/>
+              </marker>
+            </defs>
+          </svg>
+          <figcaption>札 1 枚で、他人の棚の中身を入れ替えられた</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step e-step--good">
+      <div class="e-step-head">
+        <span class="e-num">04</span>
+        <h2>札から意味を消して、控えは店が持つ</h2>
+        <span class="e-chip e-chip--fix">なおした</span>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>札に書くのを、<strong>意味のないでたらめな長い番号</strong>に変えた。札を見ても棚は分からない。</p>
+          <p>「この番号は 7 番の棚」という控えは、<strong>店の中の帳面</strong>だけが持つ。帳面に書き込めるのは、棚の持ち主だと確かめてもらった人だけ。</p>
+          <p>これで、外から札を作っても帳面に載っていないので、店の人は「知らない番号です」と言って断れる。</p>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <svg viewBox="0 0 320 150" aria-label="でたらめな番号の札と、店の中にある番号と棚の対応表">
+            <rect x="14" y="34" width="120" height="62" rx="8" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2"/>
+            <text x="74" y="70" text-anchor="middle" font-size="14" font-weight="700" fill="var(--e-accent)">9f3c…a70b</text>
+            <text x="74" y="112" text-anchor="middle" font-size="11" fill="var(--e-ink-soft)">札（意味なし）</text>
+            <path d="M146 65 H176" stroke="var(--e-line)" stroke-width="2" stroke-dasharray="4 4"/>
+            <rect x="186" y="20" width="120" height="90" rx="8" fill="var(--e-surface)" stroke="var(--e-accent)" stroke-width="2"/>
+            <text x="246" y="40" text-anchor="middle" font-size="11" fill="var(--e-ink-soft)">店の帳面</text>
+            <line x1="200" y1="50" x2="292" y2="50" stroke="var(--e-line)" stroke-width="1.5"/>
+            <text x="212" y="68" font-size="11" fill="var(--e-ink)">9f3c…</text>
+            <text x="262" y="68" font-size="11" fill="var(--e-accent)">→ 7</text>
+            <text x="212" y="88" font-size="11" fill="var(--e-ink-soft)">b1d0…</text>
+            <text x="262" y="88" font-size="11" fill="var(--e-ink-soft)">→ 3</text>
+            <text x="246" y="130" text-anchor="middle" font-size="11" fill="var(--e-ink-soft)">外からは見えない・書けない</text>
+          </svg>
+          <figcaption>札はただの番号札になり、意味は店の中に隠れた</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step e-step--bad">
+      <div class="e-step-head">
+        <span class="e-num">05</span>
+        <h2>札を切るのが、二つの動作だった</h2>
+        <span class="e-chip e-chip--problem">もんだい</span>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>札は 1 回きりのはずだった。だから店の人は、帳面を <strong>読んで</strong>、それから <strong>消す</strong>。</p>
+          <p>けれど「読む」と「消す」は別々の動作だ。ふたりが <strong>まったく同じ瞬間</strong>に同じ番号を出すと、消される前に両方が読めてしまう。1 回きりの札が、2 回使えたことになる。</p>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <svg viewBox="0 0 320 140" aria-label="読むと消すの間に隙間があり、二人が同時に同じ番号を読めてしまう">
+            <text x="30" y="26" font-size="11" fill="var(--e-ink-soft)">よむ</text>
+            <text x="222" y="26" font-size="11" fill="var(--e-ink-soft)">けす</text>
+            <line x1="28" y1="40" x2="292" y2="40" stroke="var(--e-line)" stroke-width="2"/>
+            <circle cx="30" cy="40" r="6" fill="var(--e-accent)"/>
+            <circle cx="240" cy="40" r="6" fill="var(--e-accent)"/>
+            <rect x="36" y="30" width="198" height="20" rx="6" fill="var(--e-warn)" opacity="0.18"/>
+            <text x="135" y="72" text-anchor="middle" font-size="12" fill="var(--e-warn)">このすきまが空いている</text>
+            <circle cx="86" cy="106" r="13" fill="none" stroke="var(--e-line)" stroke-width="2"/>
+            <circle cx="184" cy="106" r="13" fill="none" stroke="var(--e-warn)" stroke-width="2"/>
+            <path d="M86 91 V60" stroke="var(--e-line)" stroke-width="2" stroke-dasharray="4 4"/>
+            <path d="M184 91 V60" stroke="var(--e-warn)" stroke-width="2" stroke-dasharray="4 4"/>
+            <text x="86" y="134" text-anchor="middle" font-size="11" fill="var(--e-ink-soft)">ひとりめ</text>
+            <text x="184" y="134" text-anchor="middle" font-size="11" fill="var(--e-warn)">ふたりめ</text>
+          </svg>
+          <figcaption>すきまが小さくても、ゼロではない</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step e-step--good">
+      <div class="e-step-head">
+        <span class="e-num">06</span>
+        <h2>先に「私がもらった」と宣言する</h2>
+        <span class="e-chip e-chip--fix">なおした</span>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>順番を変えた。帳面を読む前に、<strong>「この番号は私がもらいます」と 1 回だけ書ける欄</strong>に名乗り出る。</p>
+          <p>この欄は、<strong>先に書いた人しか書けない</strong>。同時に来ても、書けるのは必ずひとり。書けなかった人はそこで引き返す。</p>
+          <p class="e-note">「読んでから消す」ではなく「取ってから読む」。動作の順番を入れ替えただけで、すきまが消える。</p>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <svg viewBox="0 0 320 140" aria-label="一人しか書けない欄に先に名乗り出るので、二人目は断られる">
+            <rect x="100" y="18" width="120" height="44" rx="8" fill="var(--e-surface)" stroke="var(--e-accent)" stroke-width="2"/>
+            <text x="160" y="38" text-anchor="middle" font-size="11" fill="var(--e-ink-soft)">1 人しか書けない欄</text>
+            <text x="160" y="55" text-anchor="middle" font-size="13" font-weight="700" fill="var(--e-accent)">ひとりめ</text>
+            <circle cx="60" cy="108" r="13" fill="none" stroke="var(--e-accent)" stroke-width="2"/>
+            <path d="M74 100 L104 62" stroke="var(--e-accent)" stroke-width="2" marker-end="url(#eli5-c1)"/>
+            <text x="60" y="136" text-anchor="middle" font-size="11" fill="var(--e-accent)">すすむ</text>
+            <circle cx="262" cy="108" r="13" fill="none" stroke="var(--e-line)" stroke-width="2"/>
+            <path d="M248 100 L220 66" stroke="var(--e-line)" stroke-width="2" stroke-dasharray="5 4"/>
+            <line x1="228" y1="76" x2="244" y2="92" stroke="var(--e-warn)" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="244" y1="76" x2="228" y2="92" stroke="var(--e-warn)" stroke-width="2.5" stroke-linecap="round"/>
+            <text x="262" y="136" text-anchor="middle" font-size="11" fill="var(--e-ink-soft)">ひきかえす</text>
+            <defs>
+              <marker id="eli5-c1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                <path d="M0 0 L8 4 L0 8 z" fill="var(--e-accent)"/>
+              </marker>
+            </defs>
+          </svg>
+          <figcaption>同時に来ても、通れるのは必ずひとり</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step e-step--bad">
+      <div class="e-step-head">
+        <span class="e-num">07</span>
+        <h2>札は「誰に渡したか」を覚えていない</h2>
+        <span class="e-chip e-chip--problem">いま残っている</span>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>ここまでで、<strong>他人の棚を狙う</strong>攻撃は消えた。けれど<strong>向きを逆にした</strong>攻撃が残っている。</p>
+          <p>悪い人は、今度は正直に <strong>自分の棚の札</strong> をもらう。ちゃんと帳面に載った本物の札だ。そしてその札を、よその人に渡して言う。「これを持って、鍵を預けてきて」。</p>
+          <p>言われた人は、<strong>自分の鍵</strong>を許してもらって帰ってくる。店の人は札を読み、帳面のとおり <strong>悪い人の棚</strong> にその鍵を置く。</p>
+          <p>札は本物。帳面も正しい。<strong>誰が持ってきたかを、誰も見ていない</strong>だけ。</p>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <svg viewBox="0 0 320 190" aria-label="悪い人が自分の棚の本物の札を他人に渡し、他人の鍵が悪い人の棚に入る">
+            <circle cx="40" cy="36" r="14" fill="none" stroke="var(--e-warn)" stroke-width="2"/>
+            <text x="40" y="66" text-anchor="middle" font-size="11" fill="var(--e-warn)">わるい人</text>
+            <rect x="86" y="18" width="72" height="36" rx="6" fill="var(--e-surface)" stroke="var(--e-accent)" stroke-width="2"/>
+            <text x="122" y="42" text-anchor="middle" font-size="12" font-weight="700" fill="var(--e-accent)">本物の札</text>
+            <path d="M58 36 H80" stroke="var(--e-line)" stroke-width="2" marker-end="url(#eli5-d1)"/>
+            <path d="M164 36 H196" stroke="var(--e-warn)" stroke-width="2" marker-end="url(#eli5-d2)"/>
+            <text x="180" y="24" text-anchor="middle" font-size="10" fill="var(--e-warn)">わたす</text>
+            <circle cx="222" cy="36" r="14" fill="none" stroke="var(--e-line)" stroke-width="2"/>
+            <text x="222" y="66" text-anchor="middle" font-size="11" fill="var(--e-ink-soft)">よその人</text>
+            <path d="M222 82 V118" stroke="var(--e-line)" stroke-width="2" marker-end="url(#eli5-d1)"/>
+            <text x="286" y="104" text-anchor="middle" font-size="11" fill="var(--e-ink-soft)">じぶんの鍵</text>
+            <rect x="96" y="126" width="140" height="44" rx="8" fill="var(--e-surface)" stroke="var(--e-warn)" stroke-width="2"/>
+            <text x="166" y="154" text-anchor="middle" font-size="13" fill="var(--e-warn)">わるい人のたな</text>
+            <path d="M212 126 L180 126" stroke="var(--e-warn)" stroke-width="2"/>
+            <defs>
+              <marker id="eli5-d1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                <path d="M0 0 L8 4 L0 8 z" fill="var(--e-line)"/>
+              </marker>
+              <marker id="eli5-d2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                <path d="M0 0 L8 4 L0 8 z" fill="var(--e-warn)"/>
+              </marker>
+            </defs>
+          </svg>
+          <figcaption>札が本物かどうかは見ていた。持ち主が同じ人かは見ていなかった</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step e-step--good">
+      <div class="e-step-head">
+        <span class="e-num">08</span>
+        <h2>札を半分にちぎる</h2>
+        <span class="e-chip e-chip--fix">これから直す</span>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>直し方は、映画館のもぎりと同じ。札を <strong>半分にちぎって</strong>、片方を出かける人のポケットに入れておく。</p>
+          <p>帰ってきたら、<strong>持ってきた札とポケットの半券が合うか</strong>を見る。合わなければ断る。</p>
+          <p>悪い人から札を渡された人のポケットには、<strong>合う半券が入っていない</strong>。ちぎってもらった覚えがないからだ。それで止まる。</p>
+          <p class="e-note">半券はポケットの中にあり、外から取り出す道はない。同じ店に帰ってきたときだけ、そっと出てくる。</p>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <svg viewBox="0 0 320 170" aria-label="ちぎった札の両半分が合う場合は通り、半券がない場合は断られる">
+            <text x="80" y="22" text-anchor="middle" font-size="11" fill="var(--e-accent)">じぶんで始めた人</text>
+            <path d="M28 40 H74 L68 56 L74 72 H28 Z" fill="var(--e-surface)" stroke="var(--e-accent)" stroke-width="2"/>
+            <path d="M132 40 H86 L92 56 L86 72 H132 Z" fill="var(--e-surface)" stroke="var(--e-accent)" stroke-width="2"/>
+            <text x="80" y="92" text-anchor="middle" font-size="11" fill="var(--e-accent)">ぴったり合う → とおる</text>
+            <line x1="160" y1="30" x2="160" y2="140" stroke="var(--e-line)" stroke-width="1.5" stroke-dasharray="5 5"/>
+            <text x="240" y="22" text-anchor="middle" font-size="11" fill="var(--e-warn)">札をもらっただけの人</text>
+            <path d="M188 40 H234 L228 56 L234 72 H188 Z" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2"/>
+            <path d="M292 40 H246 L252 56 L246 72 H292 Z" fill="none" stroke="var(--e-warn)" stroke-width="2" stroke-dasharray="5 4"/>
+            <text x="269" y="60" text-anchor="middle" font-size="11" fill="var(--e-warn)">なし</text>
+            <text x="240" y="92" text-anchor="middle" font-size="11" fill="var(--e-warn)">半券がない → ことわる</text>
+            <text x="160" y="128" text-anchor="middle" font-size="12" fill="var(--e-ink-soft)">札が本物かどうかではなく</text>
+            <text x="160" y="148" text-anchor="middle" font-size="12" fill="var(--e-ink)">出かけた人と帰った人が同じかを見る</text>
+          </svg>
+          <figcaption>見るものが「札の中身」から「持ち主が同じか」に変わる</figcaption>
+        </figure>
+      </div>
+    </section>
+
+  </div>
+
+  <section class="e-map">
+    <h2>たとえと、ほんとう</h2>
+    <table>
+      <tbody>
+        <tr><td>クロークの引換札</td><td>認可フローの照合用トークン</td></tr>
+        <tr><td>札に書かれた棚の番号</td><td>クライアントが組み立てた、署名のない値</td></tr>
+        <tr><td>でたらめな長い番号</td><td>暗号論的乱数で作った不透明な値</td></tr>
+        <tr><td>店の中の帳面</td><td>サーバ側の一時保存</td></tr>
+        <tr><td>1 人しか書けない欄</td><td>アトミックな 1 回きりの確保</td></tr>
+        <tr><td>ポケットの半券</td><td>ブラウザに置く短命の識別子</td></tr>
+        <tr><td>札を渡してこさせる</td><td>逆向きのクロスサイトリクエストフォージェリ</td></tr>
+        <tr><td>棚に置く鍵</td><td>外部サービスのアクセストークン</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="e-close">
+    <h2>ひとことで言うと</h2>
+    <p>札から意味を消して控えを店に隠した。取る動作を 1 回にまとめた。<strong>残っているのは、出かけた人と帰ってきた人が同じかを誰も見ていないこと</strong>。だから札を半分にちぎって、片方を持たせて出す。</p>
+  </section>
+
+  <section class="e-foot">
+    <p>3 つの問題は、どれも「札そのもの」の話ではなく <strong>札の周りにある約束</strong>の話だった。偽造は札の中身を空にして直り、二重使用は動作の順番で直り、持ち主のすり替えは札の外に置いた半券で直る。</p>
+  </section>
+</div>
+</body>
+</html>
