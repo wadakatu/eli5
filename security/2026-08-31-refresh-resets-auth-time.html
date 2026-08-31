@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<link rel="stylesheet" href="../eli5.css">
+<title>押し直された入館スタンプ</title>
+<meta name="description" content="OIDC の auth_time クレームがリフレッシュのたびに現在時刻へ上書きされ、RP 側の max_age / step-up 再認証が永久に発火しなくなっていたバグと、部品単体のテストでは見えない合成の穴の話">
+</head>
+<body>
+<a class="eli5-up" href="../">&larr; eli5</a>
+<div class="e-page">
+  <header class="e-head">
+    <div>
+      <p class="e-eyebrow">AUTH TIME</p>
+      <h1>押し直された<br>入館スタンプ</h1>
+      <p class="e-lede">「いつ本人確認したか」を毎回書き換えていたら、もう一度確認する日は永遠に来ない。</p>
+    </div>
+    <div class="e-head-art">
+      <svg viewBox="0 0 360 260" role="img" aria-label="手の甲に押されたスタンプの時刻が、9時から12時へ、さらに15時へと押し直されていく絵">
+        <!-- hand -->
+        <path d="M96 232 L96 150 Q96 132 112 132 Q128 132 128 150 L128 96
+                 Q128 78 144 78 Q160 78 160 96 L160 88
+                 Q160 70 176 70 Q192 70 192 88 L192 104
+                 Q192 86 208 86 Q224 86 224 104 L224 176
+                 Q224 232 176 232 Z"
+              fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="3" stroke-linejoin="round"/>
+        <!-- current stamp -->
+        <circle cx="160" cy="176" r="34" fill="none" stroke="var(--e-warn)" stroke-width="4"/>
+        <text x="160" y="183" text-anchor="middle" font-family="var(--e-mono)" font-size="22" font-weight="700" fill="var(--e-warn)">15:00</text>
+        <!-- ghosts of overwritten stamps -->
+        <circle cx="160" cy="176" r="34" fill="none" stroke="var(--e-line)" stroke-width="3" opacity="0.9" transform="translate(-52 -46)"/>
+        <text x="108" y="137" text-anchor="middle" font-family="var(--e-mono)" font-size="17" fill="var(--e-ink-soft)" opacity="0.75">12:00</text>
+        <circle cx="160" cy="176" r="34" fill="none" stroke="var(--e-line)" stroke-width="3" opacity="0.55" transform="translate(-96 -84)"/>
+        <text x="64" y="99" text-anchor="middle" font-family="var(--e-mono)" font-size="14" fill="var(--e-ink-soft)" opacity="0.5">9:00</text>
+        <!-- overwrite arrows -->
+        <path d="M84 116 L124 152" stroke="var(--e-warn)" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+        <path d="M130 158 L152 176" stroke="var(--e-warn)" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+        <text x="286" y="176" text-anchor="middle" font-family="var(--e-mono)" font-size="15" fill="var(--e-mark)">押し直し</text>
+      </svg>
+    </div>
+  </header>
+
+  <div class="e-steps">
+
+    <section class="e-step">
+      <div class="e-step-head">
+        <span class="e-num">01</span>
+        <h2>入るときに、一度だけ本人確認をする</h2>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>大きな図書館があるとします。入口で受付の人に「あなたは本人ですね」と確認してもらう。これは 1 日 1 回だけ。</p>
+          <p>確認が終わると、手の甲にスタンプが押されます。書いてあるのは <strong>確認した時刻</strong>。朝 9 時に来たなら「9:00」です。</p>
+          <p class="e-note">このスタンプは「今が何時か」ではありません。「あなたが本人だと確かめたのは何時か」です。ここがこの話の全部です。</p>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <svg viewBox="0 0 420 200" role="img" aria-label="受付で本人確認を受けた人の手に、確認時刻9時のスタンプが押される図">
+            <rect x="16" y="112" width="132" height="60" rx="8" fill="var(--e-sunk)" stroke="var(--e-line)" stroke-width="2.5"/>
+            <text x="82" y="148" text-anchor="middle" font-family="var(--e-display)" font-size="17" fill="var(--e-ink)">受付</text>
+            <circle cx="82" cy="70" r="20" fill="none" stroke="var(--e-ink-soft)" stroke-width="2.5"/>
+            <text x="82" y="42" text-anchor="middle" font-size="14" font-family="var(--e-body)" fill="var(--e-ink-soft)">本人確認</text>
+            <path d="M168 108 L232 108" stroke="var(--e-accent)" stroke-width="3" stroke-linecap="round"/>
+            <path d="M222 100 L232 108 L222 116" fill="none" stroke="var(--e-accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="252" y="60" width="146" height="96" rx="14" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2.5"/>
+            <text x="325" y="90" text-anchor="middle" font-size="14" font-family="var(--e-body)" fill="var(--e-ink-soft)">手の甲</text>
+            <circle cx="325" cy="120" r="27" fill="none" stroke="var(--e-accent)" stroke-width="3.5"/>
+            <text x="325" y="127" text-anchor="middle" font-family="var(--e-mono)" font-size="19" font-weight="700" fill="var(--e-accent)">9:00</text>
+          </svg>
+          <figcaption>スタンプに書くのは「確認した時刻」。一度押したら、それ以上動かないはずのもの。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step">
+      <div class="e-step-head">
+        <span class="e-num">02</span>
+        <h2>中で使う通行証は、すぐ切れる</h2>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>館内で本棚を開けるには通行証が必要です。ただしこの通行証は <strong>1 時間で使えなくなる</strong>。落としたり盗まれたりしても被害が長引かないように、わざと短くしてあります。</p>
+          <p>そのかわり、受付まで戻って本人確認をやり直さなくていいように「取り替え券」も渡されます。切れた通行証は、取り替え券を出せば新しいものにしてもらえる。</p>
+          <p>だから 9 時に入った人は、10 時・11 時・12 時と、何度も通行証を取り替えながら一日を過ごします。</p>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <svg viewBox="0 0 420 190" role="img" aria-label="1時間で切れる通行証を、取り替え券で何度も新しくしていく図">
+            <g font-family="var(--e-mono)" font-size="13">
+              <rect x="14" y="40" width="94" height="62" rx="10" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2.5"/>
+              <text x="61" y="66" text-anchor="middle" fill="var(--e-ink-soft)" font-family="var(--e-body)">通行証</text>
+              <text x="61" y="88" text-anchor="middle" fill="var(--e-ink)">〜10:00</text>
+
+              <rect x="163" y="40" width="94" height="62" rx="10" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2.5"/>
+              <text x="210" y="66" text-anchor="middle" fill="var(--e-ink-soft)" font-family="var(--e-body)">通行証</text>
+              <text x="210" y="88" text-anchor="middle" fill="var(--e-ink)">〜11:00</text>
+
+              <rect x="312" y="40" width="94" height="62" rx="10" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2.5"/>
+              <text x="359" y="66" text-anchor="middle" fill="var(--e-ink-soft)" font-family="var(--e-body)">通行証</text>
+              <text x="359" y="88" text-anchor="middle" fill="var(--e-ink)">〜12:00</text>
+            </g>
+            <g stroke="var(--e-mark)" stroke-width="3" stroke-linecap="round" fill="none">
+              <path d="M116 71 L155 71"/><path d="M145 63 L155 71 L145 79" stroke-linejoin="round"/>
+              <path d="M265 71 L304 71"/><path d="M294 63 L304 71 L294 79" stroke-linejoin="round"/>
+            </g>
+            <text x="135" y="140" text-anchor="middle" font-size="12" font-family="var(--e-body)" fill="var(--e-mark)">取り替え券</text>
+            <text x="284" y="140" text-anchor="middle" font-size="12" font-family="var(--e-body)" fill="var(--e-mark)">取り替え券</text>
+            <text x="210" y="170" text-anchor="middle" font-size="13" font-family="var(--e-body)" fill="var(--e-ink-soft)">受付に戻らなくていい</text>
+          </svg>
+          <figcaption>通行証は短命。取り替え券があるから、受付での本人確認は朝の 1 回で足りる。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step e-step--bad">
+      <div class="e-step-head">
+        <span class="e-num">03</span>
+        <h2>係の人が、スタンプも押し直していた</h2>
+        <span class="e-chip e-chip--problem">ここが不具合</span>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>取り替えのとき、係の人は新しい通行証を作ります。そして通行証には <strong>スタンプの写し</strong> も刷り込まれます。</p>
+          <p>ところが係の人は、そこに <span class="e-bad">その場の時計を見て「いま」を刷っていた</span>。10 時に取り替えれば「10:00」、15 時に取り替えれば「15:00」。</p>
+          <p>朝 9 時に確認したという事実が、取り替えのたびに上書きされていきます。</p>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <svg viewBox="0 0 420 200" role="img" aria-label="通行証の取り替え時に、スタンプ欄へ元の9時ではなく現在時刻の12時が刷り込まれてしまう図">
+            <rect x="14" y="46" width="120" height="104" rx="12" fill="var(--e-sunk)" stroke="var(--e-line)" stroke-width="2.5"/>
+            <text x="74" y="74" text-anchor="middle" font-size="13" font-family="var(--e-body)" fill="var(--e-ink-soft)">古い通行証</text>
+            <text x="74" y="112" text-anchor="middle" font-family="var(--e-mono)" font-size="19" font-weight="700" fill="var(--e-ink-soft)">9:00</text>
+            <text x="74" y="134" text-anchor="middle" font-size="11" font-family="var(--e-body)" fill="var(--e-ink-soft)">確認した時刻</text>
+
+            <path d="M148 98 L196 98" stroke="var(--e-ink-soft)" stroke-width="3" stroke-linecap="round"/>
+            <path d="M186 90 L196 98 L186 106" fill="none" stroke="var(--e-ink-soft)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+            <rect x="212" y="46" width="120" height="104" rx="12" fill="var(--e-surface)" stroke="var(--e-warn)" stroke-width="3"/>
+            <text x="272" y="74" text-anchor="middle" font-size="13" font-family="var(--e-body)" fill="var(--e-ink-soft)">新しい通行証</text>
+            <text x="272" y="112" text-anchor="middle" font-family="var(--e-mono)" font-size="19" font-weight="700" fill="var(--e-warn)">12:00</text>
+            <text x="272" y="134" text-anchor="middle" font-size="11" font-family="var(--e-body)" fill="var(--e-warn)">← いまの時刻</text>
+
+            <circle cx="382" cy="52" r="20" fill="none" stroke="var(--e-warn)" stroke-width="2.5"/>
+            <path d="M382 40 L382 52 L390 58" fill="none" stroke="var(--e-warn)" stroke-width="2.5" stroke-linecap="round"/>
+            <text x="382" y="92" text-anchor="middle" font-size="12" font-family="var(--e-body)" fill="var(--e-warn)">壁の時計</text>
+            <path d="M366 60 L300 96" stroke="var(--e-warn)" stroke-width="2.5" stroke-dasharray="5 5" stroke-linecap="round"/>
+          </svg>
+          <figcaption>参照先を間違えている。左のカードにも 9:00 が書いてあるのに、係の人は壁の時計を見ていた。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step e-step--bad">
+      <div class="e-step-head">
+        <span class="e-num">04</span>
+        <h2>だから「もう一度確認」の日が来ない</h2>
+        <span class="e-chip e-chip--problem">実害</span>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>奥に貴重書コーナーがあります。ここには追加のルールがある — <span class="e-say">本人確認から 3 時間以上たった人は、受付でもう一度確認してから入ってください。</span></p>
+          <p>係員はスタンプを見て「確認から何時間?」を計算します。ところがスタンプはいつも「たったいま」。<strong>経過時間はいつ計っても 0 分</strong>です。</p>
+          <p>朝 9 時に入った人が夕方まで館内にいても、3 時間の線を越えることが一度もない。再確認を求める仕組みが、丸ごと死んでいました。</p>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <svg viewBox="0 0 440 250" role="img" aria-label="実際の経過時間は3時間の線を越えるのに、スタンプから計算した経過時間は取り替えごとに0へ戻り、線を一度も越えないグラフ">
+            <!-- axes -->
+            <path d="M52 196 L416 196" stroke="var(--e-line)" stroke-width="2"/>
+            <path d="M52 24 L52 196" stroke="var(--e-line)" stroke-width="2"/>
+            <text x="52" y="216" text-anchor="middle" font-family="var(--e-mono)" font-size="12" fill="var(--e-ink-soft)">9時</text>
+            <text x="416" y="216" text-anchor="middle" font-family="var(--e-mono)" font-size="12" fill="var(--e-ink-soft)">15時</text>
+            <text x="16" y="30" font-size="11" font-family="var(--e-body)" fill="var(--e-ink-soft)">経過</text>
+
+            <!-- 3h threshold -->
+            <path d="M52 96 L416 96" stroke="var(--e-mark)" stroke-width="2" stroke-dasharray="7 6"/>
+            <text x="416" y="88" text-anchor="end" font-size="12" font-family="var(--e-body)" fill="var(--e-mark)">3 時間 = 再確認ライン</text>
+
+            <!-- true elapsed: straight rise crossing the line -->
+            <path d="M52 196 L416 40" fill="none" stroke="var(--e-accent)" stroke-width="3.5" stroke-linecap="round"/>
+            <text x="330" y="66" font-size="12.5" font-family="var(--e-body)" fill="var(--e-accent)">ほんとうの経過</text>
+            <circle cx="234" cy="118" r="5" fill="var(--e-accent)"/>
+
+            <!-- measured elapsed: sawtooth resetting every hour, never crossing -->
+            <path d="M52 196 L112 166 L112 196 L172 166 L172 196 L232 166 L232 196
+                     L292 166 L292 196 L352 166 L352 196 L412 166"
+                  fill="none" stroke="var(--e-warn)" stroke-width="3.5" stroke-linejoin="round"/>
+            <text x="120" y="152" font-size="12.5" font-family="var(--e-body)" fill="var(--e-warn)">スタンプから計った経過</text>
+
+            <!-- refresh ticks -->
+            <g fill="var(--e-warn)">
+              <circle cx="112" cy="196" r="3.5"/><circle cx="172" cy="196" r="3.5"/>
+              <circle cx="232" cy="196" r="3.5"/><circle cx="292" cy="196" r="3.5"/>
+              <circle cx="352" cy="196" r="3.5"/>
+            </g>
+            <text x="232" y="240" text-anchor="middle" font-size="12" font-family="var(--e-body)" fill="var(--e-ink-soft)">● = 通行証を取り替えた瞬間。ここで 0 に戻る</text>
+          </svg>
+          <figcaption>取り替えごとにリセットされるので、赤い線は破線を一度も越えない。緑はもう越えている。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step">
+      <div class="e-step-head">
+        <span class="e-num">05</span>
+        <h2>元の時刻は、実はもう書いてあった</h2>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>おもしろいのはここです。取り替え券の <strong>裏</strong> には、ちゃんと「元の確認時刻 9:00」が書いてありました。</p>
+          <p>前の作業で、誰かがその欄を作り、書き込む処理も入れ、取り替えのときに次の券へ写す処理まで入れていた。<strong>欄の中身は、ずっと正しかった</strong>。</p>
+          <p>抜けていたのは、通行証を刷るときにその欄を <em>読む</em> ことだけ。係の人は、目の前のカードではなく壁の時計を見ていました。</p>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <svg viewBox="0 0 420 210" role="img" aria-label="取り替え券の裏には元の確認時刻9時が正しく書かれているのに、通行証を刷る処理はそこを読まず壁の時計を見ている図">
+            <rect x="24" y="40" width="150" height="112" rx="12" fill="var(--e-surface)" stroke="var(--e-accent)" stroke-width="3"/>
+            <text x="99" y="66" text-anchor="middle" font-size="12.5" font-family="var(--e-body)" fill="var(--e-ink-soft)">取り替え券（裏）</text>
+            <path d="M44 78 L154 78" stroke="var(--e-line)" stroke-width="1.5"/>
+            <text x="99" y="108" text-anchor="middle" font-family="var(--e-mono)" font-size="21" font-weight="700" fill="var(--e-accent)">9:00</text>
+            <text x="99" y="132" text-anchor="middle" font-size="11" font-family="var(--e-body)" fill="var(--e-accent)">元の確認時刻 ✓</text>
+
+            <!-- unread path -->
+            <path d="M186 96 L266 96" stroke="var(--e-line)" stroke-width="3" stroke-dasharray="6 7" stroke-linecap="round"/>
+            <text x="226" y="82" text-anchor="middle" font-size="11.5" font-family="var(--e-body)" fill="var(--e-ink-soft)">読まれない</text>
+            <g stroke="var(--e-warn)" stroke-width="3" stroke-linecap="round">
+              <path d="M218 112 L234 128"/><path d="M234 112 L218 128"/>
+            </g>
+
+            <rect x="280" y="40" width="116" height="112" rx="12" fill="var(--e-sunk)" stroke="var(--e-line)" stroke-width="2.5"/>
+            <text x="338" y="70" text-anchor="middle" font-size="12.5" font-family="var(--e-body)" fill="var(--e-ink-soft)">刷る処理</text>
+            <circle cx="338" cy="106" r="19" fill="none" stroke="var(--e-warn)" stroke-width="2.5"/>
+            <path d="M338 94 L338 106 L346 112" fill="none" stroke="var(--e-warn)" stroke-width="2.5" stroke-linecap="round"/>
+            <text x="338" y="142" text-anchor="middle" font-size="11" font-family="var(--e-body)" fill="var(--e-warn)">壁の時計を見る</text>
+            <text x="210" y="186" text-anchor="middle" font-size="12.5" font-family="var(--e-body)" fill="var(--e-ink-soft)">部品はどちらも動いている。つないでいないだけ。</text>
+          </svg>
+          <figcaption>データは正しく用意されていた。使う側の 1 行が入っていなかった。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step e-step--good">
+      <div class="e-step-head">
+        <span class="e-num">06</span>
+        <h2>直し方は「写す」だけ</h2>
+        <span class="e-chip e-chip--fix">修正</span>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>やったことは一つ。刷る処理に <span class="e-good">壁の時計ではなく、手元の券の裏を見なさい</span> と教えました。</p>
+          <p>これで何度取り替えても、通行証のスタンプは朝の 9:00 のまま。夕方 15 時に貴重書コーナーへ行けば、経過は 6 時間と計算され、ちゃんと受付へ戻されます。</p>
+          <div class="e-tally">
+            <dl>
+              <div><dt>変えた行</dt><dd>1 <small>本体側</small></dd></div>
+              <div><dt>足したテスト</dt><dd>2 <small>本</small></dd></div>
+              <div><dt>通ったテスト</dt><dd>7547 <small>全件</small></dd></div>
+            </dl>
+          </div>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <svg viewBox="0 0 420 200" role="img" aria-label="取り替え券の裏の9時を新しい通行証のスタンプ欄へ写す、修正後の図">
+            <rect x="24" y="46" width="140" height="104" rx="12" fill="var(--e-surface)" stroke="var(--e-accent)" stroke-width="3"/>
+            <text x="94" y="72" text-anchor="middle" font-size="12" font-family="var(--e-body)" fill="var(--e-ink-soft)">券の裏</text>
+            <text x="94" y="112" text-anchor="middle" font-family="var(--e-mono)" font-size="21" font-weight="700" fill="var(--e-accent)">9:00</text>
+
+            <path d="M178 98 L256 98" stroke="var(--e-accent)" stroke-width="3.5" stroke-linecap="round"/>
+            <path d="M244 89 L256 98 L244 107" fill="none" stroke="var(--e-accent)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <text x="217" y="82" text-anchor="middle" font-size="12" font-family="var(--e-body)" fill="var(--e-accent)">写す</text>
+
+            <rect x="270" y="46" width="126" height="104" rx="12" fill="var(--e-surface)" stroke="var(--e-accent)" stroke-width="3"/>
+            <text x="333" y="72" text-anchor="middle" font-size="12" font-family="var(--e-body)" fill="var(--e-ink-soft)">新しい通行証</text>
+            <circle cx="333" cy="110" r="26" fill="none" stroke="var(--e-accent)" stroke-width="3.5"/>
+            <text x="333" y="117" text-anchor="middle" font-family="var(--e-mono)" font-size="18" font-weight="700" fill="var(--e-accent)">9:00</text>
+
+            <text x="210" y="182" text-anchor="middle" font-size="12.5" font-family="var(--e-body)" fill="var(--e-ink-soft)">何度取り替えても、この数字は動かない</text>
+          </svg>
+          <figcaption>壁の時計をやめて、手元を見る。変えたのはこれだけ。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step e-step--bad">
+      <div class="e-step-head">
+        <span class="e-num">07</span>
+        <h2>なぜ誰も気づかなかったのか</h2>
+        <span class="e-chip e-chip--problem">教訓</span>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>この館では、部品ごとに点検をしています。そして <strong>点検はどれも合格していました</strong>。</p>
+          <ul>
+            <li>券の裏に欄を作る処理 → 合格</li>
+            <li>取り替えのとき次の券へ写す処理 → 合格</li>
+            <li>通行証を刷る処理 → 合格</li>
+          </ul>
+          <p>壊れていたのは部品ではなく <span class="e-bad">部品の間</span>。「写された欄を、次に読む」という一本のつなぎ目だけ、誰も点検していなかった。</p>
+          <p class="e-note">部品を全部○にしても、つなぎ目を見ていなければ製品は動かない。これが今回いちばん学びのある部分です。</p>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <svg viewBox="0 0 420 200" role="img" aria-label="三つの部品はどれも合格印がついているが、部品と部品をつなぐ線だけ点検されていない図">
+            <g font-family="var(--e-body)" font-size="12">
+              <rect x="16" y="70" width="104" height="66" rx="10" fill="var(--e-surface)" stroke="var(--e-accent)" stroke-width="2.5"/>
+              <text x="68" y="100" text-anchor="middle" fill="var(--e-ink)">欄を作る</text>
+              <text x="68" y="121" text-anchor="middle" fill="var(--e-accent)" font-size="14">✓ 合格</text>
+
+              <rect x="158" y="70" width="104" height="66" rx="10" fill="var(--e-surface)" stroke="var(--e-accent)" stroke-width="2.5"/>
+              <text x="210" y="100" text-anchor="middle" fill="var(--e-ink)">写す</text>
+              <text x="210" y="121" text-anchor="middle" fill="var(--e-accent)" font-size="14">✓ 合格</text>
+
+              <rect x="300" y="70" width="104" height="66" rx="10" fill="var(--e-surface)" stroke="var(--e-accent)" stroke-width="2.5"/>
+              <text x="352" y="100" text-anchor="middle" fill="var(--e-ink)">刷る</text>
+              <text x="352" y="121" text-anchor="middle" fill="var(--e-accent)" font-size="14">✓ 合格</text>
+            </g>
+            <!-- unchecked joints -->
+            <path d="M124 103 L154 103" stroke="var(--e-warn)" stroke-width="3" stroke-dasharray="5 6" stroke-linecap="round"/>
+            <path d="M266 103 L296 103" stroke="var(--e-warn)" stroke-width="3" stroke-dasharray="5 6" stroke-linecap="round"/>
+            <text x="139" y="46" text-anchor="middle" font-size="20" fill="var(--e-warn)">?</text>
+            <text x="281" y="46" text-anchor="middle" font-size="20" fill="var(--e-warn)">?</text>
+            <text x="210" y="176" text-anchor="middle" font-size="12.5" font-family="var(--e-body)" fill="var(--e-warn)">点検されていないのは、箱ではなく箱の間</text>
+          </svg>
+          <figcaption>部品の点検は全部○。抜けていたのは点線の 2 か所。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step e-step--good">
+      <div class="e-step-head">
+        <span class="e-num">08</span>
+        <h2>つなぎ目を縛るテストを足した</h2>
+        <span class="e-chip e-chip--fix">再発防止</span>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>足したテストは 2 本。1 本目は素直に「刷られたスタンプは朝の時刻か?」を見ます。</p>
+          <p>2 本目が本題です。<strong>取り替えを 2 回続けて</strong> 行い、しかも 2 回目に渡すのは <span class="e-good">1 回目が実際に作った券そのもの</span>。テストが用意した都合のいい券ではありません。</p>
+          <p>だから「写す側」と「読む側」が食い違えば、必ずこのテストが落ちます。実際に片方ずつ壊して確かめました — 読む側を壊すと 2 本とも落ち、写す側を壊すと 2 本目だけが落ちる。1 本目では見えない穴を、2 本目が見ている証拠です。</p>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <svg viewBox="0 0 440 230" role="img" aria-label="1回目の取り替えが作った券を2回目の入力にすることで、写す側と読む側のつなぎ目を検査するテストの図">
+            <text x="28" y="34" font-size="12.5" font-family="var(--e-body)" fill="var(--e-ink-soft)">1 回目（12 時）</text>
+            <rect x="24" y="44" width="112" height="58" rx="10" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2.5"/>
+            <text x="80" y="79" text-anchor="middle" font-family="var(--e-mono)" font-size="16" fill="var(--e-ink)">券 A</text>
+            <path d="M150 73 L204 73" stroke="var(--e-ink-soft)" stroke-width="3" stroke-linecap="round"/>
+            <path d="M194 65 L204 73 L194 81" fill="none" stroke="var(--e-ink-soft)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="218" y="44" width="112" height="58" rx="10" fill="var(--e-surface)" stroke="var(--e-accent)" stroke-width="3"/>
+            <text x="274" y="79" text-anchor="middle" font-family="var(--e-mono)" font-size="16" fill="var(--e-accent)">券 B</text>
+            <text x="356" y="79" font-size="11.5" font-family="var(--e-body)" fill="var(--e-accent)">実際に</text>
+            <text x="356" y="95" font-size="11.5" font-family="var(--e-body)" fill="var(--e-accent)">作られた券</text>
+
+            <!-- feed B back as the second input -->
+            <path d="M274 108 Q274 140 200 140 Q80 140 80 158" fill="none" stroke="var(--e-accent)" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 0"/>
+            <path d="M72 148 L80 158 L88 148" fill="none" stroke="var(--e-accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <text x="196" y="132" text-anchor="middle" font-size="11.5" font-family="var(--e-body)" fill="var(--e-accent)">これをそのまま次に渡す</text>
+
+            <text x="28" y="186" font-size="12.5" font-family="var(--e-body)" fill="var(--e-ink-soft)">2 回目（15 時）</text>
+            <rect x="24" y="196" width="112" height="28" rx="8" fill="var(--e-sunk)" stroke="var(--e-accent)" stroke-width="2.5"/>
+            <text x="80" y="216" text-anchor="middle" font-family="var(--e-mono)" font-size="14" fill="var(--e-accent)">券 B</text>
+            <text x="152" y="216" font-size="12.5" font-family="var(--e-body)" fill="var(--e-ink)">→ スタンプは <tspan font-family="var(--e-mono)" font-weight="700" fill="var(--e-accent)">9:00</tspan> のままか?</text>
+          </svg>
+          <figcaption>2 回目の入力を自前で作らないのが要点。作らせたものを食わせるから、つなぎ目が試される。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step">
+      <div class="e-step-head">
+        <span class="e-num">09</span>
+        <h2>たとえと、ほんとう</h2>
+      </div>
+      <div class="e-map">
+        <table>
+          <tbody>
+            <tr><td>入口での本人確認</td><td>ログイン（認証）</td></tr>
+            <tr><td>手の甲のスタンプ</td><td>auth_time クレーム</td></tr>
+            <tr><td>1 時間で切れる通行証</td><td>アクセストークン / ID トークン</td></tr>
+            <tr><td>取り替え券</td><td>リフレッシュトークン</td></tr>
+            <tr><td>券の裏の「元の確認時刻」欄</td><td>リフレッシュトークンに保存された認証時刻</td></tr>
+            <tr><td>貴重書コーナーの 3 時間ルール</td><td>max_age / 段階的な再認証</td></tr>
+            <tr><td>壁の時計を見ていた</td><td>再発行時の現在時刻を書いていた</td></tr>
+            <tr><td>部品は全部合格していた</td><td>単体テストは全て通っていた</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <section class="e-close">
+    <h2>ひとことで言うと</h2>
+    <p>「いつ本人確認したか」は、確認したその時刻を持ち歩かないと意味がありません。取り替えのたびに今の時刻で押し直すと、記録は常に新品で、<strong>もう一度確認すべき時が永遠に来なくなる</strong>。<br>直したのは 1 行。抜けていたのは部品ではなく、部品と部品のつなぎ目でした。</p>
+  </section>
+
+  <div class="e-foot">
+    <p>正しい値はすでに保存されていて、読む側の 1 行だけが入っていなかった、という形のバグです。前の作業が「保存する」までを出荷して「使う」を入れずに終わっていたため、その間ずっと記録は上書きされ続けていました。</p>
+  </div>
+</div>
+</body>
+</html>

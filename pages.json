@@ -20,6 +20,11 @@
     "summary": "外部サービス連携の OAuth で、照合用トークンが偽造・並行消費・開始ブラウザ未検証だった 3 つの問題と、その直し方"
   },
   {
+    "path": "security/2026-08-31-refresh-resets-auth-time.html",
+    "title": "押し直された入館スタンプ",
+    "summary": "OIDC の auth_time クレームがリフレッシュのたびに現在時刻へ上書きされ、RP 側の max_age / step-up 再認証が永久に発火しなくなっていたバグと、部品単体のテストでは見えない合成の穴の話"
+  },
+  {
     "path": "tooling/2026-08-25-why-the-lint-cache-did-nothing.html",
     "title": "The Robot's Notebook",
     "summary": "ESLint の --cache が CI で効かなかった 3 つの理由。中身でキャッシュする、チェッカーごとに分ける、共有の置き場に保存する"
