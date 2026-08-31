@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>eli5</title>
-<meta name="description" content="7 本の絵で説明する解説。">
+<meta name="description" content="8 本の絵で説明する解説。">
 <style>
   :root { color-scheme: light dark; }
   body { font: 16px/1.7 system-ui, sans-serif; max-width: 42rem; margin: 4rem auto; padding: 0 1.5rem; }
@@ -25,6 +25,10 @@
 <h1>eli5</h1>
 <h2>security</h2>
 <ul>
+  <li>
+    <a href="security/2026-08-31-refresh-resets-auth-time.html"><time>2026-08-31</time>押し直された入館スタンプ</a>
+    <p class="sum">OIDC の auth_time クレームがリフレッシュのたびに現在時刻へ上書きされ、RP 側の max_age / step-up 再認証が永久に発火しなくなっていたバグと、部品単体のテストでは見えない合成の穴の話</p>
+  </li>
   <li>
     <a href="security/2026-08-29-oauth-state-ticket.html"><time>2026-08-29</time>クロークの引換札</a>
     <p class="sum">外部サービス連携の OAuth で、照合用トークンが偽造・並行消費・開始ブラウザ未検証だった 3 つの問題と、その直し方</p>
