@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<link rel="stylesheet" href="../eli5.css">
+<title>切らない電話</title>
+<meta name="description" content="リクエストのたびに張り直していたデータベースとキャッシュへの接続を、ワーカー単位で使い回せるようにした変更。接続を再利用したときの「前の作業の残り」と「2 本の取り違え」をどう塞いだか">
+</head>
+<body>
+<a class="eli5-up" href="../">&larr; eli5</a>
+<div class="e-page">
+  <header class="e-head">
+    <div>
+      <p class="e-eyebrow">CONNECTION</p>
+      <h1>切らない<br>電話</h1>
+      <p class="e-lede">用件は一瞬なのに、つながるまでが長い。だったら、切らなければいい。</p>
+    </div>
+    <div class="e-head-art">
+      <svg viewBox="0 0 220 150" aria-label="受話器と、何度もかけ直していることを表す繰り返しの矢印">
+        <g transform="rotate(-32 110 72)">
+          <rect x="62" y="62" width="96" height="18" rx="9" fill="var(--e-accent)"/>
+          <rect x="50" y="46" width="26" height="38" rx="8" fill="var(--e-accent)"/>
+          <rect x="144" y="46" width="26" height="38" rx="8" fill="var(--e-accent)"/>
+        </g>
+        <g fill="none" stroke="var(--e-ink-soft)" stroke-width="2.5" stroke-linecap="round">
+          <path d="M186 42a26 26 0 0 1 0 36"/>
+          <path d="M196 30a42 42 0 0 1 0 60" opacity="0.55"/>
+        </g>
+        <g fill="none" stroke="var(--e-warn)" stroke-width="2.5" stroke-linecap="round">
+          <path d="M34 118h140" stroke-dasharray="7 7"/>
+          <path d="M164 110l12 8-12 8"/>
+          <path d="M44 110l-12 8 12 8"/>
+        </g>
+      </svg>
+    </div>
+  </header>
+
+  <div class="e-steps">
+
+    <section class="e-step e-step--bad">
+      <div class="e-step-head">
+        <span class="e-num">01</span>
+        <h2>用事のたびに、電話をかけ直していた</h2>
+        <span class="e-chip e-chip--problem">これまで</span>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>お客さんが窓口に来るたび、担当者は倉庫に電話をかけます。<strong>ダイヤルして、呼び出して、相手が出て、名乗って、本人確認をして</strong>、やっと「あの荷物ある？」と聞ける。</p>
+          <p>用事が終わると、担当者は<span class="e-bad">受話器を置きます</span>。次のお客さんが来たら、また最初のダイヤルから。1 日に何万回も、同じ儀式を最初からやり直していました。</p>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <svg viewBox="0 0 320 140" aria-label="3 回の用事それぞれで、つなぐ時間が長く用件が短いことを示す帯グラフ">
+            <g font-size="11" fill="var(--e-ink-soft)" font-family="monospace">
+              <text x="4" y="26">1回目</text>
+              <text x="4" y="70">2回目</text>
+              <text x="4" y="114">3回目</text>
+            </g>
+            <g>
+              <rect x="46" y="14" width="196" height="16" rx="8" fill="var(--e-warn)"/>
+              <rect x="248" y="14" width="28" height="16" rx="8" fill="var(--e-accent)"/>
+              <rect x="46" y="58" width="196" height="16" rx="8" fill="var(--e-warn)"/>
+              <rect x="248" y="58" width="28" height="16" rx="8" fill="var(--e-accent)"/>
+              <rect x="46" y="102" width="196" height="16" rx="8" fill="var(--e-warn)"/>
+              <rect x="248" y="102" width="28" height="16" rx="8" fill="var(--e-accent)"/>
+            </g>
+            <g font-size="10" fill="var(--e-ink)" font-family="monospace">
+              <text x="112" y="45">つなぐまで</text>
+              <text x="238" y="45">用件</text>
+            </g>
+          </svg>
+          <figcaption>色の濃い方が用件。それより「つなぐまで」の方がずっと長い。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step e-step--bad">
+      <div class="e-step-head">
+        <span class="e-num">02</span>
+        <h2>しかも、電話は 3 本あった</h2>
+        <span class="e-chip e-chip--problem">これまで</span>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>かけ先はひとつではありません。<strong>台帳のある倉庫に 1 本、すぐ出せる棚に 2 本</strong>。棚の方は「よく使う荷物」と「一時的な預かり」で回線が分かれているので、2 本必要でした。</p>
+          <p>つまり <span class="e-bad">1 人のお客さんのために、最大 3 回の「つなぐ儀式」</span>。しかも回線は暗号化されているので、儀式そのものが余計に長い。</p>
+        </div>
+        <figure class="e-fig">
+          <svg viewBox="0 0 300 150" aria-label="窓口から 3 本の回線が別々の相手に伸びている図">
+            <rect x="10" y="55" width="70" height="44" rx="8" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2"/>
+            <text x="45" y="82" font-size="11" text-anchor="middle" fill="var(--e-ink)" font-family="monospace">窓口</text>
+            <g fill="none" stroke="var(--e-warn)" stroke-width="2.5">
+              <path d="M80 70C140 70 150 26 210 26"/>
+              <path d="M80 77h130"/>
+              <path d="M80 84C140 84 150 128 210 128"/>
+            </g>
+            <g>
+              <rect x="212" y="10" width="78" height="32" rx="7" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2"/>
+              <rect x="212" y="61" width="78" height="32" rx="7" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2"/>
+              <rect x="212" y="112" width="78" height="32" rx="7" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2"/>
+            </g>
+            <g font-size="10" text-anchor="middle" fill="var(--e-ink)" font-family="monospace">
+              <text x="251" y="30">台帳の倉庫</text>
+              <text x="251" y="81">棚 その1</text>
+              <text x="251" y="132">棚 その2</text>
+            </g>
+          </svg>
+          <figcaption>1 人のお客さんの後ろで、3 回の儀式が走っていた。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step e-step--good">
+      <div class="e-step-head">
+        <span class="e-num">03</span>
+        <h2>切らずに、保留にしておく</h2>
+        <span class="e-chip e-chip--fix">直した</span>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>やったことは、ひとことで言えばこれだけです。<strong>用事が終わっても受話器を置かず、机の上に保留のまま伏せておく。</strong></p>
+          <p>次のお客さんが来たら、その受話器を取り上げて、いきなり用件を言えばいい。ダイヤルも呼び出しも本人確認も、<span class="e-good">1 回目だけ</span>で済みます。</p>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <svg viewBox="0 0 320 140" aria-label="1 回目だけつなぐ時間があり、2 回目以降は用件だけになる帯グラフ">
+            <g font-size="11" fill="var(--e-ink-soft)" font-family="monospace">
+              <text x="4" y="26">1回目</text>
+              <text x="4" y="70">2回目</text>
+              <text x="4" y="114">3回目</text>
+            </g>
+            <rect x="46" y="14" width="196" height="16" rx="8" fill="var(--e-warn)"/>
+            <rect x="248" y="14" width="28" height="16" rx="8" fill="var(--e-accent)"/>
+            <g stroke="var(--e-line)" stroke-width="2" stroke-dasharray="4 5">
+              <line x1="46" y1="66" x2="242" y2="66"/>
+              <line x1="46" y1="110" x2="242" y2="110"/>
+            </g>
+            <rect x="248" y="58" width="28" height="16" rx="8" fill="var(--e-accent)"/>
+            <rect x="248" y="102" width="28" height="16" rx="8" fill="var(--e-accent)"/>
+          </svg>
+          <figcaption>点線のところが、まるごと消えた時間。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step">
+      <div class="e-step-head">
+        <span class="e-num">04</span>
+        <h2>心配ごと 1 — 前の人の話が、途中で残っていないか</h2>
+      </div>
+      <p>受話器を使い回すなら、当然こう思います。<strong>「前のお客さんが『荷物を出して』と言いかけたまま席を立ったら、その中途半端な状態が次の人に引き継がれるのでは？」</strong></p>
+      <p>これは本当に起きたら大事故なので、実際に試しました。半分だけ書きかけの伝票を残したまま受話器を置き、もう一度取り上げて確認する。結果は<span class="e-good">白紙に戻っていました</span>。受話器を置く瞬間に「言いかけたことは全部なかったことにする」巻き戻しが自動で走る仕組みが、電話機そのものに入っていたのです。</p>
+      <figure class="e-fig e-fig--panel">
+        <svg viewBox="0 0 320 120" aria-label="書きかけの伝票が、受話器を置くと白紙に戻る様子">
+          <rect x="16" y="20" width="86" height="80" rx="6" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2"/>
+          <g stroke="var(--e-warn)" stroke-width="3" stroke-linecap="round">
+            <line x1="30" y1="42" x2="86" y2="42"/>
+            <line x1="30" y1="58" x2="72" y2="58"/>
+            <line x1="30" y1="74" x2="52" y2="74"/>
+          </g>
+          <g fill="none" stroke="var(--e-accent)" stroke-width="3" stroke-linecap="round">
+            <path d="M132 60h50"/>
+            <path d="M172 50l12 10-12 10"/>
+            <path d="M150 34a30 30 0 0 1 0 52" stroke-dasharray="4 6" opacity="0.7"/>
+          </g>
+          <rect x="212" y="20" width="86" height="80" rx="6" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2"/>
+          <text x="255" y="66" font-size="11" text-anchor="middle" fill="var(--e-ink-soft)" font-family="monospace">白紙</text>
+        </svg>
+        <figcaption>試した結果。書きかけは残らなかった。</figcaption>
+      </figure>
+      <p class="e-note">「たぶん大丈夫」ではなく、実際に半端な状態を作って確かめました。心配ごとは、想像ではなく実験で潰します。</p>
+    </section>
+
+    <section class="e-step e-step--bad">
+      <div class="e-step-head">
+        <span class="e-num">05</span>
+        <h2>ただし、机に貼った付箋は残る</h2>
+        <span class="e-chip e-chip--problem">残る癖</span>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>同じ実験で、もうひとつ分かりました。<strong>伝票は白紙に戻るのに、机に貼った付箋のメモは残ります。</strong></p>
+          <p>今のところ、この窓口では誰も付箋を使っていません。だから今は問題ない。でも将来だれかが付箋を使い始めたら、<span class="e-bad">前のお客さんのメモを見ながら仕事をする</span>ことになります。そこで「ここは付箋が残る場所だ」と、机に貼り紙をしておきました。</p>
+        </div>
+        <figure class="e-fig">
+          <svg viewBox="0 0 260 130" aria-label="伝票は消えるが付箋は残ることを示す図">
+            <rect x="20" y="24" width="96" height="82" rx="6" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2"/>
+            <text x="68" y="70" font-size="11" text-anchor="middle" fill="var(--e-ink-soft)" font-family="monospace">伝票 → 消える</text>
+            <rect x="150" y="34" width="70" height="62" rx="4" fill="var(--e-mark)" opacity="0.85"/>
+            <g stroke="var(--e-ink)" stroke-width="2.5" stroke-linecap="round" opacity="0.75">
+              <line x1="163" y1="54" x2="207" y2="54"/>
+              <line x1="163" y1="68" x2="197" y2="68"/>
+            </g>
+            <text x="185" y="118" font-size="11" text-anchor="middle" fill="var(--e-ink)" font-family="monospace">付箋 → 残る</text>
+          </svg>
+          <figcaption>消えるものと残るものを、はっきり分けて書き残した。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step e-step--bad">
+      <div class="e-step-head">
+        <span class="e-num">06</span>
+        <h2>心配ごと 2 — 2 本の電話を、1 本と間違える</h2>
+        <span class="e-chip e-chip--problem">見つけた罠</span>
+      </div>
+      <p>棚には回線が 2 本ありました。<strong>この 2 本、機械から見ると「同じ相手・同じ設定」なので、見分けがつきません。</strong>保留にした受話器を机に伏せておくと、2 本のはずが 1 本にまとまってしまう設定が存在します。</p>
+      <p>そうなると何が起きるか。1 本になった電話で「その1 の棚につないで」と言い直すたび、<span class="e-bad">もう一方の用事まで一緒に引っ越します</span>。お客さんの持ち物を預ける棚と、使い捨ての一時置き場が入れ替わる。しかも<strong>エラーは一切出ません</strong>。ただ静かに、間違った棚に入る。</p>
+      <figure class="e-fig e-fig--panel">
+        <svg viewBox="0 0 320 150" aria-label="2 本の回線が 1 本にまとまり、荷物が誤った棚に入る様子">
+          <rect x="10" y="58" width="64" height="40" rx="8" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2"/>
+          <text x="42" y="83" font-size="10" text-anchor="middle" fill="var(--e-ink)" font-family="monospace">窓口</text>
+          <g fill="none" stroke="var(--e-warn)" stroke-width="3">
+            <path d="M74 70C110 70 118 78 150 78"/>
+            <path d="M74 86C110 86 118 78 150 78"/>
+            <path d="M150 78h44"/>
+          </g>
+          <circle cx="150" cy="78" r="6" fill="var(--e-warn)"/>
+          <text x="150" y="112" font-size="10" text-anchor="middle" fill="var(--e-warn)" font-family="monospace">1本になる</text>
+          <rect x="198" y="20" width="106" height="40" rx="7" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2" stroke-dasharray="5 5"/>
+          <text x="251" y="45" font-size="10" text-anchor="middle" fill="var(--e-ink-soft)" font-family="monospace">本来の棚（空）</text>
+          <rect x="198" y="96" width="106" height="40" rx="7" fill="var(--e-surface)" stroke="var(--e-warn)" stroke-width="2"/>
+          <text x="251" y="121" font-size="10" text-anchor="middle" fill="var(--e-warn)" font-family="monospace">違う棚に全部入る</text>
+        </svg>
+        <figcaption>実際に手元で再現した。荷物は静かに、全部もう一方の棚へ。</figcaption>
+      </figure>
+      <p class="e-note">この設定は「普段は安全な側」が初期値です。でも初期値は、いつか誰かが変えられます。しかも電話機のメーカーとバージョンは自動で上がり続けるので、「今の初期値が明日も同じ」とは言えません。</p>
+    </section>
+
+    <section class="e-step e-step--good">
+      <div class="e-step-head">
+        <span class="e-num">07</span>
+        <h2>だから、電話に名札を付けた</h2>
+        <span class="e-chip e-chip--fix">直した</span>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>2 本の電話に、<strong>それぞれ違う名札</strong>を貼りました。「棚 その1 用」「棚 その2 用」。名札が違えば、機械はもう 2 本をまとめません。</p>
+          <p>普段の設定では、この名札は<span class="e-say">まったく使われません</span>。何も変わらない。でも設定が切り替わった瞬間だけ、名札が効いて事故を止めます。<strong>紙 2 枚ぶんの手間で、静かな事故がひとつ消えます。</strong></p>
+        </div>
+        <figure class="e-fig">
+          <svg viewBox="0 0 300 150" aria-label="名札を付けた 2 本の回線が別々の棚につながる図">
+            <rect x="8" y="56" width="60" height="40" rx="8" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2"/>
+            <text x="38" y="81" font-size="10" text-anchor="middle" fill="var(--e-ink)" font-family="monospace">窓口</text>
+            <g fill="none" stroke="var(--e-accent)" stroke-width="3">
+              <path d="M68 68C130 68 140 36 196 36"/>
+              <path d="M68 84C130 84 140 118 196 118"/>
+            </g>
+            <g fill="var(--e-mark)">
+              <rect x="112" y="34" width="34" height="17" rx="4"/>
+              <rect x="112" y="104" width="34" height="17" rx="4"/>
+            </g>
+            <g font-size="9" text-anchor="middle" fill="var(--e-ink)" font-family="monospace">
+              <text x="129" y="46">名札A</text>
+              <text x="129" y="116">名札B</text>
+            </g>
+            <rect x="198" y="18" width="92" height="36" rx="7" fill="var(--e-surface)" stroke="var(--e-accent)" stroke-width="2"/>
+            <rect x="198" y="100" width="92" height="36" rx="7" fill="var(--e-surface)" stroke="var(--e-accent)" stroke-width="2"/>
+            <g font-size="10" text-anchor="middle" fill="var(--e-ink)" font-family="monospace">
+              <text x="244" y="40">棚 その1</text>
+              <text x="244" y="122">棚 その2</text>
+            </g>
+          </svg>
+          <figcaption>名札があれば、どの設定でも 2 本は 2 本のまま。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step">
+      <div class="e-step-head">
+        <span class="e-num">08</span>
+        <h2>保留の電話は、何本まで置ける？</h2>
+      </div>
+      <p>受話器を置かないということは、<strong>回線を占領し続ける</strong>ということです。担当者が増えれば、保留の電話も増える。交換機には「同時に受けられる本数」の上限があるので、そこを超えたら新しいお客さんが誰もつながらなくなります。</p>
+      <p>ここが一番怖いところでした。上限の値は交換機のメーカーが公開しておらず、<span class="e-say">「自分の交換機に聞いてください」</span>としか書かれていない。なので、聞きました。</p>
+      <div class="e-bars">
+        <div class="e-bar">
+          <span>交換機の上限</span>
+          <span class="e-bar-track"><span class="e-bar-fill" style="width:100%"></span></span>
+          <span class="e-bar-num">4030</span>
+        </div>
+        <div class="e-bar">
+          <span>最大でも使う数</span>
+          <span class="e-bar-track"><span class="e-bar-fill" style="width:3.7%"></span></span>
+          <span class="e-bar-num">150</span>
+        </div>
+      </div>
+      <p>27 倍の余裕がありました。おまけに、ひとまわり小さい交換機でも同じ 4030 で、<strong>上限は機械の大きさに比例していない</strong>ことも分かりました。「小さい方は半分くらいだろう」という予想は外れたので、推測せず測ったのは正解でした。</p>
+      <p class="e-note">この確認は、少しずつ出す方式では代わりになりません。少しずつ出しても、混み合ってきて担当者が増えたときに初めて上限に当たるからです。危ないのは「出した直後」ではなく「流行った後」。</p>
+    </section>
+
+    <section class="e-step e-step--good">
+      <div class="e-step-head">
+        <span class="e-num">09</span>
+        <h2>スイッチは、切ったまま出荷した</h2>
+        <span class="e-chip e-chip--fix">安全側</span>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>この仕組みは作りましたが、<strong>スイッチは OFF のまま</strong>置いてあります。出荷しても、今日の窓口は今までどおり毎回かけ直します。</p>
+          <p>理由は単純で、交換機の上限を測り終わる前に勝手に始まってほしくないから。「あとで確認します」と書き置きするのではなく、<span class="e-good">物理的に動かないようにしておく</span>。書き置きは守られないことがありますが、OFF のスイッチは守られます。</p>
+        </div>
+        <figure class="e-fig">
+          <svg viewBox="0 0 260 130" aria-label="OFF の位置にあるスイッチ">
+            <rect x="40" y="34" width="180" height="62" rx="31" fill="var(--e-sunk)" stroke="var(--e-line)" stroke-width="2"/>
+            <circle cx="71" cy="65" r="22" fill="var(--e-ink-soft)"/>
+            <text x="160" y="71" font-size="16" text-anchor="middle" fill="var(--e-ink-soft)" font-family="monospace">OFF</text>
+          </svg>
+          <figcaption>作った。まだ入れていない。この 2 つは別のこと。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step">
+      <div class="e-step-head">
+        <span class="e-num">10</span>
+        <h2>速くなるのは「つなぐまで」だけ</h2>
+      </div>
+      <p>最後に、盛らないための注意書きです。切らずに済むようになるのは<strong>ダイヤル・呼び出し・本人確認</strong>の部分だけ。受話器を取り上げたあと、毎回かならず言うことがまだ残っています。</p>
+      <dl class="e-tally">
+        <div>
+          <dt>消えた</dt>
+          <dd>つなぐ儀式<small>ダイヤル・暗号のすり合わせ・本人確認</small></dd>
+        </div>
+        <div>
+          <dt>残る</dt>
+          <dd>毎回の名乗り<small>「わたしです」「その1 の棚で」</small></dd>
+        </div>
+        <div>
+          <dt>残る</dt>
+          <dd>倉庫での前置き<small>「あの台帳で」「日本時間で」</small></dd>
+        </div>
+      </dl>
+      <p>だから「接続の時間がゼロになる」とは書きませんでした。<span class="e-say">「同じ担当者が同じ相手にかけ直すときの、つなぐ儀式のぶん」</span>——効くのはその区間だけです。どこまで効くかを言わない自慢は、あとで誰かを困らせます。</p>
+    </section>
+
+  </div>
+
+  <div class="e-map">
+    <table>
+      <tbody>
+        <tr><th>電話をかける</th><td>データベース / キャッシュへの接続</td></tr>
+        <tr><th>ダイヤルから本人確認まで</th><td>TCP + TLS + 認証のハンドシェイク</td></tr>
+        <tr><th>受話器を置かず保留にする</th><td>永続接続（コネクションの再利用）</td></tr>
+        <tr><th>担当者</th><td>アプリケーションのワーカープロセス</td></tr>
+        <tr><th>棚 その1 / その2</th><td>キャッシュ用の 2 つの論理データベース</td></tr>
+        <tr><th>電話の名札</th><td>接続ごとの識別子</td></tr>
+        <tr><th>書きかけの伝票が白紙に戻る</th><td>未コミットのトランザクションの自動ロールバック</td></tr>
+        <tr><th>机に残る付箋</th><td>セッション変数・一時テーブル</td></tr>
+        <tr><th>交換機の上限</th><td>データベースの最大同時接続数</td></tr>
+        <tr><th>OFF のスイッチ</th><td>既定オフの環境変数フラグ</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <section class="e-close">
+    <h2>ひとことで言うと</h2>
+    <p>用件より「つなぐまで」の方が長かったので、電話を切らずに保留にした。使い回しで怖いのは「前の人の残り」と「2 本の取り違え」の 2 つで、前者は電話機が自分で巻き戻すことを実験で確かめ、後者は名札を貼って塞いだ。回線の本数に余裕があるかは推測せず交換機に聞いた。そしてスイッチは、確かめ終わるまで切ったままにしてある。</p>
+  </section>
+
+  <p class="e-foot">速くする変更のいちばん難しいところは、速くすることではなく、<strong>速くしたせいで静かに壊れる場所を先に見つけること</strong>でした。</p>
+</div>
+</body>
+</html>
