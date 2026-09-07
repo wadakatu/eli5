@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>eli5</title>
-<meta name="description" content="10 本の絵で説明する解説。">
+<meta name="description" content="11 本の絵で説明する解説。">
 <style>
   :root { color-scheme: light dark; }
   body { font: 16px/1.7 system-ui, sans-serif; max-width: 42rem; margin: 4rem auto; padding: 0 1.5rem; }
@@ -25,6 +25,10 @@
 <h1>eli5</h1>
 <h2>infra</h2>
 <ul>
+  <li>
+    <a href="infra/2026-09-07-clerk-goes-home-after-500.html"><time>2026-09-07</time>500 人接客したら交代</a>
+    <p class="sum">本番 API サーバの php-fpm worker が夜間だけ入れ替わらず、インスタンスのメモリが 230MiB から 1.2〜1.7GiB まで膨らんでいた話。pm.max_requests = 500 で worker の寿命に上限を付け、接客を終えてから穏やかに退勤させる修正</p>
+  </li>
   <li>
     <a href="infra/2026-09-02-persistent-connections.html"><time>2026-09-02</time>切らない電話</a>
     <p class="sum">リクエストのたびに張り直していたデータベースとキャッシュへの接続を、ワーカー単位で使い回せるようにした変更。接続を再利用したときの「前の作業の残り」と「2 本の取り違え」をどう塞いだか</p>
