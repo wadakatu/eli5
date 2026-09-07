@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<link rel="stylesheet" href="../eli5.css">
+<title>500 人接客したら交代</title>
+<meta name="description" content="本番 API サーバの php-fpm worker が夜間だけ入れ替わらず、インスタンスのメモリが 230MiB から 1.2〜1.7GiB まで膨らんでいた話。pm.max_requests = 500 で worker の寿命に上限を付け、接客を終えてから穏やかに退勤させる修正">
+<style>
+@media (prefers-reduced-motion: no-preference) {
+  .e-pocket-fill { animation: e-pocket 6s ease-in-out infinite; transform-origin: 50% 100%; }
+  @keyframes e-pocket { 0%, 10% { transform: scaleY(0.15); } 70%, 100% { transform: scaleY(1); } }
+}
+</style>
+</head>
+<body>
+<a class="eli5-up" href="../">&larr; eli5</a>
+<div class="e-page">
+  <header class="e-head">
+    <div>
+      <p class="e-eyebrow">WORKER LIFETIME</p>
+      <h1>500 人接客したら<br>交代</h1>
+      <p class="e-lede">昼は勝手に交代していた。夜だけ、同じ人がずっとレジに立っていた。</p>
+    </div>
+    <div class="e-head-art">
+      <svg viewBox="0 0 220 150" aria-label="レジに立つ店員と、500 を指すカウンター">
+        <rect x="30" y="96" width="160" height="34" rx="6" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2"/>
+        <circle cx="110" cy="52" r="18" fill="var(--e-accent)"/>
+        <rect x="88" y="72" width="44" height="30" rx="10" fill="var(--e-accent)"/>
+        <rect x="140" y="40" width="58" height="26" rx="6" fill="var(--e-ink)"/>
+        <text x="169" y="58" text-anchor="middle" font-size="14" font-family="monospace" fill="var(--e-surface)">500</text>
+        <path d="M60 60 l-14 0" stroke="var(--e-ink-soft)" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M52 52 l-8 8 8 8" fill="none" stroke="var(--e-ink-soft)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="30" cy="60" r="9" fill="var(--e-mark)"/>
+      </svg>
+    </div>
+  </header>
+
+  <div class="e-steps">
+
+    <section class="e-step">
+      <div class="e-step-head">
+        <span class="e-num">01</span>
+        <h2>店員は、接客のたびにポケットが少しずつ重くなる</h2>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>API サーバの中には、お客さん（リクエスト）をさばく<strong>店員</strong>が 5 人います。1 人のお客さんを終えるたびに、店員のポケットには小さなゴミが少しずつたまります。使い終わった紙、メモの切れはし。1 人分なら軽い。</p>
+          <p>本来これは大した問題ではありません。<strong>店員はいずれ交代する</strong>ので、ポケットの中身ごと店の外へ出ていくからです。</p>
+        </div>
+        <figure class="e-fig">
+          <svg viewBox="0 0 320 150" aria-label="接客を重ねるごとにポケットが膨らむ店員">
+            <g>
+              <circle cx="60" cy="40" r="16" fill="var(--e-accent)"/>
+              <rect x="40" y="60" width="40" height="60" rx="10" fill="var(--e-accent)"/>
+              <rect x="46" y="96" width="28" height="18" rx="4" fill="var(--e-surface)"/>
+              <rect x="48" y="110" width="24" height="3" fill="var(--e-warn)"/>
+            </g>
+            <g>
+              <circle cx="160" cy="40" r="16" fill="var(--e-accent)"/>
+              <rect x="140" y="60" width="40" height="60" rx="10" fill="var(--e-accent)"/>
+              <rect x="146" y="90" width="28" height="24" rx="4" fill="var(--e-surface)"/>
+              <rect x="148" y="102" width="24" height="10" fill="var(--e-warn)"/>
+            </g>
+            <g>
+              <circle cx="260" cy="40" r="16" fill="var(--e-accent)"/>
+              <rect x="240" y="60" width="40" height="60" rx="10" fill="var(--e-accent)"/>
+              <rect x="244" y="80" width="32" height="34" rx="4" fill="var(--e-surface)"/>
+              <rect x="246" y="86" width="28" height="26" fill="var(--e-warn)" class="e-pocket-fill"/>
+            </g>
+            <g font-size="11" font-family="monospace" fill="var(--e-ink-soft)" text-anchor="middle">
+              <text x="60" y="142">10 人</text>
+              <text x="160" y="142">100 人</text>
+              <text x="260" y="142">1,000 人</text>
+            </g>
+          </svg>
+          <figcaption>接客した人数が増えるほど、ポケットの中身（メモリ）が増える。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step">
+      <div class="e-step-head">
+        <span class="e-num">02</span>
+        <h2>店長の交代ルールは、1 つしか無かった</h2>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>店長（php-fpm の親プロセス）は毎秒、店内を見回します。ルールはこれだけ。</p>
+          <p class="e-say">ヒマな店員が 4 人以上いたら、いちばん長く立っている 1 人を帰す。</p>
+          <p>「何人接客したか」は見ていません。「何時間立っているか」も見ていません。<strong>ヒマな人が多すぎるかどうか</strong>、それだけです。</p>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <svg viewBox="0 0 320 130" aria-label="5 人の店員のうち 4 人がヒマで、いちばん古い 1 人に帰る矢印が付いている">
+            <g>
+              <circle cx="40" cy="44" r="13" fill="var(--e-warn)"/>
+              <rect x="26" y="60" width="28" height="40" rx="8" fill="var(--e-warn)"/>
+              <circle cx="105" cy="44" r="13" fill="var(--e-ink-soft)"/>
+              <rect x="91" y="60" width="28" height="40" rx="8" fill="var(--e-ink-soft)"/>
+              <circle cx="170" cy="44" r="13" fill="var(--e-ink-soft)"/>
+              <rect x="156" y="60" width="28" height="40" rx="8" fill="var(--e-ink-soft)"/>
+              <circle cx="235" cy="44" r="13" fill="var(--e-ink-soft)"/>
+              <rect x="221" y="60" width="28" height="40" rx="8" fill="var(--e-ink-soft)"/>
+              <circle cx="295" cy="44" r="13" fill="var(--e-accent)"/>
+              <rect x="281" y="60" width="28" height="40" rx="8" fill="var(--e-accent)"/>
+            </g>
+            <path d="M40 106 v14" stroke="var(--e-warn)" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M34 114 l6 8 6-8" fill="none" stroke="var(--e-warn)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <g font-size="10" font-family="monospace" fill="var(--e-ink-soft)">
+              <text x="60" y="20">ヒマ 4 人（多すぎ）</text>
+              <text x="262" y="20">接客中</text>
+              <text x="52" y="122">いちばん古い人が帰る</text>
+            </g>
+          </svg>
+          <figcaption>ヒマな人が 3 人までなら、誰も帰らない。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step">
+      <div class="e-step-head">
+        <span class="e-num">03</span>
+        <h2>昼は、このルールだけで 3 分に 1 人交代していた</h2>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>昼はお客さんが波のように来ます。波が引いた瞬間にヒマな店員が 4 人になり、1 人帰る。また波が来て、引いて、1 人帰る。測ってみると<strong>1 つの店で 3 分に 1 人</strong>が入れ替わっていました。</p>
+          <p>3 分では、ポケットはほとんど膨らみません。だから昼は何も起きていないように見えた。</p>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <svg viewBox="0 0 320 120" aria-label="昼の来客の波と、波が引くたびに起きる交代の印">
+            <path d="M10 80 C30 30 50 30 70 80 S110 130 130 80 S170 30 190 80 S230 130 250 80 S290 30 310 80" fill="none" stroke="var(--e-ink-soft)" stroke-width="2.5"/>
+            <line x1="10" y1="80" x2="310" y2="80" stroke="var(--e-line)" stroke-width="1.5" stroke-dasharray="4 4"/>
+            <g fill="var(--e-accent)">
+              <circle cx="130" cy="80" r="6"/>
+              <circle cx="250" cy="80" r="6"/>
+              <circle cx="10" cy="80" r="6"/>
+            </g>
+            <g font-size="10" font-family="monospace" fill="var(--e-ink-soft)">
+              <text x="12" y="104">● = 波が引いて 1 人交代</text>
+              <text x="240" y="24">昼</text>
+            </g>
+          </svg>
+          <figcaption>波が引くたびに交代。ポケットが重くなる前に、みんな帰る。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step e-step--bad">
+      <div class="e-step-head">
+        <span class="e-num">04</span>
+        <h2>夜はヒマなのに、誰も帰れない</h2>
+        <span class="e-chip e-chip--problem">問題</span>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>夜中の 1 時から 8 時は、お客さんがまばらに、でも途切れずに来ます。同時にさばいているのはだいたい 2〜3 人。ヒマな店員は 2〜3 人。<span class="e-bad">4 人には届かない</span>。</p>
+          <p>店長のルールは発動しません。<strong>同じ店員が 1〜2 時間、毎分 14 人を接客し続ける</strong>ことになり、ポケットは膨らみ続けます。朝 8 時を過ぎてお客さんが増えると波ができて交代が始まり、古い店員から順に帰っていく。だから朝 10 時には元に戻る。</p>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <div class="e-bars">
+            <div class="e-bar"><span>01:45</span><div class="e-bar-track"><div class="e-bar-fill" style="width:14%"></div></div><span class="e-bar-num">241 MiB</span></div>
+            <div class="e-bar e-bar--slow"><span>03:00</span><div class="e-bar-track"><div class="e-bar-fill" style="width:29%"></div></div><span class="e-bar-num">492 MiB</span></div>
+            <div class="e-bar e-bar--slow"><span>05:00</span><div class="e-bar-track"><div class="e-bar-fill" style="width:47%"></div></div><span class="e-bar-num">794 MiB</span></div>
+            <div class="e-bar e-bar--slow"><span>07:00</span><div class="e-bar-track"><div class="e-bar-fill" style="width:54%"></div></div><span class="e-bar-num">922 MiB</span></div>
+            <div class="e-bar e-bar--slow"><span>08:15</span><div class="e-bar-track"><div class="e-bar-fill" style="width:58%"></div></div><span class="e-bar-num">983 MiB</span></div>
+            <div class="e-bar"><span>09:00</span><div class="e-bar-track"><div class="e-bar-fill" style="width:39%"></div></div><span class="e-bar-num">666 MiB</span></div>
+            <div class="e-bar"><span>10:00</span><div class="e-bar-track"><div class="e-bar-fill" style="width:14%"></div></div><span class="e-bar-num">230 MiB</span></div>
+          </div>
+          <figcaption>本番の中央値の店（インスタンス）で測ったメモリ。日曜の夜でも同じ形になる。混んでいる店だと 1.7 GiB まで行く。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step e-step--good">
+      <div class="e-step-head">
+        <span class="e-num">05</span>
+        <h2>ルールをもう 1 つ足す: 500 人接客したら交代</h2>
+        <span class="e-chip e-chip--fix">直した</span>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>店員に<strong>カウンター</strong>を持たせます。お客さんを 1 人終えるたびに 1 つ進み、<span class="e-good">500 になったら自分から帰る</span>。店長はすぐ新しい人を入れるので、店員の数は減りません。</p>
+          <p>夜の毎分 14 人なら 35 分で交代。昼の毎分 60 人なら 8 分ですが、昼はもともと 3 分で交代しているので、<strong>実際に効くのは夜だけ</strong>です。</p>
+        </div>
+        <figure class="e-fig">
+          <svg viewBox="0 0 320 140" aria-label="カウンターが 500 に達した店員が出口へ向かい、新しい店員が入ってくる">
+            <g>
+              <circle cx="90" cy="44" r="16" fill="var(--e-ink-soft)"/>
+              <rect x="70" y="64" width="40" height="56" rx="10" fill="var(--e-ink-soft)"/>
+              <rect x="76" y="86" width="28" height="30" rx="4" fill="var(--e-surface)"/>
+              <rect x="78" y="90" width="24" height="24" fill="var(--e-warn)"/>
+            </g>
+            <rect x="60" y="8" width="60" height="22" rx="5" fill="var(--e-ink)"/>
+            <text x="90" y="24" text-anchor="middle" font-size="12" font-family="monospace" fill="var(--e-surface)">500</text>
+            <path d="M120 92 h40" stroke="var(--e-accent)" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M152 84 l8 8-8 8" fill="none" stroke="var(--e-accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="168" y="56" width="4" height="70" fill="var(--e-line)"/>
+            <text x="170" y="48" text-anchor="middle" font-size="10" font-family="monospace" fill="var(--e-ink-soft)">出口</text>
+            <g>
+              <circle cx="250" cy="44" r="16" fill="var(--e-accent)"/>
+              <rect x="230" y="64" width="40" height="56" rx="10" fill="var(--e-accent)"/>
+              <rect x="236" y="100" width="28" height="16" rx="4" fill="var(--e-surface)"/>
+            </g>
+            <rect x="220" y="8" width="60" height="22" rx="5" fill="var(--e-ink)"/>
+            <text x="250" y="24" text-anchor="middle" font-size="12" font-family="monospace" fill="var(--e-surface)">0</text>
+          </svg>
+          <figcaption>500 で帰る。空のポケットで、次の人が立つ。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step e-step--good">
+      <div class="e-step-head">
+        <span class="e-num">06</span>
+        <h2>追い出すのではなく、接客を終えてから帰る</h2>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>ここが大事です。500 人目のお客さんを<strong>最後までさばき、お釣りも渡し、片付けも終えてから</strong>店員は帰ります。カウンターが 500 になるかどうかを見るのは、片付け（リクエストの後始末）の後だからです。</p>
+          <p>「時間切れで途中で腕をつかんで外に出す」やり方も php-fpm にはありますが、それはお釣りを渡す途中で連れ出すのと同じで、<span class="e-bad">後始末が飛ぶ</span>。この店ではそちらを使わない決まりになっていて、今回の交代はその決まりに触れません。</p>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <svg viewBox="0 0 320 130" aria-label="上段は接客の途中で連れ出される店員、下段は接客と片付けを終えてから帰る店員">
+              <g font-size="10" font-family="monospace" fill="var(--e-ink-soft)">
+                <text x="6" y="22">途中で連れ出す</text>
+                <text x="6" y="86">終えてから帰る</text>
+              </g>
+              <g>
+                <rect x="120" y="10" width="90" height="16" rx="8" fill="var(--e-accent)"/>
+                <rect x="210" y="10" width="40" height="16" rx="8" fill="var(--e-line)"/>
+                <line x1="170" y1="4" x2="170" y2="32" stroke="var(--e-warn)" stroke-width="3" stroke-linecap="round"/>
+                <text x="176" y="44" font-size="10" font-family="monospace" fill="var(--e-warn)">ここで切られる</text>
+              </g>
+              <g>
+                <rect x="120" y="74" width="90" height="16" rx="8" fill="var(--e-accent)"/>
+                <rect x="210" y="74" width="40" height="16" rx="8" fill="var(--e-accent)" opacity="0.55"/>
+                <circle cx="266" cy="82" r="7" fill="var(--e-mark)"/>
+                <text x="120" y="108" font-size="10" font-family="monospace" fill="var(--e-ink-soft)">接客</text>
+                <text x="212" y="108" font-size="10" font-family="monospace" fill="var(--e-ink-soft)">片付け</text>
+                <text x="258" y="108" font-size="10" font-family="monospace" fill="var(--e-ink-soft)">帰る</text>
+              </g>
+          </svg>
+          <figcaption>500 人目の判定は「片付け」の後。途中で切れることはない。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step">
+      <div class="e-step-head">
+        <span class="e-num">07</span>
+        <h2>効いたかどうかは、日誌の「普通に退勤」で分かる</h2>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>店長は店員が帰るたびに日誌を書きます。追い出したときは「連れ出した」、自分から帰ったときは「<strong>普通に退勤</strong>」。この「普通に退勤」は、新ルールが発動して初めて出る行なので、これがあれば設定が効いています。</p>
+          <p>ひとつ注意。<strong>「連れ出した」の件数は減りません。</strong>店長の古いルールはヒマな人数で発動するので、店員が入れ替わっても回数は変わらない。効果を見るのは<span class="e-good">夜のメモリの曲線</span>です。</p>
+        </div>
+        <figure class="e-fig e-fig--panel">
+          <svg viewBox="0 0 320 120" aria-label="日誌の 2 種類の行。普通に退勤の行が新しく増えている">
+            <rect x="10" y="10" width="300" height="100" rx="8" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="1.5"/>
+            <g font-size="11" font-family="monospace">
+              <text x="24" y="36" fill="var(--e-ink-soft)">03:12  連れ出した（signal 9）</text>
+              <text x="24" y="58" fill="var(--e-ink-soft)">03:40  連れ出した（signal 9）</text>
+              <text x="24" y="80" fill="var(--e-accent)" font-weight="bold">03:47  普通に退勤（code 0）</text>
+              <text x="24" y="102" fill="var(--e-accent)" font-weight="bold">04:21  普通に退勤（code 0）</text>
+            </g>
+            <circle cx="298" cy="76" r="6" fill="var(--e-mark)"/>
+            <circle cx="298" cy="98" r="6" fill="var(--e-mark)"/>
+          </svg>
+          <figcaption>色の付いた行が新しく出てくる。上の行は今までどおり出続ける。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="e-step">
+      <div class="e-step-head">
+        <span class="e-num">08</span>
+        <h2>まず練習店で一晩見てから、本店に入れる</h2>
+      </div>
+      <div class="e-two">
+        <div>
+          <p>変更はまず<strong>練習店（ステージング）</strong>に入ります。本店（本番）へは人が手で「昇格」させないと届かない仕組みなので、勝手に本店へは行きません。</p>
+          <p>練習店で一晩、夜中 3〜5 時のメモリの曲線を前の晩と見比べて、ちゃんと平らになっていたら本店へ。ここで見ないまま昇格させると、比べる材料が無くなります。</p>
+        </div>
+        <figure class="e-fig">
+          <svg viewBox="0 0 320 130" aria-label="練習店から本店へ、門を挟んで矢印が伸びている。門には夜の曲線を確認する印">
+            <rect x="14" y="40" width="100" height="70" rx="8" fill="var(--e-surface)" stroke="var(--e-line)" stroke-width="2"/>
+            <text x="64" y="80" text-anchor="middle" font-size="12" font-family="monospace" fill="var(--e-ink)">練習店</text>
+            <rect x="206" y="40" width="100" height="70" rx="8" fill="var(--e-surface)" stroke="var(--e-accent)" stroke-width="2"/>
+            <text x="256" y="80" text-anchor="middle" font-size="12" font-family="monospace" fill="var(--e-ink)">本店</text>
+            <path d="M114 75 h86" stroke="var(--e-ink-soft)" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M192 67 l8 8-8 8" fill="none" stroke="var(--e-ink-soft)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="148" y="54" width="24" height="42" rx="4" fill="var(--e-mark)"/>
+            <path d="M136 30 C146 8 168 8 178 30" fill="none" stroke="var(--e-accent)" stroke-width="2.5" stroke-linecap="round"/>
+            <text x="160" y="122" text-anchor="middle" font-size="10" font-family="monospace" fill="var(--e-ink-soft)">一晩見てから、手で開ける</text>
+          </svg>
+          <figcaption>門は人が開ける。開ける前に、夜の曲線を見る。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="e-map">
+    <table>
+      <tbody>
+        <tr><th>店</th><td>API サーバのインスタンス</td></tr>
+        <tr><th>店員</th><td>php-fpm の worker プロセス</td></tr>
+        <tr><th>店長</th><td>php-fpm の master プロセス</td></tr>
+        <tr><th>ポケットの中身</th><td>worker が持ち続けるメモリ</td></tr>
+        <tr><th>ヒマな店員が 4 人以上なら古い人を帰す</th><td>pm = dynamic の idle 縮退（pm.max_spare_servers = 3）</td></tr>
+        <tr><th>500 人接客したら帰る</th><td>pm.max_requests = 500</td></tr>
+        <tr><th>途中で連れ出す</th><td>request_terminate_timeout（使わない）</td></tr>
+        <tr><th>日誌の「普通に退勤」</th><td>child N exited with code 0（NOTICE）</td></tr>
+        <tr><th>日誌の「連れ出した」</th><td>child N exited on signal 9</td></tr>
+        <tr><th>練習店 / 本店 / 門</th><td>staging / production / 手動 promote</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <section class="e-close">
+    <h2>ひとことで言うと</h2>
+    <p>店員が帰るきっかけが「ヒマな人が多すぎるとき」だけだったので、ヒマでも忙しくもない夜は誰も帰れず、ポケットが膨らみ続けていた。「500 人接客したら帰る」を足して、夜も 35 分で入れ替わるようにした。帰り方は、接客と片付けを終えてからの普通の退勤。</p>
+  </section>
+</div>
+</body>
+</html>
