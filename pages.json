@@ -15,6 +15,11 @@
     "summary": "本番 API サーバの php-fpm worker が夜間だけ入れ替わらず、インスタンスのメモリが 230MiB から 1.2〜1.7GiB まで膨らんでいた話。pm.max_requests = 500 で worker の寿命に上限を付け、接客を終えてから穏やかに退勤させる修正"
   },
   {
+    "path": "infra/2026-09-09-reset-connection-never-reconnects.html",
+    "title": "切れた糸電話",
+    "summary": "PHP の Redis クライアントで、接続断の警告が例外へ格上げされることでクライアント自身の再接続処理が飛ばされ、その後の操作まで失敗し続ける問題と、被害の数え方の訂正"
+  },
+  {
     "path": "security/2026-08-25-multi-org-login-pending-token.html",
     "title": "組織を選ぶ引換券",
     "summary": "複数の組織に属するユーザーのログインで、組織を選ぶ前にセッションを渡さず、1 回きり・5 分で失効する引換券トークンを挟む設計"
